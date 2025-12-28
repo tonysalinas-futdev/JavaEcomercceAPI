@@ -1,7 +1,6 @@
 package com.example.Ecomercce.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,9 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.example.Ecomercce.DTOs.PaginatedDtos.PaginatedResponseDTO;
 import com.example.Ecomercce.DTOs.ProductDTOs.CreateProductDTO;
 import com.example.Ecomercce.DTOs.ProductDTOs.ProductDetailsDTO;
@@ -21,6 +18,7 @@ import com.example.Ecomercce.DTOs.ProductDTOs.ProductListDTO;
 import com.example.Ecomercce.DTOs.ProductDTOs.SearchProductDTO;
 import com.example.Ecomercce.DTOs.ProductDTOs.UpdateProduct;
 import com.example.Ecomercce.Exceptions.AlreadyExistsException;
+import com.example.Ecomercce.Exceptions.DatabaseErrorException;
 import com.example.Ecomercce.Exceptions.InvalidRequestException;
 import com.example.Ecomercce.Exceptions.NotFoundException;
 import com.example.Ecomercce.Services.ProductService;
@@ -36,7 +34,7 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping("/create")
-    public ResponseEntity<?>saveProduct(@RequestBody @Valid CreateProductDTO dto) throws InvalidRequestException, AlreadyExistsException{
+    public ResponseEntity<?>saveProduct(@RequestBody @Valid CreateProductDTO dto) throws DatabaseErrorException,InvalidRequestException, AlreadyExistsException{
         ProductDetailsDTO product=productService.createProduct(dto);
 
         return ResponseEntity.status(201).body(product);
@@ -55,18 +53,18 @@ public class ProductController {
     }
 
     @PatchMapping("/update_product/{productId}")
-    public ResponseEntity<ProductDetailsDTO>updateProduct(@Valid UpdateProduct dto, @PathVariable @Positive Long productId)throws NotFoundException{
+    public ResponseEntity<ProductDetailsDTO>updateProduct(@Valid UpdateProduct dto, @PathVariable @Positive Long productId)throws NotFoundException,DatabaseErrorException{
         return ResponseEntity.status(200).body(productService.updateProduct(dto, productId));
     }
 
     @DeleteMapping("/delete_product/{productId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable @Positive Long productId)throws NotFoundException{
+    public ResponseEntity<?> deleteProduct(@PathVariable @Positive Long productId)throws NotFoundException,DatabaseErrorException{
         productService.deleteProduct(productId);
         return ResponseEntity.ok("Producto eliminado correctamente");
     }
 
     @PatchMapping("/update_product_category")
-    public ResponseEntity<ProductDetailsDTO>updateProductCategory(@Positive Long categoryId, @Positive Long productId) throws NotFoundException{
+    public ResponseEntity<ProductDetailsDTO>updateProductCategory(@Positive Long categoryId, @Positive Long productId) throws NotFoundException,DatabaseErrorException{
         
         return ResponseEntity.status(200).body(productService.updateCategory(categoryId, productId));}
     

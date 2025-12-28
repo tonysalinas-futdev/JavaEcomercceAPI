@@ -1,11 +1,12 @@
 package com.example.Ecomercce.Services;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
 import com.example.Ecomercce.DTOs.PaginatedDtos.PaginatedResponseDTO;
 import com.example.Ecomercce.DTOs.ProductDTOs.CreateProductDTO;
 import com.example.Ecomercce.DTOs.ProductDTOs.ProductDetailsDTO;
@@ -16,12 +17,13 @@ import com.example.Ecomercce.Mappers.ProductMappers;
 import com.example.Ecomercce.Repositories.CategoryRepository;
 import com.example.Ecomercce.Repositories.ProductRepository;
 import com.example.Ecomercce.Specifications.ProductSpecifications;
-
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import com.example.Ecomercce.Models.Category;
 import com.example.Ecomercce.Models.Product;
 import lombok.AllArgsConstructor;
 import com.example.Ecomercce.Exceptions.AlreadyExistsException;
+import com.example.Ecomercce.Exceptions.DatabaseErrorException;
 import com.example.Ecomercce.Exceptions.InvalidRequestException;
 import com.example.Ecomercce.Exceptions.NotFoundException;
 
@@ -31,9 +33,10 @@ public class ProductService {
     private ProductRepository productRepo;
     private ProductMappers productMapper;
     private CategoryRepository categoryRepo;
+    private static final Logger logger=LoggerFactory.getLogger(ProductService.class);
     
     @Transactional
-    public ProductDetailsDTO createProduct(CreateProductDTO dto)throws AlreadyExistsException,InvalidRequestException{
+    public ProductDetailsDTO createProduct(CreateProductDTO dto)throws AlreadyExistsException,InvalidRequestException,DatabaseErrorException{
         if (productRepo.getByName(dto.getName()).isPresent()) {
             throw new AlreadyExistsException("Ya existe un producto con ese nombre");}
         
@@ -42,8 +45,15 @@ public class ProductService {
         Category category=categoryRepo.findById(dto.getCategoryId()).orElseThrow(()-> new InvalidRequestException("La categoría asociada al producto no existe"));
 
         newProduct.setCategory(category);
-
-        productRepo.saveAndFlush(newProduct);
+        
+        try
+        {productRepo.saveAndFlush(newProduct);
+            logger.info("Guardado el producto con id={}",newProduct.getId());
+        }catch(PersistenceException ex)
+        {   logger.error("No se ha podido guardar el producto de nombre {}, Error: {}",newProduct.getName(),ex.getMessage());
+            throw new DatabaseErrorException("Error en la base de datos");
+        }
+        
         
         ProductDetailsDTO newDTO=productMapper.productToDetailsDTO(newProduct);
 
@@ -81,32 +91,53 @@ public class ProductService {
 
     }
 
-    public void deleteProduct(Long id)throws NotFoundException{
-        Product product=productRepo.findById(id).orElseThrow(()->new NotFoundException("No se ha encontrado ningún product"));
-
-        productRepo.delete(product);
+    public void deleteProduct(Long id)throws NotFoundException,DatabaseErrorException{
+        Product product=productRepo.findById(id).orElseThrow(()->new NotFoundException("No se ha encontrado ningún producto"));
+        try{
+            productRepo.delete(product);
+            logger.info("Se ha eliminado el producto con Id={}", product.getId());
+        }catch(PersistenceException ex){
+            logger.error("Error en la eliminación del producto con id={}",product.getId());
+            throw new DatabaseErrorException("Error en la base de datos");
+        }
+        
     }
 
     @Transactional
-    public ProductDetailsDTO updateProduct(UpdateProduct dto, Long productId) throws NotFoundException{
+    public ProductDetailsDTO updateProduct(UpdateProduct dto, Long productId) throws NotFoundException,DatabaseErrorException         {
         Product product=productRepo.findById(productId).orElseThrow(()-> new NotFoundException("No se ha encontrado ningún producto con ese id"));
 
         Product updatedProduct=productMapper.updateEntity(dto, product);
-
-        productRepo.save(updatedProduct);
+        try{
+            productRepo.save(updatedProduct);
+            logger.info("Se han actualizado los datos del productos con Id={}",product.getId());
+        
+        }catch(PersistenceException ex){
+            logger.error("Ha fallado la actualización del producto con id={}, Error: {}", product.getId(), ex.getMessage());
+            throw new DatabaseErrorException("Error en la base de datos");
+        }
+        
 
         ProductDetailsDTO updatedDTO=productMapper.productToDetailsDTO(updatedProduct);
         return updatedDTO;
     }
 
     @Transactional
-    public ProductDetailsDTO updateCategory(Long categoryId, Long productId)throws NotFoundException{
+    public ProductDetailsDTO updateCategory(Long categoryId, Long productId)throws NotFoundException,DatabaseErrorException{
         Category category=categoryRepo.findById(categoryId).orElseThrow(()-> new NotFoundException("No se ha encontrado ninguna categoría con ese id"));
 
         Product product=productRepo.findById(productId).orElseThrow(()-> new NotFoundException("No se ha encontrado ningun producto con ese id"));
         
         product.setCategory(category);
-        productRepo.save(product);
+        try{
+            productRepo.save(product);
+            logger.info("Se ha actualizado la categoría del producto con id={}", product.getId());
+        
+        }catch(PersistenceException ex){
+            logger.error("Ha fallado la actualización de la categoría producto con id={}, Error: {}", product.getId(), ex.getMessage());
+            throw new DatabaseErrorException("Error en la base de datos");
+        }
+        
 
         ProductDetailsDTO productDTO=productMapper.productToDetailsDTO(product);
         return productDTO;

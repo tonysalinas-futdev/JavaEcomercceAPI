@@ -10,4 +10,6 @@ INSERT INTO Products (name, description, price, pic, stock, available, category_
 INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Disco Duro Externo Seagate 2TB', 'Almacenamiento portátil USB 3.0', 85.00, 'seagate_2tb.jpg', 60, TRUE, 5);
 INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Tablet Apple iPad Air', 'Pantalla Liquid Retina de 10.9 pulgadas', 650.00, 'ipad_air.jpg', 20, TRUE, 5);
 INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Impresora HP LaserJet Pro', 'Impresora láser monocromo rápida y eficiente', 300.00, 'hp_laserjet.jpg', 18, TRUE, 5);
+INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Laptop HP', 'Laptop rapida y potente', 400.00, 'pc_hp.jpg', 18, TRUE, 5);
+
 

@@ -2,6 +2,7 @@ package com.example.Ecomercce.TestServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.Ecomercce.Exceptions.DatabaseErrorException;
 import com.example.Ecomercce.Exceptions.NotFoundException;
 import com.example.Ecomercce.Models.Category;
 import com.example.Ecomercce.Models.Product;
@@ -34,7 +35,7 @@ public class ServicesConftest {
         
     }
 
-    public void registerProduct()throws NotFoundException{
+    public void registerProduct()throws NotFoundException,DatabaseErrorException{
         Category category=returnCategory();
         if (productRepo.getByName("Helado").isEmpty()) {
         Product producto= Product

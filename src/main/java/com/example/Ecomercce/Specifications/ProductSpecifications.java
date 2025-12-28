@@ -8,7 +8,7 @@ import com.example.Ecomercce.Models.Product;
 public class ProductSpecifications {
     public static Specification<Product>hasName(String name){
         return (root, query, cb)->
-        name==null ? cb.conjunction(): cb.like(root.get("name"), "%"+name+"%");
+        name==null ? cb.conjunction(): cb.like(cb.lower(root.get("name")), "%"+name.toLowerCase()+"%");
     }
 
     public static Specification<Product>filterbyMinPrice(Double minPrice){

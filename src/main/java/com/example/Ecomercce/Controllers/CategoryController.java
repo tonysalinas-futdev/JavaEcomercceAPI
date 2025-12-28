@@ -20,6 +20,7 @@ import com.example.Ecomercce.DTOs.CategoryDTOs.CategoryListDTO;
 import com.example.Ecomercce.DTOs.CategoryDTOs.CreateCategoryDTO;
 import com.example.Ecomercce.DTOs.CategoryDTOs.UpdateCategory;
 import com.example.Ecomercce.Exceptions.AlreadyExistsException;
+import com.example.Ecomercce.Exceptions.DatabaseErrorException;
 import com.example.Ecomercce.Exceptions.InvalidRequestException;
 import com.example.Ecomercce.Exceptions.NotFoundException;
 import com.example.Ecomercce.Services.CategoryService;
@@ -45,18 +46,18 @@ public class CategoryController {
     }
 
     @PostMapping("create_category")
-    public ResponseEntity<CategoryDetailsDTO>createCategory(@RequestBody @Valid CreateCategoryDTO dto)throws AlreadyExistsException{
+    public ResponseEntity<CategoryDetailsDTO>createCategory(@RequestBody @Valid CreateCategoryDTO dto)throws AlreadyExistsException,DatabaseErrorException{
         return ResponseEntity.status(201).body(service.createCategory(dto));
     }
 
     @PatchMapping("update_category/{id}")
-    public ResponseEntity<CategoryDetailsDTO>updateCategory(@RequestBody @Valid UpdateCategory dto, @PathVariable @Positive  Long id) throws NotFoundException
+    public ResponseEntity<CategoryDetailsDTO>updateCategory(@RequestBody @Valid UpdateCategory dto, @PathVariable @Positive  Long id) throws NotFoundException,DatabaseErrorException
     {
         return ResponseEntity.status(200).body(service.updateCategory(dto, id));
     }
 
     @DeleteMapping("delete_product/{id}")
-    public ResponseEntity<?>deleteCategory(@Positive @PathVariable Long id)throws NotFoundException, InvalidRequestException{
+    public ResponseEntity<?>deleteCategory(@Positive @PathVariable Long id)throws NotFoundException, InvalidRequestException,DatabaseErrorException{
         service.deleteCategory(id);
         return ResponseEntity.ok("La categoría se ha eliminado exitosamente");
     }

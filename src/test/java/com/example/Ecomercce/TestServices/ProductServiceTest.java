@@ -19,6 +19,7 @@ import com.example.Ecomercce.DTOs.ProductDTOs.ProductListDTO;
 import com.example.Ecomercce.DTOs.ProductDTOs.SearchProductDTO;
 import com.example.Ecomercce.DTOs.ProductDTOs.UpdateProduct;
 import com.example.Ecomercce.Exceptions.AlreadyExistsException;
+import com.example.Ecomercce.Exceptions.DatabaseErrorException;
 import com.example.Ecomercce.Exceptions.InvalidRequestException;
 import com.example.Ecomercce.Exceptions.NotFoundException;
 import com.example.Ecomercce.Models.Category;
@@ -50,7 +51,7 @@ public class ProductServiceTest {
         "Armario,, ddsfsd, 50.0, 45",
         "Silla,,,400.0,"
     })
-    void testCreateProductHappyPath(String name, String description, String pic, Double price, Integer stock) throws AlreadyExistsException, InvalidRequestException, NotFoundException{
+    void testCreateProductHappyPath(String name, String description, String pic, Double price, Integer stock) throws AlreadyExistsException, InvalidRequestException, NotFoundException,DatabaseErrorException{
         
         Category category=conftest.returnCategory();
 
@@ -82,7 +83,7 @@ public class ProductServiceTest {
         "Helado, Un rico helado,, 60.0, 100",
         "Botas de agua, Muy buenas botas, eqweq, 70.0, 57"
     })
-    void testCreateProductFailPath(String name, String description, String pic, Double price, Integer stock)throws NotFoundException{
+    void testCreateProductFailPath(String name, String description, String pic, Double price, Integer stock)throws NotFoundException,DatabaseErrorException{
 
         conftest.registerProduct();
         Category category=conftest.returnCategory();
@@ -118,7 +119,7 @@ public class ProductServiceTest {
         "TV LG,, ddsfsd, 50.0, 45",
         "Coche Audi,,,400.0,"
     })
-    void testUpdateProductService(String name, String description, String pic, Double price, Integer stock)throws NotFoundException{
+    void testUpdateProductService(String name, String description, String pic, Double price, Integer stock)throws NotFoundException,DatabaseErrorException{
         conftest.registerProduct();
         Product product=productRepo.getByName("Helado").orElseThrow(()-> new NotFoundException("No se ha encontrado el producto"));
 
@@ -152,9 +153,14 @@ public class ProductServiceTest {
     @Sql("/data.sql")
     void testSearchProductsService()throws NotFoundException{
         SearchProductDTO data=SearchProductDTO.builder().maxPrice(130.0).minPrice(40.0).build();
-        PaginatedResponseDTO<ProductListDTO> products=service.searchProducts(data);
+        SearchProductDTO data2=SearchProductDTO.builder().name("Laptop").build();
+        
 
-        System.out.println(products);
-        assertTrue(products.getSize()>0);
+        PaginatedResponseDTO<ProductListDTO> products=service.searchProducts(data);
+        PaginatedResponseDTO<ProductListDTO> laptops=service.searchProducts(data2);
+
+
+        assertEquals(2, laptops.getTotalElements());
+        assertTrue(products.getTotalElements()>0);
     }
 }
