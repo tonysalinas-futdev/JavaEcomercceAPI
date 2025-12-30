@@ -1,56 +1,51 @@
-package com.example.Ecomercce.TestServices;
+package com.example.Ecomercce.testServices;
+
+import com.example.Ecomercce.categories.model.Category;
+import com.example.Ecomercce.categories.repository.CategoryRepository;
+import com.example.Ecomercce.products.model.Product;
+import com.example.Ecomercce.products.repositories.ProductRepository;
+import com.example.Ecomercce.shared.exceptions.DatabaseErrorException;
+import com.example.Ecomercce.shared.exceptions.NotFoundException;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.Ecomercce.Exceptions.DatabaseErrorException;
-import com.example.Ecomercce.Exceptions.NotFoundException;
-import com.example.Ecomercce.Models.Category;
-import com.example.Ecomercce.Models.Product;
-import com.example.Ecomercce.Repositories.CategoryRepository;
-import com.example.Ecomercce.Repositories.ProductRepository;
-
 @Service
 public class ServicesConftest {
-    @Autowired
-    private ProductRepository productRepo;
+  @Autowired
+  private ProductRepository productRepo;
 
-    @Autowired
-    private CategoryRepository categoryRepo;
+  @Autowired
+  private CategoryRepository categoryRepo;
 
+  public Category returnCategory() throws NotFoundException {
+    if (categoryRepo.getByName("Muebles").isEmpty()) {
+      Category category =
+          Category.builder().name("Muebles").description("Muebles para la casa").pic("fsd").build();
 
-    public Category returnCategory()throws NotFoundException{
-        if (categoryRepo.getByName("Muebles").isEmpty()) {
-        Category category=Category.builder()
-        .name("Muebles")
-        .description("Muebles para la casa")
-        .pic("fsd")
-        .build();
+      categoryRepo.saveAndFlush(category);
+      return category;
 
-        categoryRepo.save(category);
-        return category;
-        
-        }
-        else return categoryRepo.getByName("Muebles").orElseThrow(()->new NotFoundException("No se ha encontrado la categoría"));
+    } else
+      return categoryRepo
+          .getByName("Muebles")
+          .orElseThrow(() -> new NotFoundException("No se ha encontrado la categoría"));
+  }
 
-        
+  public void registerProduct() throws NotFoundException, DatabaseErrorException {
+    Category category = returnCategory();
+    if (productRepo.getByName("Helado").isEmpty()) {
+      Product producto =
+          Product.builder()
+              .name("Helado")
+              .description("Un rico helado")
+              .price(40.0)
+              .stock(50)
+              .category(category)
+              .build();
+
+      productRepo.saveAndFlush(producto);
     }
-
-    public void registerProduct()throws NotFoundException,DatabaseErrorException{
-        Category category=returnCategory();
-        if (productRepo.getByName("Helado").isEmpty()) {
-        Product producto= Product
-        .builder()
-        .name("Helado")
-        .description("Un rico helado")
-        .price(40.0) 
-        .stock(50)
-        .category(category)
-        .build();
-
-        productRepo.save(producto);
-            
-        }
-        
-
-    }   
+  }
 }

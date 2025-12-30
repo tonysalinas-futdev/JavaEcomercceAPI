@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.asciidoctor.jvm.convert' version '4.0.5'
+	 id 'com.diffplug.spotless' version '6.25.0'
 }
 
 group = 'com.example'
@@ -30,7 +31,7 @@ ext {
 }
 
 dependencies {
-	//Logging
+	
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2' 
 	implementation 'org.apache.logging.log4j:log4j-core:2.25.3' 
 	implementation 'org.apache.logging.log4j:log4j-api:2.25.3'
@@ -53,8 +54,13 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	testImplementation 'io.rest-assured:rest-assured:3.5.8'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testCompileOnly 'org.projectlombok:lombok' 
+
+	testAnnotationProcessor 'org.projectlombok:lombok'
+	
 }
 
 tasks.named('test') {
@@ -68,3 +74,10 @@ tasks.named('asciidoctor') {
 }
 
 test { testLogging { showStandardStreams = true } }
+
+spotless{
+	java{
+		googleJavaFormat()
+		removeUnusedImports()
+	}
+}
