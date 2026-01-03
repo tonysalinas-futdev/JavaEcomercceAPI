@@ -4,20 +4,16 @@ import com.example.Ecomercce.categories.model.Category;
 import com.example.Ecomercce.categories.repository.CategoryRepository;
 import com.example.Ecomercce.products.model.Product;
 import com.example.Ecomercce.products.repositories.ProductRepository;
-import com.example.Ecomercce.shared.exceptions.DatabaseErrorException;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
-
-
+import com.example.Ecomercce.shared.exceptions.PersistenceErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ServicesConftest {
-  @Autowired
-  private ProductRepository productRepo;
+  @Autowired private ProductRepository productRepo;
 
-  @Autowired
-  private CategoryRepository categoryRepo;
+  @Autowired private CategoryRepository categoryRepo;
 
   public Category returnCategory() throws NotFoundException {
     if (categoryRepo.getByName("Muebles").isEmpty()) {
@@ -33,7 +29,7 @@ public class ServicesConftest {
           .orElseThrow(() -> new NotFoundException("No se ha encontrado la categoría"));
   }
 
-  public void registerProduct() throws NotFoundException, DatabaseErrorException {
+  public void registerProduct() throws NotFoundException, PersistenceErrorException {
     Category category = returnCategory();
     if (productRepo.getByName("Helado").isEmpty()) {
       Product producto =

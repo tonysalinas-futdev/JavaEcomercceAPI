@@ -1,4 +1,4 @@
-package com.example.Ecomercce.shared.DTOs.ErrorDTOs;
+package com.example.Ecomercce.shared.DTOs.errorDTOs;
 
 import java.time.LocalDateTime;
 import lombok.Getter;

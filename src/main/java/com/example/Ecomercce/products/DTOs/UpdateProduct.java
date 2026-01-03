@@ -22,7 +22,7 @@ public class UpdateProduct {
 
   private String pic;
 
-  private Double price;
+  @Positive private Double price;
 
   @Positive private Integer stock;
 

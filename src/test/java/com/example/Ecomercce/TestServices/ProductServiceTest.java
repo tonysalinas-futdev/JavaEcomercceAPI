@@ -13,34 +13,26 @@ import com.example.Ecomercce.products.DTOs.UpdateProduct;
 import com.example.Ecomercce.products.model.Product;
 import com.example.Ecomercce.products.repositories.ProductRepository;
 import com.example.Ecomercce.products.services.ProductService;
-import com.example.Ecomercce.shared.DTOs.PaginatedDtos.PaginatedResponseDTO;
+import com.example.Ecomercce.shared.DTOs.paginatedDtos.PaginatedResponseDTO;
 import com.example.Ecomercce.shared.exceptions.AlreadyExistsException;
-import com.example.Ecomercce.shared.exceptions.DatabaseErrorException;
 import com.example.Ecomercce.shared.exceptions.InvalidRequestException;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
+import com.example.Ecomercce.shared.exceptions.PersistenceErrorException;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestConstructor;
 import org.springframework.test.context.jdbc.Sql;
-import com.example.Ecomercce.testServices.ServicesConftest;
 
-
-@SpringBootTest
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class ProductServiceTest {
-  @Autowired
-  private ProductService service;
+  @Autowired private ProductService service;
 
-  @Autowired
-  private ServicesConftest conftest;
+  @Autowired private ServicesConftest conftest;
 
-  @Autowired
-  private ProductRepository productRepo;
+  @Autowired private ProductRepository productRepo;
 
   @ParameterizedTest
   @CsvSource({
@@ -53,7 +45,7 @@ public class ProductServiceTest {
       throws AlreadyExistsException,
           InvalidRequestException,
           NotFoundException,
-          DatabaseErrorException {
+          PersistenceErrorException {
 
     Category category = conftest.returnCategory();
 
@@ -87,7 +79,7 @@ public class ProductServiceTest {
   })
   void testCreateProductFailPath(
       String name, String description, String pic, Double price, Integer stock)
-      throws NotFoundException, DatabaseErrorException {
+      throws NotFoundException, PersistenceErrorException {
 
     conftest.registerProduct();
     Category category = conftest.returnCategory();
@@ -132,7 +124,7 @@ public class ProductServiceTest {
   })
   void testUpdateProductService(
       String name, String description, String pic, Double price, Integer stock)
-      throws NotFoundException, DatabaseErrorException {
+      throws NotFoundException, PersistenceErrorException {
     conftest.registerProduct();
     Product product =
         productRepo

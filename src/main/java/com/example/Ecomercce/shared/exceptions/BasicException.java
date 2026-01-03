@@ -1,6 +1,6 @@
 package com.example.Ecomercce.shared.exceptions;
 
-public class BasicException extends Exception {
+public class BasicException extends RuntimeException {
   public BasicException(String message) {
     super(message);
   }

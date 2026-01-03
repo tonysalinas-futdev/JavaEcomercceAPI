@@ -33,14 +33,14 @@ ext {
 dependencies {
 	
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2' 
-	implementation 'org.apache.logging.log4j:log4j-core:2.25.3' 
-	implementation 'org.apache.logging.log4j:log4j-api:2.25.3'
+
 
 	
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	// implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
@@ -54,8 +54,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-	testImplementation 'io.rest-assured:rest-assured:3.5.8'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'io.rest-assured:rest-assured'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testCompileOnly 'org.projectlombok:lombok' 
 
@@ -81,3 +81,5 @@ spotless{
 		removeUnusedImports()
 	}
 }
+
+configurations.all { exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging' }

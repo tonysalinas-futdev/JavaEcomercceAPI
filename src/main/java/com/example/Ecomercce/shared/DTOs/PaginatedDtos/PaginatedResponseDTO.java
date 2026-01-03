@@ -1,4 +1,4 @@
-package com.example.Ecomercce.shared.DTOs.PaginatedDtos;
+package com.example.Ecomercce.shared.DTOs.paginatedDtos;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
