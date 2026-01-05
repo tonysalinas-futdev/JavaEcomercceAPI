@@ -109,7 +109,10 @@ public class ProductService {
   @Transactional
   public ProductDetailsDTO updateProduct(UpdateProduct dto, Long productId)
       throws NotFoundException, PersistenceErrorException {
-
+    if (productRepo.getByName(dto.getName()).isPresent()) {
+      throw new AlreadyExistsException("Ya existe un producto con ese nombre");
+      
+    }
     Product updatedProduct = productMapper.updateEntity(dto, getProductEntityById(productId));
     try {
       productRepo.save(updatedProduct);

@@ -159,4 +159,23 @@ public class TestProductControllers {
         .all()
         .statusCode(200); // Expected 200
   }
+
+  @Test
+  @Sql("/data.sql")
+  public void testUpdateProductFail(){
+    UpdateProduct dto=UpdateProduct.builder().name("Auriculares Sony WH-1000XM5").description("Unos auricales").price(40.0).build();
+    
+    RestAssured.given()
+        .contentType("application/json")
+        .body(dto)
+        .log()
+        .all()
+        .when()
+        .patch("http://localhost:8000/api/v1/products/2")
+        .then()
+        .body("message", equalTo("Ya existe un producto con ese nombre"))
+        .log()
+        .all()
+        .statusCode(409); // Expected 409
+  }
 }
