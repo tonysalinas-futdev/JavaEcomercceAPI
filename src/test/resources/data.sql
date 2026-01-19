@@ -13,6 +13,6 @@ INSERT INTO Products (name, description, price, pic, stock, available, category_
 INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Laptop HP', 'Laptop rapida y potente', 400.00, 'pc_hp.jpg', 18, TRUE, 5);
 
 
-INSERT INTO Roles(id, role_name) VALUES(1 ,'USER'), (2 ,'ADMIN');
-INSERT INTO Permissions(id, permission_name) VALUES(1, 'EDIT_CATALOGUE');
-INSERT INTO role_permission(role_id,permission_id)VALUES(2,1);
+INSERT INTO Roles(id, role_name) VALUES(1 ,'USER'), (2 ,'ADMIN'), (3,'MANAGER');
+INSERT INTO Permissions(id, permission_name) VALUES(1, 'EDIT_CATALOGUE'), (2, 'CREATE_USER'),(3,'DELETE_USER'), (4,'UPDATE_USER');
+INSERT INTO role_permission(role_id,permission_id)VALUES(2,1),(3,1), (2,2), (2,3),(2,4);

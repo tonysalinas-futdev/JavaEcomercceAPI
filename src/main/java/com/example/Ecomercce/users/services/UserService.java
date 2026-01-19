@@ -1,6 +1,7 @@
 package com.example.Ecomercce.users.services;
 
 import com.example.Ecomercce.logging.service.LoggerService;
+import com.example.Ecomercce.shared.exceptions.AlreadyExistsException;
 import com.example.Ecomercce.shared.exceptions.InvalidRequestException;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
 import com.example.Ecomercce.shared.exceptions.PersistenceErrorException;
@@ -38,6 +39,9 @@ public class UserService {
   @Transactional
   public UserProfile updateProfile(UpdateUserProfile dto, String userEmail) {
     User user = getUserByEmail(userEmail);
+    if (repo.findUserByEmail(dto.getEmail()).isPresent()) {
+      throw new AlreadyExistsException("Ya existe un usuario con ese email");
+    }
 
     try {
       mapper.updateUserProfileWithDTO(dto, user);

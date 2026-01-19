@@ -2,22 +2,19 @@ package com.example.Ecomercce.integrationTests.globalConftest;
 
 import com.example.Ecomercce.auth.dtos.AuthResponse;
 import com.example.Ecomercce.auth.dtos.LoginDTO;
+import com.example.Ecomercce.auth.service.AuthService;
 import com.example.Ecomercce.users.dtos.CreateUser;
 import com.example.Ecomercce.users.enums.RoleEnum;
 import com.example.Ecomercce.users.models.User;
 import com.example.Ecomercce.users.services.UserAdminService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
+@AllArgsConstructor
 public class GlobalConftest {
-
-  private RestTemplate restTemplate = new RestTemplate();
   private final UserAdminService service;
-
-  public GlobalConftest(UserAdminService service) {
-    this.service = service;
-  }
+  private final AuthService authService;
 
   private User createAdmin() {
     CreateUser dto =
@@ -30,14 +27,47 @@ public class GlobalConftest {
     return service.createUserByAdmin(dto);
   }
 
-  public AuthResponse obtainCredentials() {
+  private User createUser() {
+    CreateUser dto =
+        CreateUser.builder()
+            .name("user")
+            .password("12345678Ja#")
+            .email("user@gmail.com")
+            .role(RoleEnum.USER)
+            .build();
+    return service.createUserByAdmin(dto);
+  }
+
+  private User createManager() {
+    CreateUser dto =
+        CreateUser.builder()
+            .name("manager")
+            .password("12345678Ja#")
+            .email("manager@gmail.com")
+            .role(RoleEnum.MANAGER)
+            .build();
+    return service.createUserByAdmin(dto);
+  }
+
+  public AuthResponse obtainAdminCredentials() {
     createAdmin();
     LoginDTO request = LoginDTO.builder().email("admin@gmail.com").password("12345678Ja#").build();
+    AuthResponse response = authService.login(request);
+    return response;
+  }
 
-    AuthResponse response =
-        restTemplate.postForObject(
-            "http://localhost:8000/api/v1/auth/login", request, AuthResponse.class);
+  public AuthResponse obtainUserCredentials() {
+    createUser();
+    LoginDTO request = LoginDTO.builder().email("user@gmail.com").password("12345678Ja#").build();
+    AuthResponse response = authService.login(request);
+    return response;
+  }
 
+  public AuthResponse obtainManagerCredentials() {
+    createManager();
+    LoginDTO request =
+        LoginDTO.builder().email("manager@gmail.com").password("12345678Ja#").build();
+    AuthResponse response = authService.login(request);
     return response;
   }
 }

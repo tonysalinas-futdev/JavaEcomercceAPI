@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class TestProductControllers {
   @Autowired private ProductService productService;
   @Autowired private ProductControllersConftest conftest;
@@ -24,10 +26,9 @@ public class TestProductControllers {
   @Autowired private GlobalConftest globalConftest;
 
   @Test
-  @DirtiesContext
   @Sql("/data.sql")
   public void testCreateProductController() {
-    AuthResponse response = globalConftest.obtainCredentials();
+    AuthResponse response = globalConftest.obtainAdminCredentials();
     if (categoryRepo.getByName("CategoriaPrueba").isEmpty()) {
       conftest.returnCategory();
     }
@@ -58,8 +59,10 @@ public class TestProductControllers {
   }
 
   @Test
-  @DirtiesContext
+  @Sql("/data.sql")
   public void createProductWithoutName() {
+    AuthResponse response = globalConftest.obtainAdminCredentials();
+
     if (categoryRepo.getByName("CategoriaPrueba").isEmpty()) {
       conftest.returnCategory();
     }
@@ -75,6 +78,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
+        .header("Authorization", "Bearer " + response.getAccessToken())
         .body(dto)
         .log()
         .all()
@@ -87,8 +91,10 @@ public class TestProductControllers {
   }
 
   @Test
-  @DirtiesContext
+  @Sql("/data.sql")
   public void createExistingProduct() {
+    AuthResponse response = globalConftest.obtainManagerCredentials();
+
     if (categoryRepo.getByName("CategoriaPrueba").isEmpty()) {
       conftest.returnCategory();
     }
@@ -105,6 +111,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
+        .header("Authorization", "Bearer " + response.getAccessToken())
         .body(dto)
         .log()
         .all()
@@ -119,9 +126,10 @@ public class TestProductControllers {
   @Test
   @Sql("/data.sql")
   public void testGetProductByIdHappyPath() {
-
+    AuthResponse response = globalConftest.obtainUserCredentials();
     RestAssured.given()
         .contentType("application/json")
+        .header("Authorization", "Bearer " + response.getAccessToken())
         .when()
         .get("http://localhost:8000/api/v1/products/1")
         .then()
@@ -149,11 +157,13 @@ public class TestProductControllers {
   @Test
   @Sql("/data.sql")
   public void testUpdateProductEndpoint() {
+    AuthResponse response = globalConftest.obtainManagerCredentials();
 
     UpdateProduct dto = UpdateProduct.builder().name("Laptop Toshiba").price(399.99).build();
 
     RestAssured.given()
         .contentType("application/json")
+        .header("Authorization", "Bearer " + response.getAccessToken())
         .body(dto)
         .log()
         .all()
@@ -169,15 +179,18 @@ public class TestProductControllers {
   @Test
   @Sql("/data.sql")
   public void testUpdateProductFail() {
+    AuthResponse response = globalConftest.obtainManagerCredentials();
+
     UpdateProduct dto =
         UpdateProduct.builder()
             .name("Auriculares Sony WH-1000XM5")
-            .description("Unos auricales")
+            .description("Unos auriculares")
             .price(40.0)
             .build();
 
     RestAssured.given()
         .contentType("application/json")
+        .header("Authorization", "Bearer " + response.getAccessToken())
         .body(dto)
         .log()
         .all()

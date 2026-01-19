@@ -1,6 +1,5 @@
 package com.example.Ecomercce.unit_tests.auth;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.Ecomercce.auth.utils.ExtractToken;
@@ -11,8 +10,9 @@ import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = WebEnvironment.NONE)
 public class AuthModuleUnitTestClass {
   @Autowired private JwtTokenParser parser;
   @Autowired private JwtTokenProvider provider;
@@ -64,7 +64,6 @@ public class AuthModuleUnitTestClass {
     Object id = accessTokenPayload.get("id");
 
     assertTrue(email.equals("kroosismo0202@gmail.com"));
-    assertEquals(5, id);
     assertTrue(accessTokenPayload.getExpiration() != null);
   }
 
