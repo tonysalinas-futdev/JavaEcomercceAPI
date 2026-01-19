@@ -13,7 +13,9 @@ import java.net.URI;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,13 +35,14 @@ public class ProductController {
   private final ProductService productService;
 
   @PostMapping()
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')and hasAuthority('EDIT_CATALOGUE')")
   public ResponseEntity<?> createProduct(@RequestBody @Valid CreateProductDTO dto) {
     ProductDetailsDTO product = productService.createProduct(dto);
     URI location = URI.create("/api/v1/products/" + product.getId());
     ThreadContext.put("use_case", "create_product");
     ThreadContext.put("entity", "product");
 
-    return ResponseEntity.created(location).body(product);
+    return ResponseEntity.created(location).contentType(MediaType.APPLICATION_JSON).body(product);
   }
 
   @GetMapping("/{id}")
@@ -56,6 +59,7 @@ public class ProductController {
   }
 
   @PatchMapping("/{productId}")
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')and hasAuthority('EDIT_CATALOGUE')")
   public ResponseEntity<ProductDetailsDTO> updateProduct(
       @Valid @RequestBody UpdateProduct dto, @PathVariable @Positive Long productId) {
     ThreadContext.putAll(Map.of("use_case", "update_product", "entity", "product"));
@@ -64,6 +68,7 @@ public class ProductController {
   }
 
   @DeleteMapping("/{productId}")
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')and hasAuthority('EDIT_CATALOGUE')")
   public ResponseEntity<?> deleteProduct(@PathVariable @Positive Long productId) {
     productService.deleteProduct(productId);
     ThreadContext.putAll(Map.of("use_case", "delete_product", "entity", "product"));
@@ -72,6 +77,7 @@ public class ProductController {
   }
 
   @PatchMapping("/{productId}/category/{categoryId}")
+  @PreAuthorize("hasAnyRole('ADMIN','MANAGER')and hasAuthority('EDIT_CATALOGUE')")
   public ResponseEntity<ProductDetailsDTO> updateProductCategory(
       @Positive @PathVariable Long categoryId, @Positive @PathVariable Long productId) {
     ThreadContext.putAll(Map.of("use_case", "update_product_category", "entity", "product"));

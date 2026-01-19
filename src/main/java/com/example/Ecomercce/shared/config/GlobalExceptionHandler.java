@@ -1,5 +1,7 @@
 package com.example.Ecomercce.shared.config;
 
+import com.example.Ecomercce.auth.exceptions.CredentialsException;
+import com.example.Ecomercce.auth.exceptions.InvalidTokenException;
 import com.example.Ecomercce.logging.service.LoggerService;
 import com.example.Ecomercce.shared.DTOs.errorDTOs.ErrorResponseDTO;
 import com.example.Ecomercce.shared.exceptions.AlreadyExistsException;
@@ -78,6 +80,24 @@ public class GlobalExceptionHandler {
 
     logger.createErrorLog(ex.getMessage(), ex.getClass().toString(), ex, "500");
     return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(InvalidTokenException.class)
+  public ResponseEntity<ErrorResponseDTO> handleInvalidTokenException(
+      HttpServletRequest request, Exception ex) {
+    ErrorResponseDTO error =
+        new ErrorResponseDTO(ex.getMessage(), request.getRequestURL().toString());
+    logger.createErrorLog(ex.getMessage(), ex.getClass().toString(), ex, "403");
+    return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(CredentialsException.class)
+  public ResponseEntity<ErrorResponseDTO> handleCredentialsException(
+      HttpServletRequest request, Exception ex) {
+    ErrorResponseDTO error =
+        new ErrorResponseDTO(ex.getMessage(), request.getRequestURL().toString());
+    logger.createErrorLog(ex.getMessage(), ex.getClass().toString(), ex, "403");
+    return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(DataAccessException.class)

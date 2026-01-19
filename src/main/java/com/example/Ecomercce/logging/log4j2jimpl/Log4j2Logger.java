@@ -29,4 +29,9 @@ public class Log4j2Logger implements LoggerInterface {
   public void warn(Object payload) {
     logger.warn(payload);
   }
+
+  @Override
+  public void debug(Object payload) {
+    logger.debug(payload);
+  }
 }

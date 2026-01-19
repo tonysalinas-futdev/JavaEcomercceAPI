@@ -1,0 +1,29 @@
+Configuration:
+  status: INFO
+  Appenders:
+    Console:
+      name: ConsoleJson
+      target: SYSTEM_OUT
+      JsonLayout:
+        compact: false
+        eventEol: true
+        stacktraceAsString: true
+        objectMessageAsJsonObject: true
+        properties: true
+        timestampFormat: "yyyy-MM-dd HH:mm:ss.SSS"
+        
+
+  Loggers:
+    Root:
+      level: debug
+      AppenderRef:
+        - ref: ConsoleJson
+
+    Logger:
+      - name: com.example.Ecomercce
+        level: trace
+        additivity: false
+        AppenderRef:
+          - ref: ConsoleJson
+
+      

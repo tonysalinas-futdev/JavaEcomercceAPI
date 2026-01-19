@@ -6,4 +6,6 @@ public interface LoggerInterface {
   void error(Object payload);
 
   void warn(Object payload);
+
+  void debug(Object payload);
 }

@@ -2,6 +2,7 @@ package com.example.Ecomercce;
 
 import com.example.Ecomercce.categories.model.Category;
 import com.example.Ecomercce.categories.repository.CategoryRepository;
+import com.example.Ecomercce.users.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,10 +16,9 @@ public class EcomercceApplication {
   }
 
   @Bean
-  CommandLineRunner init(CategoryRepository repo) {
+  CommandLineRunner init(CategoryRepository repo, RoleRepository roleRepo) {
     return args -> {
       Category category = Category.builder().name("Ropa").description("Ropa para comprar").build();
-
       repo.save(category);
     };
   }

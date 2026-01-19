@@ -2,7 +2,9 @@ package com.example.Ecomercce.integrationTests.products;
 
 import static org.hamcrest.Matchers.equalTo;
 
+import com.example.Ecomercce.auth.dtos.AuthResponse;
 import com.example.Ecomercce.categories.repository.CategoryRepository;
+import com.example.Ecomercce.integrationTests.globalConftest.GlobalConftest;
 import com.example.Ecomercce.products.DTOs.CreateProductDTO;
 import com.example.Ecomercce.products.DTOs.UpdateProduct;
 import com.example.Ecomercce.products.services.ProductService;
@@ -19,10 +21,13 @@ public class TestProductControllers {
   @Autowired private ProductService productService;
   @Autowired private ProductControllersConftest conftest;
   @Autowired private CategoryRepository categoryRepo;
+  @Autowired private GlobalConftest globalConftest;
 
   @Test
   @DirtiesContext
+  @Sql("/data.sql")
   public void testCreateProductController() {
+    AuthResponse response = globalConftest.obtainCredentials();
     if (categoryRepo.getByName("CategoriaPrueba").isEmpty()) {
       conftest.returnCategory();
     }
@@ -38,6 +43,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
+        .header("Authorization", "Bearer " + response.getAccessToken())
         .body(dto)
         .log()
         .all()
@@ -162,9 +168,14 @@ public class TestProductControllers {
 
   @Test
   @Sql("/data.sql")
-  public void testUpdateProductFail(){
-    UpdateProduct dto=UpdateProduct.builder().name("Auriculares Sony WH-1000XM5").description("Unos auricales").price(40.0).build();
-    
+  public void testUpdateProductFail() {
+    UpdateProduct dto =
+        UpdateProduct.builder()
+            .name("Auriculares Sony WH-1000XM5")
+            .description("Unos auricales")
+            .price(40.0)
+            .build();
+
     RestAssured.given()
         .contentType("application/json")
         .body(dto)

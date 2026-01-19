@@ -111,7 +111,6 @@ public class ProductService {
       throws NotFoundException, PersistenceErrorException {
     if (productRepo.getByName(dto.getName()).isPresent()) {
       throw new AlreadyExistsException("Ya existe un producto con ese nombre");
-      
     }
     Product updatedProduct = productMapper.updateEntity(dto, getProductEntityById(productId));
     try {

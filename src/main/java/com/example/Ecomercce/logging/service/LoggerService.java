@@ -50,4 +50,12 @@ public class LoggerService {
     ThreadContext.put("use_case", useCase);
     ThreadContext.put("entity", entity);
   }
+
+  public void logInfo(String message) {
+    logger.info(message);
+  }
+
+  public void logDebug(Object message) {
+    logger.debug(message);
+  }
 }

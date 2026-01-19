@@ -10,9 +10,10 @@ import jakarta.validation.constraints.Positive;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,16 +27,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Validated
 @RequestMapping("/api/v1/categories")
+@AllArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN','MANAGER') and hasAuthority('EDIT_CATALOGUE')")
 public class CategoryController {
-  @Autowired CategoryService service;
+  CategoryService service;
 
   @GetMapping("/{id}")
+  @PreAuthorize("permitAll()")
   public ResponseEntity<CategoryDetailsDTO> getCategory(@PathVariable @Positive Long id) {
     ThreadContext.putAll(Map.of("use_case", "get_category_by_id", "entity", "category"));
     return ResponseEntity.status(200).body(service.getCategoryDTOById(id));
   }
 
   @GetMapping
+  @PreAuthorize("permitAll()")
   public ResponseEntity<List<CategoryListDTO>> getAllCategories() {
     ThreadContext.putAll(Map.of("use_case", "get_all_categories", "entity", "category"));
 
