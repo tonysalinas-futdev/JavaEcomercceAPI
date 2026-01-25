@@ -76,6 +76,8 @@ public class UserAdminService {
             .name(dto.getName())
             .email(dto.getEmail())
             .password(encoder.encode(dto.getPassword()))
+            .isEnabled(true)
+            .accountNoLocked(true)
             .build();
     Role role = roleService.getRoleByEnum(RoleEnum.USER);
     user.setRole(role);
@@ -170,5 +172,10 @@ public class UserAdminService {
     } catch (DataAccessException ex) {
       throw new PersistenceErrorException("Error en la base de datos", ex);
     }
+  }
+
+  public User refreshUser(User user) {
+    repo.saveAndFlush(user);
+    return user;
   }
 }

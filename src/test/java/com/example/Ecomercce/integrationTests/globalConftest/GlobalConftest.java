@@ -1,4 +1,4 @@
-package com.example.Ecomercce.integrationTests.globalConftest;
+package com.example.Ecomercce.integrationTests.globalconftest;
 
 import com.example.Ecomercce.auth.dtos.AuthResponse;
 import com.example.Ecomercce.auth.dtos.LoginDTO;
@@ -16,7 +16,7 @@ public class GlobalConftest {
   private final UserAdminService service;
   private final AuthService authService;
 
-  private User createAdmin() {
+  public User createAdmin() {
     CreateUser dto =
         CreateUser.builder()
             .name("admin")
@@ -27,7 +27,7 @@ public class GlobalConftest {
     return service.createUserByAdmin(dto);
   }
 
-  private User createUser() {
+  public User createUser() {
     CreateUser dto =
         CreateUser.builder()
             .name("user")
@@ -38,7 +38,7 @@ public class GlobalConftest {
     return service.createUserByAdmin(dto);
   }
 
-  private User createManager() {
+  public User createManager() {
     CreateUser dto =
         CreateUser.builder()
             .name("manager")

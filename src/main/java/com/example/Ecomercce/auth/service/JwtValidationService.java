@@ -1,7 +1,6 @@
 package com.example.Ecomercce.auth.service;
 
 import com.example.Ecomercce.auth.exceptions.InvalidTokenException;
-import com.example.Ecomercce.auth.interfaces.TokenValidator;
 import com.example.Ecomercce.auth.model.Token;
 import com.example.Ecomercce.auth.utils.JwtTokenParser;
 import com.example.Ecomercce.users.models.User;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class JwtValidationService implements TokenValidator {
+public class JwtValidationService {
 
   private final TokenService tokenService;
   private final JwtTokenParser parser;

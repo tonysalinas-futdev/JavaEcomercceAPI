@@ -1,8 +1,10 @@
 package com.example.Ecomercce.users.models;
 
 import com.example.Ecomercce.auth.model.Token;
+import com.example.Ecomercce.cart.models.Cart;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,10 +61,15 @@ public class User {
   @Column(name = "credentials_no_expired")
   private Boolean credentialsNoExpired;
 
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+  @JoinColumn(name = "cart_id", unique = true)
+  private Cart cart;
+
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "role_id")
   private Role role;
 
   @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+  @Builder.Default
   private List<Token> tokens = new ArrayList<>();
 }

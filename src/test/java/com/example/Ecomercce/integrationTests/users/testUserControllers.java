@@ -3,7 +3,7 @@ package com.example.Ecomercce.integrationTests.users;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.example.Ecomercce.auth.dtos.AuthResponse;
-import com.example.Ecomercce.integrationTests.globalConftest.GlobalConftest;
+import com.example.Ecomercce.integrationTests.globalconftest.GlobalConftest;
 import com.example.Ecomercce.users.dtos.UpdateUserProfile;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,8 @@ public class testUserControllers {
   @Sql("/data.sql")
   public void testUpdateProfileFail() {
     AuthResponse authResponse = globalConftest.obtainUserCredentials();
-    AuthResponse adminResponse = globalConftest.obtainAdminCredentials();
+    globalConftest.obtainAdminCredentials();
+
     RestAssured.given()
         .contentType("application/json")
         .header("Authorization", "Bearer " + authResponse.getAccessToken())

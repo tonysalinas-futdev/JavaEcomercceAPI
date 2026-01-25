@@ -7,6 +7,7 @@ import com.example.Ecomercce.auth.service.JwtValidationService;
 import com.example.Ecomercce.auth.utils.ExtractToken;
 import com.example.Ecomercce.auth.utils.JwtTokenParser;
 import com.example.Ecomercce.users.models.User;
+import io.jsonwebtoken.Claims;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class JwtFacade {
 
   public Map<String, String> extractBearerTokenAndPayload(String authHeader) {
     String refreshToken = extractor.extractBearerToken(authHeader);
+
     String userEmail = parser.extractPayload(refreshToken).getSubject();
 
     if (userEmail == null) {
@@ -34,6 +36,12 @@ public class JwtFacade {
     }
 
     return Map.of("userEmail", userEmail, "refreshToken", refreshToken);
+  }
+
+  public Claims extractClaims(String token) {
+    String value = extractor.extractBearerToken(token);
+    Claims claims = parser.extractPayload(value);
+    return claims;
   }
 
   public boolean validateAccessToken(String token) {

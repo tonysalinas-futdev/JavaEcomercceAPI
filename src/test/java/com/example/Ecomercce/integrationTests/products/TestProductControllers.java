@@ -4,7 +4,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 import com.example.Ecomercce.auth.dtos.AuthResponse;
 import com.example.Ecomercce.categories.repository.CategoryRepository;
-import com.example.Ecomercce.integrationTests.globalConftest.GlobalConftest;
+import com.example.Ecomercce.integrationTests.globalconftest.GlobalConftest;
 import com.example.Ecomercce.products.DTOs.CreateProductDTO;
 import com.example.Ecomercce.products.DTOs.UpdateProduct;
 import com.example.Ecomercce.products.services.ProductService;

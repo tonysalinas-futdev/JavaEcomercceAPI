@@ -9,10 +9,7 @@ import com.example.Ecomercce.users.models.User;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-@SpringBootTest(webEnvironment = WebEnvironment.NONE)
 public class AuthModuleUnitTestClass {
   @Autowired private JwtTokenParser parser;
   @Autowired private JwtTokenProvider provider;

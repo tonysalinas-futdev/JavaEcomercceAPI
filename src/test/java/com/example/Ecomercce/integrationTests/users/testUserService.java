@@ -4,12 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.Ecomercce.auth.dtos.SignUpDTO;
-import com.example.Ecomercce.logging.service.LoggerService;
 import com.example.Ecomercce.users.enums.RoleEnum;
 import com.example.Ecomercce.users.models.User;
 import com.example.Ecomercce.users.services.UserAdminService;
 import jakarta.validation.ConstraintViolationException;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -23,7 +21,6 @@ import org.springframework.test.context.jdbc.Sql;
 public class testUserService {
   @Autowired private UserAdminService service;
   @Autowired private UserConftest conftest;
-  @Autowired private LoggerService logger;
 
   @Test
   @Sql("/data.sql")
@@ -33,8 +30,6 @@ public class testUserService {
         service.createUserByAdmin(
             conftest.buildCreateUserDto(
                 "emailexample@gmail.com", "Abc123456#", "Pedro Gonzalez", RoleEnum.USER));
-
-    logger.logDebug(Map.of("name", user.getName(), "email", user.getEmail(), "id", user.getId()));
 
     assertTrue(user.getName().equals("Pedro Gonzalez"));
     assertTrue(user.getId() != null);

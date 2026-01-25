@@ -41,5 +41,5 @@ public class Role {
   private List<User> users;
 
   @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-  private Set<Permissions> permissions;
+  private Set<Permission> permissions;
 }

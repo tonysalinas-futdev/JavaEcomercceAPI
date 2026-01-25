@@ -27,7 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Permissions {
+public class Permission {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
