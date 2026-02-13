@@ -1,97 +1,71 @@
 package com.example.Ecomercce.integrationTests.cart.cartservices;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.Ecomercce.cart.dto.CreateCartItem;
 import com.example.Ecomercce.cart.models.Cart;
 import com.example.Ecomercce.cart.services.CartService;
 import com.example.Ecomercce.integrationTests.globalconftest.GlobalConftest;
 import com.example.Ecomercce.users.models.User;
-import com.example.Ecomercce.users.services.UserService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@Transactional
+@Sql(scripts = "classpath:data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 public class TestCartServices {
   @Autowired private GlobalConftest globalConftest;
   @Autowired private CartService service;
-  @Autowired private UserService userService;
 
-  @Test
-  @Sql("/data.sql")
-  public void testAddCartItem() {
-    User user = globalConftest.createUser();
-    CreateCartItem item =
-        CreateCartItem.builder()
-            .productId(Long.valueOf(1))
-            .quantity(15)
-            .userEmail(user.getEmail())
-            .build();
-
-    CreateCartItem item2 =
-        CreateCartItem.builder()
-            .productId(Long.valueOf(2))
-            .quantity(12)
-            .userEmail(user.getEmail())
-            .build();
-
-    service.addItem(user.getEmail(), item);
-    service.addItem(user.getEmail(), item2);
-
-    User refreshUser = userService.getUserByEmail(user.getEmail());
-
-    assertTrue(refreshUser.getCart() != null);
-    assertEquals(2, refreshUser.getCart().getItems().size());
+  private CreateCartItem buildCartItemHelper(Long productId, Integer quantity) {
+    return CreateCartItem.builder().productId(productId).quantity(quantity).build();
   }
 
   @Test
-  @Sql("/data.sql")
-  public void addExistingProductToCart() {
+  public void mustCreateCartAndAddTwoItems() {
     User user = globalConftest.createUser();
+    CreateCartItem item = buildCartItemHelper(1L, 15);
+    CreateCartItem item2 = buildCartItemHelper(2L, 12);
 
-    CreateCartItem item =
-        CreateCartItem.builder()
-            .productId(Long.valueOf(1))
-            .quantity(15)
-            .userEmail(user.getEmail())
-            .build();
+    Cart cartWithOneItem = service.addItem(null, user.getEmail(), item);
+    Cart cartWithTwoItems = service.addItem(cartWithOneItem.getId(), user.getEmail(), item2);
 
-    service.addItem(user.getEmail(), item);
-    service.addItem(user.getEmail(), item);
-
-    User refreshUser = userService.getUserByEmail(user.getEmail());
-
-    assertTrue(refreshUser.getCart().getItems().size() == 1);
-    assertTrue(refreshUser.getCart().getItems().get(0).getQuantity() == 15);
+    assertEquals(2, cartWithTwoItems.getItems().size());
   }
 
   @Test
-  @Sql("/data.sql")
-  public void cleanCart() {
-
+  public void shouldSetQuantity20ToExistingCartItemWithQuantity15() {
     User user = globalConftest.createUser();
+    CreateCartItem item = buildCartItemHelper(1L, 10);
+    CreateCartItem existingItemWithQuantity20 = buildCartItemHelper(1L, 15);
 
-    CreateCartItem item =
-        CreateCartItem.builder()
-            .productId(Long.valueOf(1))
-            .quantity(15)
-            .userEmail(user.getEmail())
-            .build();
+    Cart cartWithItemQuantity15 = service.addItem(null, user.getEmail(), item);
+    Cart cartWithExistingItemQuantity20 =
+        service.addItem(
+            cartWithItemQuantity15.getId(), user.getEmail(), existingItemWithQuantity20);
 
-    service.addItem(user.getEmail(), item);
-    service.addItem(user.getEmail(), item);
+    assertEquals(1, cartWithExistingItemQuantity20.getItems().size());
+    assertEquals(15, cartWithExistingItemQuantity20.getItems().get(0).getQuantity());
+  }
 
-    User refreshUser = userService.getUserByEmail(user.getEmail());
+  @Test
+  public void shouldCleanAllItemsFromCart() {
+    Cart cart = service.getById(1L);
 
-    Cart cart = service.cleanCart(refreshUser.getEmail());
+    assertEquals(3, cart.getItems().size());
+  }
 
-    assertTrue(cart.getItems().isEmpty());
+  @Test
+  public void shouldDeleteItemFromCartWithThreeItems() {
+
+    service.deleteItemFromCart(1L, 1L);
+    Cart cart = service.getById(1L);
+
+    assertEquals(2, cart.getItems().size());
   }
 }

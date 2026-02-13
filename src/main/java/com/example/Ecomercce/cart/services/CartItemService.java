@@ -19,4 +19,11 @@ public class CartItemService {
   public CartItem getByProductAndCartId(Long productId, Long cartId) {
     return repo.findByCartAndProductId(productId, cartId).orElse(null);
   }
+
+  public CartItem setItemQuantity(Long cartItemId, Integer quantity) {
+    CartItem item = getCartItemById(cartItemId);
+
+    repo.save(item);
+    return item;
+  }
 }

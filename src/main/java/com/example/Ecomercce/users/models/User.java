@@ -2,6 +2,7 @@ package com.example.Ecomercce.users.models;
 
 import com.example.Ecomercce.auth.model.Token;
 import com.example.Ecomercce.cart.models.Cart;
+import com.example.Ecomercce.order.models.Order;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.CascadeType;
@@ -68,6 +69,10 @@ public class User {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "role_id")
   private Role role;
+
+  @OneToMany(mappedBy = "user")
+  @Builder.Default
+  private List<Order> orders = new ArrayList<>();
 
   @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
   @Builder.Default

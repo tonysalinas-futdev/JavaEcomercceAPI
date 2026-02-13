@@ -15,7 +15,7 @@ public class TokenService {
 
   public void saveUserToken(User user, String jwtToken) {
     Token token = Token.builder().revoked(false).expired(false).user(user).token(jwtToken).build();
-
+    user.getTokens().add(token);
     repo.saveAndFlush(token);
   }
 

@@ -5,17 +5,16 @@ import com.example.Ecomercce.categories.repository.CategoryRepository;
 import com.example.Ecomercce.products.model.Product;
 import com.example.Ecomercce.products.repositories.ProductRepository;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
-import com.example.Ecomercce.shared.exceptions.PersistenceErrorException;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ServicesConftest {
+public class ProductTestServiceHelper {
   @Autowired private ProductRepository productRepo;
-
   @Autowired private CategoryRepository categoryRepo;
 
-  public Category returnCategory() throws NotFoundException {
+  public Category createCategory() {
     if (categoryRepo.getByName("Muebles").isEmpty()) {
       Category category =
           Category.builder().name("Muebles").description("Muebles para la casa").pic("fsd").build();
@@ -29,9 +28,11 @@ public class ServicesConftest {
           .orElseThrow(() -> new NotFoundException("No se ha encontrado la categoría"));
   }
 
-  public void registerProduct() throws NotFoundException, PersistenceErrorException {
-    Category category = returnCategory();
-    if (productRepo.getByName("Helado").isEmpty()) {
+  public Product createProductWithNameEqualHelado() {
+    Category category = createCategory();
+    Optional<Product> product = productRepo.getByName("Helado");
+
+    if (!product.isPresent()) {
       Product producto =
           Product.builder()
               .name("Helado")
@@ -42,6 +43,8 @@ public class ServicesConftest {
               .build();
 
       productRepo.saveAndFlush(producto);
+      return producto;
     }
+    return product.get();
   }
 }

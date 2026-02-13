@@ -15,7 +15,5 @@ public class CreateCartItem {
 
   @Positive @NotNull private Long productId;
 
-  @Positive @NotNull private String userEmail;
-
   @Positive @NotNull private int quantity;
 }

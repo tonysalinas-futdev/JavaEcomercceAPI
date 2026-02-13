@@ -9,7 +9,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.stereotype.Component;
@@ -24,12 +23,6 @@ public class LoggingMiddleware implements Filter {
       throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-    String correlationId = httpRequest.getHeader("X-Correlation-Id");
-    if (correlationId == null) {
-      correlationId = UUID.randomUUID().toString();
-    }
-    ThreadContext.put("correlation_id", correlationId);
 
     String method = httpRequest.getMethod();
     String uri = httpRequest.getRequestURI();

@@ -14,17 +14,18 @@ import com.example.Ecomercce.auth.utils.JwtTokenProvider;
 import com.example.Ecomercce.users.models.User;
 import com.example.Ecomercce.users.services.UserAdminService;
 import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@SpringBootTest(webEnvironment = WebEnvironment.NONE)
+@Sql(scripts = "classpath:data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
+@Transactional
 public class TestJwtService {
   @Autowired private JwtConftest conftest;
   @Autowired private JwtService service;
@@ -34,15 +35,12 @@ public class TestJwtService {
   @Autowired private JwtTokenParser parser;
 
   @Test
-  @Sql("/data.sql")
-  public void testSaveToken() {
+  public void shouldSaveTokenInDb() {
     User user = conftest.returnSaveUser();
     String refreshToken = provider.createRefreshToken(user);
 
     service.saveNewUserToken(user, refreshToken);
-    User reloadedUser = userService.getUserByEmail(user.getEmail());
-
-    Token token = reloadedUser.getTokens().get(0);
+    Token token = user.getTokens().get(0);
 
     assertTrue(token.isExpired() == false);
     assertTrue(token.isRevoked() == false);
@@ -50,8 +48,7 @@ public class TestJwtService {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void testLoginService() {
+  public void shouldReturnAccessAndRefreshTokenWithUserData() {
     User user = conftest.returnSaveUser();
 
     AuthResponse authResponse = authService.login(new LoginDTO(user.getEmail(), "12345Abc#"));
@@ -66,8 +63,7 @@ public class TestJwtService {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void testLoginServiceFailed() {
+  public void shouldFailLoginWithIncorrectCredentials() {
     conftest.returnSaveUser();
 
     assertThrows(
@@ -78,8 +74,7 @@ public class TestJwtService {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void testSignUpHappyPath() {
+  public void shouldCreateUserAndReturnAccessToken() {
     AuthResponse authResponse =
         authService.signUp(
             new SignUpDTO("kroty0202@gmail.com", "Juan Antonio Chao Salinas", "Abcd12345#"));

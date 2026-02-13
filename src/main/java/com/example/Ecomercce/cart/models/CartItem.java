@@ -40,7 +40,7 @@ public class CartItem {
   @Column(name = "quantity")
   private Integer quantity;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "cart_id")
   private Cart cart;
 

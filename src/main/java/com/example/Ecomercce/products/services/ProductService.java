@@ -34,10 +34,29 @@ public class ProductService {
   private final CategoryService categoryService;
   private final LoggerService logger;
 
+  public Product getEntityByName(String productName) {
+    return productRepo
+        .getByName(productName)
+        .orElseThrow(() -> new NotFoundException("No se ha podido encontrar el producto"));
+  }
+
   public Product getProductEntityById(Long productId) {
     return productRepo
         .findById(productId)
         .orElseThrow(() -> new NotFoundException("No se ha podido encontrar el producto"));
+  }
+
+  @Transactional
+  public Product getProductEntityByIdAndBlockRow(Long productId) {
+    return productRepo
+        .findByIdForUpdate(productId)
+        .orElseThrow(() -> new NotFoundException("No se ha podido encontrar el producto"));
+  }
+
+  @Transactional
+  public void setStock(Product product, Integer stock) {
+    product.setStock(stock);
+    productRepo.save(product);
   }
 
   @Transactional
@@ -51,11 +70,10 @@ public class ProductService {
     Category category = categoryService.getCategoryEntityById(dto.getCategoryId());
 
     newProduct.setCategory(category);
+    newProduct.setAvailable(true);
 
     try {
       productRepo.saveAndFlush(newProduct);
-
-      logger.addTypeOfLog("bussiness");
       logger.createBusinnessEventLog(
           "product_created", "createProduct", "product_id", newProduct.getId());
     } catch (DataAccessException ex) {
@@ -99,7 +117,6 @@ public class ProductService {
     Product product = getProductEntityById(id);
     try {
       productRepo.delete(product);
-      logger.addTypeOfLog("bussiness");
       logger.createBusinnessEventLog("product_deleted", "deleteProduct", "product_id", id);
     } catch (DataAccessException ex) {
       throw new PersistenceErrorException("Error en la base de datos", ex);
@@ -115,7 +132,6 @@ public class ProductService {
     Product updatedProduct = productMapper.updateEntity(dto, getProductEntityById(productId));
     try {
       productRepo.save(updatedProduct);
-      logger.addTypeOfLog("bussiness");
       logger.createBusinnessEventLog("product_updated", "updateProduct", "product_id", productId);
 
     } catch (DataAccessException ex) {
@@ -134,7 +150,6 @@ public class ProductService {
     product.setCategory(category);
     try {
       productRepo.save(product);
-      logger.addTypeOfLog("bussiness");
       logger.createBusinnessEventLog(
           "product_category_update", "updateCategory", "product_id", productId);
 

@@ -13,11 +13,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 @AllArgsConstructor
 public class GlobalExceptionHandler {
   private final LoggerService logger;
@@ -93,6 +94,15 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(CredentialsException.class)
   public ResponseEntity<ErrorResponseDTO> handleCredentialsException(
+      HttpServletRequest request, Exception ex) {
+    ErrorResponseDTO error =
+        new ErrorResponseDTO(ex.getMessage(), request.getRequestURL().toString());
+    logger.createErrorLog(ex.getMessage(), ex.getClass().toString(), ex, "403");
+    return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity<ErrorResponseDTO> handleBadCredentialsException(
       HttpServletRequest request, Exception ex) {
     ErrorResponseDTO error =
         new ErrorResponseDTO(ex.getMessage(), request.getRequestURL().toString());

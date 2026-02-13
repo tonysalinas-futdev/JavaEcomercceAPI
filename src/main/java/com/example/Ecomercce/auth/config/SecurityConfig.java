@@ -43,6 +43,8 @@ public class SecurityConfig {
                     .authenticated()
                     .requestMatchers(HttpMethod.PUT, "/api/v1/users/*")
                     .authenticated()
+                    .requestMatchers("/api/v1/me/**")
+                    .authenticated()
                     .anyRequest()
                     .authenticated())
         .sessionManagement(

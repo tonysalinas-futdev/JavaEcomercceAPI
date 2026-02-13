@@ -1,4 +1,6 @@
 INSERT INTO Categories(id,name, description) VALUES(5,'Otros','Otros productos');
+INSERT INTO Categories(id,name, description) VALUES(3,'CategoriaPrueba','Categoría de prueba');
+
 
 INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Laptop Lenovo ThinkPad', 'Ultrabook empresarial con 16GB RAM y SSD 512GB', 1200.00, 'thinkpad.jpg', 15, TRUE, 5);
 INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Smartphone Samsung Galaxy S23', 'Teléfono Android gama alta con cámara triple', 950.00, 'galaxy_s23.jpg', 30, TRUE, 5);
@@ -12,7 +14,25 @@ INSERT INTO Products (name, description, price, pic, stock, available, category_
 INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Impresora HP LaserJet Pro', 'Impresora láser monocromo rápida y eficiente', 300.00, 'hp_laserjet.jpg', 18, TRUE, 5);
 INSERT INTO Products (name, description, price, pic, stock, available, category_id) VALUES ('Laptop HP', 'Laptop rapida y potente', 400.00, 'pc_hp.jpg', 18, TRUE, 5);
 
+INSERT INTO Products (id ,name, description, price, pic, stock, available, category_id) VALUES (16,'Laptop Lenovo 2026', 'Laptop rapida', 440.00, 'pc_hp.jpg', 18, TRUE, 5);
+
+INSERT INTO Products (id ,name, description, price, pic, stock, available, category_id) VALUES (17,'PC Gamer 2026', 'PC potente', 1440.00, 'pc_hp.jpg', 40, TRUE, 5);
+
+INSERT INTO Products (id ,name, description, price, pic, stock, available, category_id) VALUES (19,'Mouse Gamer 2026', 'Mouse para jugar', 110.00, 'pc_hp.jpg', 18, TRUE, 5);
+
+
+
+
 
 INSERT INTO Roles(id, role_name) VALUES(1 ,'USER'), (2 ,'ADMIN'), (3,'MANAGER');
 INSERT INTO Permissions(id, permission_name) VALUES(1, 'EDIT_CATALOGUE'), (2, 'CREATE_USER'),(3,'DELETE_USER'), (4,'UPDATE_USER');
 INSERT INTO role_permission(role_id,permission_id)VALUES(2,1),(3,1), (2,2), (2,3),(2,4);
+INSERT INTO Cart(id)VALUES(1);
+INSERT INTO Cart_item(id, product_id, quantity, cart_id)VALUES(1, 16, 2, 1);
+INSERT INTO Cart_item(id, product_id, quantity, cart_id)VALUES(2, 17, 4, 1);
+INSERT INTO Cart_item(id, product_id, quantity, cart_id)VALUES(3, 19, 5, 1);
+INSERT INTO Users(id, name, email, password, cart_id) VALUES(10, 'Eduardo Camavinga Celmi', 'camacelmi@gmail.com', '12345678Abc#',1);
+
+SELECT setval('cart_id_seq', (SELECT MAX(id) FROM Cart));
+SELECT setval('cart_item_id_seq', (SELECT MAX(id) FROM Cart_item));
+

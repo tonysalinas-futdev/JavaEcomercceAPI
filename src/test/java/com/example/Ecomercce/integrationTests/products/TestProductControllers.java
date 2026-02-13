@@ -3,48 +3,57 @@ package com.example.Ecomercce.integrationTests.products;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.example.Ecomercce.auth.dtos.AuthResponse;
-import com.example.Ecomercce.categories.repository.CategoryRepository;
 import com.example.Ecomercce.integrationTests.globalconftest.GlobalConftest;
 import com.example.Ecomercce.products.DTOs.CreateProductDTO;
 import com.example.Ecomercce.products.DTOs.UpdateProduct;
 import com.example.Ecomercce.products.services.ProductService;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@Sql(scripts = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestProductControllers {
   @Autowired private ProductService productService;
-  @Autowired private ProductControllersConftest conftest;
-  @Autowired private CategoryRepository categoryRepo;
   @Autowired private GlobalConftest globalConftest;
 
-  @Test
-  @Sql("/data.sql")
-  public void testCreateProductController() {
-    AuthResponse response = globalConftest.obtainAdminCredentials();
-    if (categoryRepo.getByName("CategoriaPrueba").isEmpty()) {
-      conftest.returnCategory();
-    }
+  private AuthResponse adminCredentials;
+  private AuthResponse userCredentials;
+  private AuthResponse managerCredentials;
 
-    CreateProductDTO dto =
-        CreateProductDTO.builder()
-            .name("Zapatos")
-            .description("Unos Zapatos")
-            .stock(30)
-            .price(40.00)
-            .categoryId(Long.valueOf(1))
-            .build();
+  @BeforeAll
+  public void createUsersAndSetCredentials() {
+    globalConftest.createAdmin();
+    globalConftest.createManager();
+    globalConftest.createUser();
+    adminCredentials = globalConftest.obtainAdminCredentials();
+    userCredentials = globalConftest.obtainUserCredentials();
+    managerCredentials = globalConftest.obtainManagerCredentials();
+  }
+
+  private CreateProductDTO buildProductDTOHelper() {
+    return CreateProductDTO.builder()
+        .name("Zapatos")
+        .description("Unos Zapatos")
+        .stock(30)
+        .price(40.00)
+        .categoryId(3L)
+        .build();
+  }
+
+  @Test
+  public void testCreateProductController() {
+    CreateProductDTO dto = buildProductDTOHelper();
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + response.getAccessToken())
+        .header("Authorization", "Bearer " + adminCredentials.getAccessToken())
         .body(dto)
         .log()
         .all()
@@ -59,13 +68,7 @@ public class TestProductControllers {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void createProductWithoutName() {
-    AuthResponse response = globalConftest.obtainAdminCredentials();
-
-    if (categoryRepo.getByName("CategoriaPrueba").isEmpty()) {
-      conftest.returnCategory();
-    }
+  public void shouldReturn400WhenCreatingProductWithoutName() {
 
     CreateProductDTO dto =
         CreateProductDTO.builder()
@@ -73,12 +76,12 @@ public class TestProductControllers {
             .description("Unos Zapatos")
             .stock(30)
             .price(40.00)
-            .categoryId(Long.valueOf(1))
+            .categoryId(3L)
             .build();
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + response.getAccessToken())
+        .header("Authorization", "Bearer " + adminCredentials.getAccessToken())
         .body(dto)
         .log()
         .all()
@@ -91,13 +94,7 @@ public class TestProductControllers {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void createExistingProduct() {
-    AuthResponse response = globalConftest.obtainManagerCredentials();
-
-    if (categoryRepo.getByName("CategoriaPrueba").isEmpty()) {
-      conftest.returnCategory();
-    }
+  public void shouldReturn409WhenCreatingProductWithExistingName() {
 
     CreateProductDTO dto =
         CreateProductDTO.builder()
@@ -105,13 +102,13 @@ public class TestProductControllers {
             .description("Unos Zapatos")
             .stock(30)
             .price(40.00)
-            .categoryId(Long.valueOf(1))
+            .categoryId(3L)
             .build();
     productService.createProduct(dto);
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + response.getAccessToken())
+        .header("Authorization", "Bearer " + managerCredentials.getAccessToken())
         .body(dto)
         .log()
         .all()
@@ -124,12 +121,10 @@ public class TestProductControllers {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void testGetProductByIdHappyPath() {
-    AuthResponse response = globalConftest.obtainUserCredentials();
+  public void shouldReturn200WhenGettingProductByIdEqual1() {
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + response.getAccessToken())
+        .header("Authorization", "Bearer " + userCredentials.getAccessToken())
         .when()
         .get("http://localhost:8000/api/v1/products/1")
         .then()
@@ -140,8 +135,7 @@ public class TestProductControllers {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void testGetProductByIdFailed() {
+  public void shouldReturn404WhenGettingNoExistingProductId() {
 
     RestAssured.given()
         .contentType("application/json")
@@ -155,15 +149,12 @@ public class TestProductControllers {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void testUpdateProductEndpoint() {
-    AuthResponse response = globalConftest.obtainManagerCredentials();
-
+  public void shouldReturn200WhenUpdatingProductWithIdEqual2() {
     UpdateProduct dto = UpdateProduct.builder().name("Laptop Toshiba").price(399.99).build();
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + response.getAccessToken())
+        .header("Authorization", "Bearer " + managerCredentials.getAccessToken())
         .body(dto)
         .log()
         .all()
@@ -177,9 +168,7 @@ public class TestProductControllers {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void testUpdateProductFail() {
-    AuthResponse response = globalConftest.obtainManagerCredentials();
+  public void shouldReturn409WhenUpdatingProductNameToExistingOne() {
 
     UpdateProduct dto =
         UpdateProduct.builder()
@@ -190,7 +179,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + response.getAccessToken())
+        .header("Authorization", "Bearer " + managerCredentials.getAccessToken())
         .body(dto)
         .log()
         .all()

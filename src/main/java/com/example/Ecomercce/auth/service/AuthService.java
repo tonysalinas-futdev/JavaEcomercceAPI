@@ -6,7 +6,7 @@ import com.example.Ecomercce.auth.dtos.SignUpDTO;
 import com.example.Ecomercce.auth.facade.JwtFacade;
 import com.example.Ecomercce.logging.service.LoggerService;
 import com.example.Ecomercce.users.models.User;
-import com.example.Ecomercce.users.services.UserAdminService;
+import com.example.Ecomercce.users.services.UserService;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class AuthService {
-  private final UserAdminService userService;
+  private final UserService userService;
   private final AuthenticationManager authenticationManager;
   private final LoggerService logger;
   public final JwtFacade facade;
@@ -32,8 +32,7 @@ public class AuthService {
   }
 
   public AuthResponse signUp(SignUpDTO dto) {
-
-    User user = userService.createUserBySignUp(dto);
+    User user = userService.registerValidUser(dto);
     logger.addTypeOfLog("bussiness");
     logger.createBusinnessEventLog("registered_user", "signUp", "user_id", user.getId());
     return facade.saveTokenAndBuildResponse(user);

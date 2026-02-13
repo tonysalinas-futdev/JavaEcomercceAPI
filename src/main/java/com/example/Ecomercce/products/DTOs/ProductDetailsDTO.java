@@ -24,5 +24,7 @@ public class ProductDetailsDTO {
 
   private Double price;
 
+  private Boolean available;
+
   private CategoryListDTO category;
 }

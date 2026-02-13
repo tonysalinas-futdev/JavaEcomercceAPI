@@ -16,16 +16,17 @@ public class JwtTokenProvider {
   private final JwtProperties properties;
 
   public String createAccessToken(User user) {
-    return buildToken(user, properties.getExpiration());
+    return buildToken(user, properties.getExpiration(), "access_token");
   }
 
   public String createRefreshToken(User user) {
-    return buildToken(user, properties.getRefreshTokenExpiration());
+    return buildToken(user, properties.getRefreshTokenExpiration(), "refresh_token");
   }
 
-  public String buildToken(User user, Long expiration) {
+  public String buildToken(User user, Long expiration, String type) {
     return Jwts.builder()
         .id(UUID.randomUUID().toString())
+        .claim("token_type", type)
         .claims(Map.of("id", user.getId().toString()))
         .subject(user.getEmail())
         .issuedAt(new Date(System.currentTimeMillis()))

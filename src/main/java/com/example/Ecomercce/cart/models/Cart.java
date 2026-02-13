@@ -26,7 +26,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 @Getter
 @Setter
-@Table(name = "cart")
+@Table(name = "Cart")
 @Entity
 public class Cart {
   @Id

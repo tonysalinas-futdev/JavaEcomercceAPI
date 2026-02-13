@@ -12,7 +12,7 @@ public class ValidateProduct {
   private ProductService productService;
 
   public Product validateAvaibilityAndStockAndReturn(Long productId, Integer quantity) {
-    Product product = productService.getProductEntityById(productId);
+    Product product = productService.getProductEntityByIdAndBlockRow(productId);
 
     if (product.getAvailable() == false) {
       throw new InvalidRequestException(product.getName() + " no disponible ahora mismo");

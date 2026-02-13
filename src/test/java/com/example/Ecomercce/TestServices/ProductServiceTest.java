@@ -11,28 +11,35 @@ import com.example.Ecomercce.products.DTOs.ProductListDTO;
 import com.example.Ecomercce.products.DTOs.SearchProductDTO;
 import com.example.Ecomercce.products.DTOs.UpdateProduct;
 import com.example.Ecomercce.products.model.Product;
-import com.example.Ecomercce.products.repositories.ProductRepository;
 import com.example.Ecomercce.products.services.ProductService;
 import com.example.Ecomercce.shared.DTOs.paginatedDtos.PaginatedResponseDTO;
 import com.example.Ecomercce.shared.exceptions.AlreadyExistsException;
 import com.example.Ecomercce.shared.exceptions.InvalidRequestException;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
-import com.example.Ecomercce.shared.exceptions.PersistenceErrorException;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class ProductServiceTest {
   @Autowired private ProductService service;
+  @Autowired private ProductTestServiceHelper conftest;
 
-  @Autowired private ServicesConftest conftest;
-
-  @Autowired private ProductRepository productRepo;
+  public CreateProductDTO buildCreateProductDtoHelper(
+      String name, String description, String pic, Double price, Integer stock, Long categoryId) {
+    return CreateProductDTO.builder()
+        .name(name)
+        .description(description)
+        .pic(pic)
+        .price(price)
+        .stock(stock)
+        .categoryId(categoryId)
+        .build();
+  }
 
   @ParameterizedTest
   @CsvSource({
@@ -40,35 +47,17 @@ public class ProductServiceTest {
     "Armario,, ddsfsd, 50.0, 45",
     "Silla,,,400.0,"
   })
-  void testCreateProductHappyPath(
-      String name, String description, String pic, Double price, Integer stock)
-      throws AlreadyExistsException,
-          InvalidRequestException,
-          NotFoundException,
-          PersistenceErrorException {
+  void shouldCreateProductUsingCreateProductDto(
+      String name, String description, String pic, Double price, Integer stock) {
 
-    Category category = conftest.returnCategory();
-
+    Category category = conftest.createCategory();
     CreateProductDTO dto =
-        CreateProductDTO.builder()
-            .name(name)
-            .description(description)
-            .pic(pic)
-            .price(price)
-            .stock(stock)
-            .categoryId(category.getId())
-            .build();
-
+        buildCreateProductDtoHelper(name, description, pic, price, stock, category.getId());
     ProductDetailsDTO product = service.createProduct(dto);
 
-    Optional<Product> refreshedProduct = productRepo.getByName(name);
-
     assertTrue(product.getId() != null);
-    if (refreshedProduct.isPresent()) {
-      assertTrue(refreshedProduct.get().getName().equals(name));
-      assertTrue(refreshedProduct.get().getCreatedAt() != null);
-      assertTrue(refreshedProduct.get().getStock() == stock);
-    }
+    assertTrue(product.getName().equals(name));
+    assertTrue(product.getAvailable().equals(true));
   }
 
   @ParameterizedTest
@@ -77,21 +66,13 @@ public class ProductServiceTest {
     "Helado, Un rico helado,, 60.0, 100",
     "Botas de agua, Muy buenas botas, eqweq, 70.0, 57"
   })
-  void testCreateProductFailPath(
-      String name, String description, String pic, Double price, Integer stock)
-      throws NotFoundException, PersistenceErrorException {
+  void shouldFailWhenCreatingEachProduct(
+      String name, String description, String pic, Double price, Integer stock) {
 
-    conftest.registerProduct();
-    Category category = conftest.returnCategory();
+    conftest.createProductWithNameEqualHelado();
+    Category category = conftest.createCategory();
     CreateProductDTO product =
-        CreateProductDTO.builder()
-            .name(name)
-            .description(description)
-            .pic(pic)
-            .price(price)
-            .stock(stock)
-            .categoryId(category.getId())
-            .build();
+        buildCreateProductDtoHelper(name, description, pic, price, stock, category.getId());
 
     if (name == null) {
       assertThrows(
@@ -107,7 +88,7 @@ public class ProductServiceTest {
             service.createProduct(product);
           });
     } else if (name.equals("Botas de agua")) {
-      product.setCategoryId(Long.valueOf(40));
+      product.setCategoryId(40L);
       assertThrows(
           NotFoundException.class,
           () -> {
@@ -122,14 +103,10 @@ public class ProductServiceTest {
     "TV LG,, ddsfsd, 50.0, 45",
     "Coche Audi,,,400.0,"
   })
-  void testUpdateProductService(
-      String name, String description, String pic, Double price, Integer stock)
-      throws NotFoundException, PersistenceErrorException {
-    conftest.registerProduct();
-    Product product =
-        productRepo
-            .getByName("Helado")
-            .orElseThrow(() -> new NotFoundException("No se ha encontrado el producto"));
+  @DirtiesContext
+  void shouldUpdateProductWithData(
+      String name, String description, String pic, Double price, Integer stock) {
+    Product product = conftest.createProductWithNameEqualHelado();
 
     UpdateProduct updateData =
         UpdateProduct.builder()
@@ -162,14 +139,13 @@ public class ProductServiceTest {
 
   @Test
   @Sql("/data.sql")
-  void testSearchProductsService() throws NotFoundException {
+  void shouldSearchProducts() {
     SearchProductDTO data = SearchProductDTO.builder().maxPrice(130.0).minPrice(40.0).build();
     SearchProductDTO data2 = SearchProductDTO.builder().name("Laptop").build();
 
     PaginatedResponseDTO<ProductListDTO> products = service.searchProducts(data);
     PaginatedResponseDTO<ProductListDTO> laptops = service.searchProducts(data2);
-
-    assertEquals(2, laptops.getTotalElements());
+    assertEquals(3, laptops.getTotalElements());
     assertTrue(products.getTotalElements() > 0);
   }
 }

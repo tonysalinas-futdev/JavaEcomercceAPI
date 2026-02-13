@@ -1,7 +1,9 @@
 package com.example.Ecomercce.users.dtos;
 
+import com.example.Ecomercce.order.models.Order;
 import com.example.Ecomercce.users.models.Role;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +29,8 @@ public class UserDetails {
   private Boolean accountNoLocked;
 
   private Boolean credentialsNoExpired;
+
+  private List<Order> orders;
 
   private Role role;
 }

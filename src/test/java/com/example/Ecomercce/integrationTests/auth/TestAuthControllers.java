@@ -5,22 +5,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.example.Ecomercce.auth.dtos.AuthResponse;
 import com.example.Ecomercce.auth.dtos.LoginDTO;
 import com.example.Ecomercce.auth.dtos.SignUpDTO;
+import com.example.Ecomercce.integrationTests.globalconftest.GlobalConftest;
+import com.example.Ecomercce.users.models.User;
+import com.example.Ecomercce.users.services.UserAdminService;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@Sql(scripts = "classpath:data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 public class TestAuthControllers {
   private RestTemplate restTemplate = new RestTemplate();
+  @Autowired private GlobalConftest conftest;
+  @Autowired private UserAdminService userAdminService;
 
   @Test
-  @Sql("/data.sql")
-  public void testSignUpController() {
+  public void shouldReturnAccessTokenWhenSignUp() {
     SignUpDTO request = new SignUpDTO("krooty24@gmail.com", "Tony Kroos", "Abcd12345#");
     AuthResponse response =
         restTemplate.postForObject(
@@ -30,14 +34,11 @@ public class TestAuthControllers {
   }
 
   @Test
-  @Sql("/data.sql")
-  public void testLoginController() {
-    SignUpDTO request = new SignUpDTO("krooty@gmail.com", "Tony Kroos", "Abcd12345#");
-    AuthResponse response =
-        restTemplate.postForObject(
-            "http://localhost:8000/api/v1/auth/sign_up", request, AuthResponse.class);
+  public void shouldLoginUser() {
 
-    LoginDTO loginDto = new LoginDTO(request.getEmail(), request.getPassword());
+    User user = conftest.createUser();
+
+    LoginDTO loginDto = new LoginDTO(user.getEmail(), "12345678Ja#");
     AuthResponse response2 =
         restTemplate.postForObject(
             "http://localhost:8000/api/v1/auth/login", loginDto, AuthResponse.class);
