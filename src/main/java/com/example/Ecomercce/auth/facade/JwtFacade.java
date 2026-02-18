@@ -3,7 +3,7 @@ package com.example.Ecomercce.auth.facade;
 import com.example.Ecomercce.auth.dtos.AuthResponse;
 import com.example.Ecomercce.auth.exceptions.InvalidTokenException;
 import com.example.Ecomercce.auth.service.JwtService;
-import com.example.Ecomercce.auth.service.JwtValidationService;
+import com.example.Ecomercce.auth.service.TokenValidationService;
 import com.example.Ecomercce.auth.utils.ExtractToken;
 import com.example.Ecomercce.auth.utils.JwtTokenParser;
 import com.example.Ecomercce.users.models.User;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class JwtFacade {
-  private final JwtValidationService validator;
+  private final TokenValidationService validator;
   private final ExtractToken extractor;
   private final JwtTokenParser parser;
   private final JwtService jwtService;
@@ -31,15 +31,17 @@ public class JwtFacade {
 
     String userEmail = parser.extractPayload(refreshToken).getSubject();
 
+    String userId = parser.extractPayload(refreshToken).get("id").toString();
+
     if (userEmail == null) {
       throw new InvalidTokenException("Subject not found");
     }
 
-    return Map.of("userEmail", userEmail, "refreshToken", refreshToken);
+    return Map.of("userEmail", userEmail, "refreshToken", refreshToken, "userId", userId);
   }
 
-  public Claims extractClaims(String token) {
-    String value = extractor.extractBearerToken(token);
+  public Claims extractClaims(String authHeader) {
+    String value = extractor.extractBearerToken(authHeader);
     Claims claims = parser.extractPayload(value);
     return claims;
   }

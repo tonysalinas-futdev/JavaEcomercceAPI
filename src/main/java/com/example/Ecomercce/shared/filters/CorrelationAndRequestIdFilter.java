@@ -1,4 +1,4 @@
-package com.example.Ecomercce.logging.filters;
+package com.example.Ecomercce.shared.filters;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

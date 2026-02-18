@@ -1,11 +1,13 @@
 package com.example.Ecomercce.cart.services;
 
+import com.example.Ecomercce.cart.dto.CartDetailsDTO;
 import com.example.Ecomercce.cart.dto.CreateCartItem;
+import com.example.Ecomercce.cart.mappers.CartMappers;
 import com.example.Ecomercce.cart.models.Cart;
 import com.example.Ecomercce.cart.models.CartItem;
 import com.example.Ecomercce.cart.repositories.CartRepository;
 import com.example.Ecomercce.products.model.Product;
-import com.example.Ecomercce.products.utils.ValidateProduct;
+import com.example.Ecomercce.products.utils.ProductValidator;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
 import com.example.Ecomercce.users.models.User;
 import com.example.Ecomercce.users.services.UserAdminService;
@@ -18,23 +20,30 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class CartService {
   private final CartRepository repo;
-  private final ValidateProduct productValidator;
+  private final ProductValidator productValidator;
   private final CartItemService cartItemService;
   private final UserAdminService userSertvice;
+  private final CartMappers mapper;
 
   public Cart getById(Long cartId) {
     return repo.findById(cartId).orElseThrow(() -> new NotFoundException("Cart not found"));
   }
 
+  public CartDetailsDTO getCartDetailsDTO(Long cartId) {
+    Cart cart = getById(cartId);
+
+    return mapper.entityToCartDetailsDTO(cart);
+  }
+
   private Cart getByCartItemId(Long cartItemId) {
     return repo.findByCartItems_Id(cartItemId)
-        .orElseThrow(() -> new NotFoundException("No se ha encontrado el carrito"));
+        .orElseThrow(() -> new NotFoundException("Cart not found"));
   }
 
   @Transactional
   public Cart getByCartItemIdAndBlockRow(Long cartItemId) {
     return repo.findByIdForUpdate(cartItemId)
-        .orElseThrow(() -> new NotFoundException("No se ha encontrado el carrito"));
+        .orElseThrow(() -> new NotFoundException("Cart not found"));
   }
 
   private Cart buildAndSaveCart(User user) {
@@ -56,27 +65,32 @@ public class CartService {
   }
 
   @Transactional
-  public Cart addItem(Long cartId, String userEmail, CreateCartItem dto) {
+  public CartDetailsDTO addItem(Long cartId, String userEmail, CreateCartItem dto) {
     User user = userSertvice.getUserByEmail(userEmail);
     Cart cart = getOrCreateIfNotExists(cartId, user);
-    Product product =
+    Product productInCartItem =
         productValidator.validateAvaibilityAndStockAndReturn(dto.getProductId(), dto.getQuantity());
 
-    CartItem existingCartItem =
+    CartItem existingItemInCart =
         cartItemService.getByProductAndCartId(dto.getProductId(), cart.getId());
 
-    if (existingCartItem != null) {
-      existingCartItem.setQuantity(dto.getQuantity());
+    if (existingItemInCart != null) {
+      existingItemInCart.setQuantity(dto.getQuantity());
       repo.saveAndFlush(cart);
-      return cart;
+      CartDetailsDTO cartDto = mapper.entityToCartDetailsDTO(cart);
+      return cartDto;
     }
 
     CartItem cartItem =
-        CartItem.builder().product(product).cart(cart).quantity(dto.getQuantity()).build();
+        CartItem.builder()
+            .product(productInCartItem)
+            .cart(cart)
+            .quantity(dto.getQuantity())
+            .build();
 
     cart.getItems().add(cartItem);
     repo.saveAndFlush(cart);
-    return cart;
+    return mapper.entityToCartDetailsDTO(cart);
   }
 
   public Cart cleanCart(Long cartId) {
@@ -86,11 +100,13 @@ public class CartService {
     return cart;
   }
 
-  public Cart deleteItemFromCart(Long cartItemId, Long cartId) {
+  public CartDetailsDTO deleteItemFromCart(Long cartItemId, Long cartId) {
     Cart cart = getByCartItemId(cartId);
     cart.getItems().removeIf(it -> it.getId().equals(cartItemId));
     repo.saveAndFlush(cart);
-    return cart;
+    CartDetailsDTO cartDetailsDTO = mapper.entityToCartDetailsDTO(cart);
+
+    return cartDetailsDTO;
   }
 
   @Transactional

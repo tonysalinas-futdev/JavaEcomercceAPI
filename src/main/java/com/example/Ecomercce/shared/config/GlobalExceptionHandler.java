@@ -3,7 +3,7 @@ package com.example.Ecomercce.shared.config;
 import com.example.Ecomercce.auth.exceptions.CredentialsException;
 import com.example.Ecomercce.auth.exceptions.InvalidTokenException;
 import com.example.Ecomercce.logging.service.LoggerService;
-import com.example.Ecomercce.shared.DTOs.errorDTOs.ErrorResponseDTO;
+import com.example.Ecomercce.shared.dtos.error.ErrorResponseDTO;
 import com.example.Ecomercce.shared.exceptions.AlreadyExistsException;
 import com.example.Ecomercce.shared.exceptions.InvalidRequestException;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
@@ -99,6 +99,18 @@ public class GlobalExceptionHandler {
         new ErrorResponseDTO(ex.getMessage(), request.getRequestURL().toString());
     logger.createErrorLog(ex.getMessage(), ex.getClass().toString(), ex, "403");
     return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+  public ResponseEntity<ErrorResponseDTO> handleAccessDeniedException(
+      HttpServletRequest request, org.springframework.security.access.AccessDeniedException ex) {
+
+    ErrorResponseDTO error =
+        new ErrorResponseDTO("Acces denegated", request.getRequestURL().toString());
+
+    logger.createWarnLog(ex.getMessage(), ex.getClass().toString(), "403");
+
+    return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
   }
 
   @ExceptionHandler(BadCredentialsException.class)

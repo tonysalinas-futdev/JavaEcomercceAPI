@@ -1,4 +1,4 @@
-package com.example.Ecomercce.auth.config;
+package com.example.Ecomercce.auth.filters;
 
 import com.example.Ecomercce.auth.exceptions.InvalidTokenException;
 import com.example.Ecomercce.auth.facade.JwtFacade;
@@ -45,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
       Map<String, String> data =
           facade.extractBearerTokenAndPayload(request.getHeader(HttpHeaders.AUTHORIZATION));
-      User user = userService.getUserByEmail(data.get("userEmail"));
+      User user = userService.getUserEntityById(Long.valueOf(data.get("userId")));
       UserDetails userDetails = this.userDetailsService.loadUserByUsername(user.getEmail());
 
       var authReponse =

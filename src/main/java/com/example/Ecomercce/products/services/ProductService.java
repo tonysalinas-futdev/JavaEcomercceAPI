@@ -12,7 +12,7 @@ import com.example.Ecomercce.products.mappers.ProductMappers;
 import com.example.Ecomercce.products.model.Product;
 import com.example.Ecomercce.products.repositories.ProductRepository;
 import com.example.Ecomercce.products.specifications.ProductSpecifications;
-import com.example.Ecomercce.shared.DTOs.paginatedDtos.PaginatedResponseDTO;
+import com.example.Ecomercce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import com.example.Ecomercce.shared.exceptions.AlreadyExistsException;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
 import com.example.Ecomercce.shared.exceptions.PersistenceErrorException;
@@ -37,20 +37,20 @@ public class ProductService {
   public Product getEntityByName(String productName) {
     return productRepo
         .getByName(productName)
-        .orElseThrow(() -> new NotFoundException("No se ha podido encontrar el producto"));
+        .orElseThrow(() -> new NotFoundException("Product not found"));
   }
 
   public Product getProductEntityById(Long productId) {
     return productRepo
         .findById(productId)
-        .orElseThrow(() -> new NotFoundException("No se ha podido encontrar el producto"));
+        .orElseThrow(() -> new NotFoundException("Product not found"));
   }
 
   @Transactional
   public Product getProductEntityByIdAndBlockRow(Long productId) {
     return productRepo
         .findByIdForUpdate(productId)
-        .orElseThrow(() -> new NotFoundException("No se ha podido encontrar el producto"));
+        .orElseThrow(() -> new NotFoundException("Product not found"));
   }
 
   @Transactional
@@ -62,7 +62,7 @@ public class ProductService {
   @Transactional
   public ProductDetailsDTO createProduct(CreateProductDTO dto) {
     if (productRepo.getByName(dto.getName()).isPresent()) {
-      throw new AlreadyExistsException("Ya existe un producto con el nombre: " + dto.getName());
+      throw new AlreadyExistsException("Already exists product with name: " + dto.getName());
     }
 
     Product newProduct = productMapper.createProductDTOToEntity(dto);
@@ -77,7 +77,7 @@ public class ProductService {
       logger.createBusinnessEventLog(
           "product_created", "createProduct", "product_id", newProduct.getId());
     } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Error en la base de datos", ex);
+      throw new PersistenceErrorException("Database Error", ex);
     }
 
     return productMapper.productToDetailsDTO(newProduct);
@@ -119,7 +119,7 @@ public class ProductService {
       productRepo.delete(product);
       logger.createBusinnessEventLog("product_deleted", "deleteProduct", "product_id", id);
     } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Error en la base de datos", ex);
+      throw new PersistenceErrorException("Database Error", ex);
     }
   }
 
@@ -127,7 +127,7 @@ public class ProductService {
   public ProductDetailsDTO updateProduct(UpdateProduct dto, Long productId)
       throws NotFoundException, PersistenceErrorException {
     if (productRepo.getByName(dto.getName()).isPresent()) {
-      throw new AlreadyExistsException("Ya existe un producto con ese nombre");
+      throw new AlreadyExistsException("Product already exists");
     }
     Product updatedProduct = productMapper.updateEntity(dto, getProductEntityById(productId));
     try {
@@ -135,7 +135,7 @@ public class ProductService {
       logger.createBusinnessEventLog("product_updated", "updateProduct", "product_id", productId);
 
     } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Error en la base de datos", ex);
+      throw new PersistenceErrorException("Database error", ex);
     }
 
     return productMapper.productToDetailsDTO(updatedProduct);
@@ -154,7 +154,7 @@ public class ProductService {
           "product_category_update", "updateCategory", "product_id", productId);
 
     } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Error en la base de datos", ex);
+      throw new PersistenceErrorException("Database error", ex);
     }
 
     return productMapper.productToDetailsDTO(product);

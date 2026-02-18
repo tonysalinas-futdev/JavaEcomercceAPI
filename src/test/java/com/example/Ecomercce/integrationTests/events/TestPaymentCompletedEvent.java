@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.example.Ecomercce.order.dtos.order.OrderDTO;
 import com.example.Ecomercce.order.models.Order;
 import com.example.Ecomercce.order.models.OrderStatus;
 import com.example.Ecomercce.order.service.OrderService;
@@ -18,9 +19,9 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
-import org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
+@Transactional
+@Sql(
+    scripts = {"/clean.sql", "/data.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 public class TestPaymentCompletedEvent {
   @Autowired private OrderService orderService;
   @Autowired private PaymentService paymentService;
@@ -38,7 +44,7 @@ public class TestPaymentCompletedEvent {
 
   public CreatePaymentDto createOrderAndReturnCreatePaymentDto() {
 
-    Order order = orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
+    OrderDTO order = orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
 
     return CreatePaymentDto.builder().currency("usd").orderId(order.getId()).build();
   }
@@ -56,7 +62,7 @@ public class TestPaymentCompletedEvent {
 
   private void savePaymentEntity() throws StripeException {
     CreatePaymentDto dto = createOrderAndReturnCreatePaymentDto();
-    PaymentIntent intent = paymentService.createIntentAndSavePayment(dto);
+    paymentService.createIntentAndSavePayment(dto);
   }
 
   private Event createFakeEvent() {
@@ -67,14 +73,13 @@ public class TestPaymentCompletedEvent {
   }
 
   @Test
-  @Sql("/data.sql")
   public void shouldSetOrderAsPaidAndUpdateProductsStock() throws StripeException {
     savePaymentEntity();
     paymentService.updatePaymentStatus("id_43", createFakeEvent());
-
     Payment payment = paymentService.getByOrderId(1L);
     Order order = orderService.getOrderEntityById(1L);
     List<Product> products = order.getOrderDetails().stream().map(itm -> itm.getProduct()).toList();
+
     Product productWithId16AndInitialStock18 =
         products.stream().filter(pro -> pro.getId().equals(16L)).findFirst().get();
     Product productWithId17AndInitialStock40 =

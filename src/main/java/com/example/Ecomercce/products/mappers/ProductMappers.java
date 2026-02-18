@@ -1,5 +1,6 @@
 package com.example.Ecomercce.products.mappers;
 
+import com.example.Ecomercce.categories.mappers.CategoryMappers;
 import com.example.Ecomercce.products.DTOs.CreateProductDTO;
 import com.example.Ecomercce.products.DTOs.ProductAdminDetails;
 import com.example.Ecomercce.products.DTOs.ProductDetailsDTO;
@@ -11,7 +12,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+    componentModel = "spring",
+    uses = {CategoryMappers.class})
 public interface ProductMappers {
 
   Product createProductDTOToEntity(CreateProductDTO dto);

@@ -12,7 +12,7 @@ import com.example.Ecomercce.products.DTOs.SearchProductDTO;
 import com.example.Ecomercce.products.DTOs.UpdateProduct;
 import com.example.Ecomercce.products.model.Product;
 import com.example.Ecomercce.products.services.ProductService;
-import com.example.Ecomercce.shared.DTOs.paginatedDtos.PaginatedResponseDTO;
+import com.example.Ecomercce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import com.example.Ecomercce.shared.exceptions.AlreadyExistsException;
 import com.example.Ecomercce.shared.exceptions.InvalidRequestException;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
@@ -23,8 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@Sql(
+    scripts = {"/clean.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 public class ProductServiceTest {
   @Autowired private ProductService service;
   @Autowired private ProductTestServiceHelper conftest;

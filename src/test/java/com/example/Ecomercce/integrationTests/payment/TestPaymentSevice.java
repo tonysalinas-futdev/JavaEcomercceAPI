@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.example.Ecomercce.order.models.Order;
+import com.example.Ecomercce.order.dtos.order.OrderDTO;
 import com.example.Ecomercce.order.service.OrderService;
 import com.example.Ecomercce.payments.dto.CreatePaymentDto;
 import com.example.Ecomercce.payments.model.Payment;
@@ -26,10 +26,13 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
-@Sql(scripts = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(
+    scripts = {"/clean.sql", "/data.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 public class TestPaymentSevice {
   @Autowired private PaymentService service;
   @Autowired private OrderService orderService;
@@ -41,7 +44,7 @@ public class TestPaymentSevice {
   @BeforeEach
   public void createOrderAndReturnCreatePaymentDto() {
 
-    Order order = orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
+    OrderDTO order = orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
 
     paymentDto = CreatePaymentDto.builder().currency("usd").orderId(order.getId()).build();
   }

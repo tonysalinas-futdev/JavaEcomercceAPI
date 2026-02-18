@@ -29,7 +29,6 @@ public class TokenService {
   }
 
   public Token getToken(String value) {
-    return repo.getByToken(value)
-        .orElseThrow(() -> new NotFoundException("No se ha podido encontrar ese token"));
+    return repo.getByToken(value).orElseThrow(() -> new NotFoundException("Token not found"));
   }
 }

@@ -1,10 +1,10 @@
 package com.example.Ecomercce.users.services;
 
 import com.example.Ecomercce.logging.service.LoggerService;
-import com.example.Ecomercce.order.models.Order;
-import com.example.Ecomercce.shared.DTOs.paginatedDtos.PaginatedResponseDTO;
+import com.example.Ecomercce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
 import com.example.Ecomercce.shared.exceptions.PersistenceErrorException;
+import com.example.Ecomercce.shared.utils.PageableUtils;
 import com.example.Ecomercce.users.dtos.CreateUser;
 import com.example.Ecomercce.users.dtos.UpdateUser;
 import com.example.Ecomercce.users.dtos.UserDetails;
@@ -36,22 +36,13 @@ public class UserAdminService {
 
   public User getUserEntityById(Long userId) {
     User user = repo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-
     return user;
   }
 
   public User getUserByEmail(String email) {
     User user =
         repo.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
-
     return user;
-  }
-
-  public List<Order> getAllUserOrders(Long userId) {
-    User user =
-        repo.findByIdAndLoadOrders(userId)
-            .orElseThrow(() -> new NotFoundException("User Not Found"));
-    return user.getOrders();
   }
 
   public UserDetails getUserDetailsById(Long id) {
@@ -80,14 +71,9 @@ public class UserAdminService {
   }
 
   public PaginatedResponseDTO<UserList> getAllUsers(Integer page, Integer size) {
-    if (page == null) {
-      page = 0;
-    }
-    if (size == null) {
-      size = 10;
-    }
-
-    Pageable pageable = PageRequest.of(page, size);
+    var verifyPage = PageableUtils.verifyPage(page);
+    var verifySize = PageableUtils.verifySize(size);
+    Pageable pageable = PageRequest.of(verifyPage, verifySize);
     Page<User> users = repo.findAll(pageable);
     List<UserList> usersList = users.stream().map(u -> mapper.entityToUserListDTO(u)).toList();
 

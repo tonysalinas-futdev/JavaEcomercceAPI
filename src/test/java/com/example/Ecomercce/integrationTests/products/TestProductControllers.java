@@ -15,9 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@Sql(scripts = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(
+    scripts = {"/clean.sql", "/data.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestProductControllers {
   @Autowired private ProductService productService;
@@ -142,7 +145,7 @@ public class TestProductControllers {
         .when()
         .get("http://localhost:8000/api/v1/products/500")
         .then()
-        .body("message", equalTo("No se ha podido encontrar el producto"))
+        .body("message", equalTo("Product not found"))
         .log()
         .all()
         .statusCode(404); // Expected 404
@@ -186,7 +189,7 @@ public class TestProductControllers {
         .when()
         .patch("http://localhost:8000/api/v1/products/2")
         .then()
-        .body("message", equalTo("Ya existe un producto con ese nombre"))
+        .body("message", equalTo("Product already exists"))
         .log()
         .all()
         .statusCode(409); // Expected 409

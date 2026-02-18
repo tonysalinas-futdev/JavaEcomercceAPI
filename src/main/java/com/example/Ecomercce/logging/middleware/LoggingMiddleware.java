@@ -1,4 +1,4 @@
-package com.example.Ecomercce.shared.middlewares;
+package com.example.Ecomercce.logging.middleware;
 
 import com.example.Ecomercce.logging.service.LoggerService;
 import jakarta.servlet.Filter;

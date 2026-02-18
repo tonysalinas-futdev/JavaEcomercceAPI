@@ -7,7 +7,6 @@ import com.example.Ecomercce.auth.dtos.LoginDTO;
 import com.example.Ecomercce.auth.dtos.SignUpDTO;
 import com.example.Ecomercce.integrationTests.globalconftest.GlobalConftest;
 import com.example.Ecomercce.users.models.User;
-import com.example.Ecomercce.users.services.UserAdminService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,11 +16,12 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@Sql(scripts = "classpath:data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(
+    scripts = {"/clean.sql", "/data.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 public class TestAuthControllers {
   private RestTemplate restTemplate = new RestTemplate();
   @Autowired private GlobalConftest conftest;
-  @Autowired private UserAdminService userAdminService;
 
   @Test
   public void shouldReturnAccessTokenWhenSignUp() {

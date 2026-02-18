@@ -1,5 +1,6 @@
 package com.example.Ecomercce.auth.config;
 
+import com.example.Ecomercce.auth.filters.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,10 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers("/api/v1/auth/**")
+                    .permitAll()
+                    .requestMatchers("swagger-ui/**")
+                    .permitAll()
+                    .requestMatchers("/v3/api-docs/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/products/*")
                     .permitAll()

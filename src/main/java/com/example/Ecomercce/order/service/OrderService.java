@@ -4,11 +4,13 @@ import com.example.Ecomercce.cart.models.Cart;
 import com.example.Ecomercce.cart.services.CartService;
 import com.example.Ecomercce.cart.utils.CalculatePriceService;
 import com.example.Ecomercce.logging.service.LoggerService;
+import com.example.Ecomercce.order.dtos.order.OrderDTO;
+import com.example.Ecomercce.order.mappers.order.OrderMapper;
 import com.example.Ecomercce.order.models.Order;
 import com.example.Ecomercce.order.models.OrderDetails;
 import com.example.Ecomercce.order.models.OrderStatus;
 import com.example.Ecomercce.order.repositories.OrderRepository;
-import com.example.Ecomercce.products.utils.ValidateProduct;
+import com.example.Ecomercce.products.utils.ProductValidator;
 import com.example.Ecomercce.shared.exceptions.NotFoundException;
 import com.example.Ecomercce.shared.exceptions.PersistenceErrorException;
 import com.example.Ecomercce.shared.utils.PageableUtils;
@@ -31,9 +33,10 @@ import org.springframework.stereotype.Service;
 public class OrderService {
   private final CartService cartService;
   private final OrderRepository repo;
-  private final ValidateProduct validator;
+  private final ProductValidator validator;
   private final UserAdminService userService;
   private final LoggerService logger;
+  private final OrderMapper mapper;
 
   private Order buildOrder(UUID requestId, User user, Double totalAmount, Cart cart) {
 
@@ -64,16 +67,21 @@ public class OrderService {
   }
 
   public Order getOrderEntityById(Long orderId) {
-    return repo.findById(orderId).orElseThrow(() -> new NotFoundException("Orden no encontrada"));
+    return repo.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+  }
+
+  public OrderDTO getOrderDTO(Long orderId) {
+    Order order = getOrderEntityById(orderId);
+    return mapper.entityToOrderDTO(order);
   }
 
   public Order getEntityByIdAndLoadUser(Long orderId) {
     return repo.findByIdAndLoadUser(orderId)
-        .orElseThrow(() -> new NotFoundException("Orden no encontrada"));
+        .orElseThrow(() -> new NotFoundException("Order not found"));
   }
 
   @Transactional
-  public Order createOrder(Long cartId, UUID requestId, String userEmail) {
+  public OrderDTO createOrder(Long cartId, UUID requestId, String userEmail) {
     Cart cart = cartService.getByCartItemIdAndBlockRow(cartId);
 
     User user = userService.getUserByEmail(userEmail);
@@ -91,7 +99,7 @@ public class OrderService {
     try {
       repo.saveAndFlush(order);
       logger.createBusinnessEventLog("order_created", "createOrder", "order_id", order.getId());
-      return order;
+      return mapper.entityToOrderDTO(order);
     } catch (DataAccessException e) {
       throw new PersistenceErrorException("Database Error", e);
     }

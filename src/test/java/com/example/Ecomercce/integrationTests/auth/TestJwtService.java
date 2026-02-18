@@ -24,7 +24,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
-@Sql(scripts = "classpath:data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(
+    scripts = {"/clean.sql", "/data.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 @Transactional
 public class TestJwtService {
   @Autowired private JwtConftest conftest;

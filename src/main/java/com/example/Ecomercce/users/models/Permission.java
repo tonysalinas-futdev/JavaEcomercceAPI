@@ -32,7 +32,7 @@ public class Permission {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "permission_name")
+  @Column(name = "permission_name", unique = true)
   private String permissionName;
 
   @ManyToMany(fetch = FetchType.EAGER)

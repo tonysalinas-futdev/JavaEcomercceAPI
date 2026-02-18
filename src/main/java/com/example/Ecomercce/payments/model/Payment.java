@@ -1,6 +1,7 @@
 package com.example.Ecomercce.payments.model;
 
 import com.example.Ecomercce.payments.status.PaymentStatus;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,6 +33,7 @@ public class Payment {
 
   private String currency;
 
+  @Column(unique = true)
   private String paymentIntentId;
 
   private PaymentStatus status;

@@ -33,13 +33,13 @@ public class Role {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "role_name")
+  @Column(name = "role_name", unique = true)
   @Enumerated(EnumType.STRING)
   private RoleEnum roleEnum;
 
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<User> users;
 
-  @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+  @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
   private Set<Permission> permissions;
 }

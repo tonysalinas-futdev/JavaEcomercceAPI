@@ -6,7 +6,7 @@ import com.example.Ecomercce.products.DTOs.ProductListDTO;
 import com.example.Ecomercce.products.DTOs.SearchProductDTO;
 import com.example.Ecomercce.products.DTOs.UpdateProduct;
 import com.example.Ecomercce.products.services.ProductService;
-import com.example.Ecomercce.shared.DTOs.paginatedDtos.PaginatedResponseDTO;
+import com.example.Ecomercce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.net.URI;

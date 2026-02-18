@@ -2,6 +2,7 @@ package com.example.Ecomercce.integrationTests.cart.cartservices;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.example.Ecomercce.cart.dto.CartDetailsDTO;
 import com.example.Ecomercce.cart.dto.CreateCartItem;
 import com.example.Ecomercce.cart.models.Cart;
 import com.example.Ecomercce.cart.services.CartService;
@@ -17,7 +18,9 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 @Transactional
-@Sql(scripts = "classpath:data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(
+    scripts = {"/clean.sql", "/data.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 public class TestCartServices {
   @Autowired private GlobalConftest globalConftest;
   @Autowired private CartService service;
@@ -32,8 +35,9 @@ public class TestCartServices {
     CreateCartItem item = buildCartItemHelper(1L, 15);
     CreateCartItem item2 = buildCartItemHelper(2L, 12);
 
-    Cart cartWithOneItem = service.addItem(null, user.getEmail(), item);
-    Cart cartWithTwoItems = service.addItem(cartWithOneItem.getId(), user.getEmail(), item2);
+    CartDetailsDTO cartWithOneItem = service.addItem(null, user.getEmail(), item);
+    CartDetailsDTO cartWithTwoItems =
+        service.addItem(cartWithOneItem.getId(), user.getEmail(), item2);
 
     assertEquals(2, cartWithTwoItems.getItems().size());
   }
@@ -44,8 +48,8 @@ public class TestCartServices {
     CreateCartItem item = buildCartItemHelper(1L, 10);
     CreateCartItem existingItemWithQuantity20 = buildCartItemHelper(1L, 15);
 
-    Cart cartWithItemQuantity15 = service.addItem(null, user.getEmail(), item);
-    Cart cartWithExistingItemQuantity20 =
+    CartDetailsDTO cartWithItemQuantity15 = service.addItem(null, user.getEmail(), item);
+    CartDetailsDTO cartWithExistingItemQuantity20 =
         service.addItem(
             cartWithItemQuantity15.getId(), user.getEmail(), existingItemWithQuantity20);
 

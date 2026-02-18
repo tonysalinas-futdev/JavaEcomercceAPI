@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class ValidateProduct {
+public class ProductValidator {
   private ProductService productService;
 
   public Product validateAvaibilityAndStockAndReturn(Long productId, Integer quantity) {

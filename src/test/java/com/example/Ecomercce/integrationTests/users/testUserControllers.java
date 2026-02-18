@@ -3,7 +3,9 @@ package com.example.Ecomercce.integrationTests.users;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.example.Ecomercce.integrationTests.globalconftest.GlobalConftest;
+import com.example.Ecomercce.users.dtos.CreateUser;
 import com.example.Ecomercce.users.dtos.UpdateUserProfile;
+import com.example.Ecomercce.users.enums.RoleEnum;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@Sql(scripts = "classpath:data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(
+    scripts = {"/clean.sql", "/data.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 public class testUserControllers {
   @Autowired private GlobalConftest globalConftest;
 
@@ -72,5 +76,30 @@ public class testUserControllers {
         .log()
         .all()
         .statusCode(409);
+  }
+
+  @Test
+  public void shouldCreateUserByAdmin() {
+    globalConftest.createAdmin();
+    var adminCredentials = globalConftest.obtainAdminCredentials();
+    CreateUser userData =
+        CreateUser.builder()
+            .name("User Created")
+            .email("example@gmail.com")
+            .role(RoleEnum.ADMIN)
+            .password("Abcd1234#")
+            .build();
+
+    RestAssured.given()
+        .contentType("application/json")
+        .header("Authorization", "Bearer " + adminCredentials.getAccessToken())
+        .body(userData)
+        .when()
+        .post("http://localhost:8000/api/v1/admin")
+        .then()
+        .body("name", equalTo("User Created"))
+        .log()
+        .all()
+        .statusCode(201);
   }
 }
