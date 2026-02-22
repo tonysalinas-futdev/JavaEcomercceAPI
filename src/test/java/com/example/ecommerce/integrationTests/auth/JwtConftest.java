@@ -1,10 +1,13 @@
 package com.example.ecommerce.integrationTests.auth;
 
+import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.users.enums.RoleEnum;
-import com.example.ecommerce.users.helpers.UserServicesHelper;
 import com.example.ecommerce.users.models.Role;
 import com.example.ecommerce.users.models.User;
+import com.example.ecommerce.users.repository.RoleRepository;
 import com.example.ecommerce.users.repository.UserRepository;
+import com.example.ecommerce.users.utils.BuildUserUtil;
+
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +17,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class JwtConftest {
   private final UserRepository userRepo;
-  private final UserServicesHelper helper;
+  private final RoleRepository roleRepository;
   private final PasswordEncoder encoder;
 
   public User returnSaveUser() {
@@ -29,7 +32,7 @@ public class JwtConftest {
             .password(encoder.encode("12345Abc#"))
             .build();
 
-    Role role = helper.getRoleByEnum(RoleEnum.USER);
+    Role role = roleRepository.findByRoleEnum(RoleEnum.USER).orElseThrow(()-> new NotFoundException("Role USER not found"));
     user.setRole(role);
 
     userRepo.saveAndFlush(user);

@@ -9,11 +9,13 @@ import com.example.ecommerce.users.dtos.UpdatePassword;
 import com.example.ecommerce.users.dtos.UpdateUserProfile;
 import com.example.ecommerce.users.dtos.UserProfile;
 import com.example.ecommerce.users.enums.RoleEnum;
-import com.example.ecommerce.users.helpers.UserServicesHelper;
 import com.example.ecommerce.users.mappers.UserMappers;
 import com.example.ecommerce.users.models.Role;
 import com.example.ecommerce.users.models.User;
+import com.example.ecommerce.users.repository.RoleRepository;
 import com.example.ecommerce.users.repository.UserRepository;
+import com.example.ecommerce.users.utils.BuildUserUtil;
+
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -28,43 +30,14 @@ public class UserService {
   private final UserRepository repo;
   private final PasswordEncoder encoder;
   private final UserMappers mapper;
-  private final UserServicesHelper helper;
-
-  private User buildUser(@Valid SignUpDTO dto) {
-    User user =
-        User.builder()
-            .name(dto.getName())
-            .email(dto.getEmail())
-            .password(encoder.encode(dto.getPassword()))
-            .isEnabled(true)
-            .accountNoLocked(true)
-            .build();
-    Role role = helper.getRoleByEnum(RoleEnum.USER);
-    user.setRole(role);
-    return user;
-  }
-
-  public User getUserByEmail(String email) {
-    return repo.findUserByEmail(email).orElseThrow(() -> new NotFoundException("Email not found"));
-  }
-
-  public List<Order> getUserByEmailAndLoadOrders(String email) {
-    var user =
-        repo.findByEmailAndLoadOrders(email)
-            .orElseThrow(() -> new NotFoundException("Email not found"));
-    return user.getOrders();
-  }
-
-  public UserProfile getProfile(String email) {
-    User user = getUserByEmail(email);
-    return mapper.entityToUserProfileDTO(user);
-  }
+  private final UserQueryService queryService;
+  private final RoleRepository roleRepo;
 
   @Transactional
   public UserProfile updateProfile(UpdateUserProfile dto, String userEmail) {
-    User user = getUserByEmail(userEmail);
+    User user = queryService.findByEmailOrThrow(userEmail);
     if (dto.getEmail() != null) {
-      helper.verifyExistingEmail(dto.getEmail());
+      queryService.findByEmailAndThrowIfExists(dto.getEmail());
     }
 
     try {
@@ -78,7 +51,7 @@ public class UserService {
 
   @Transactional
   public void updatePassword(UpdatePassword data, String userEmail) {
-    User user = getUserByEmail(userEmail);
+    User user = queryService.findByEmailOrThrow(userEmail);
     if (encoder.matches(data.getOldPassword(), user.getPassword())) {
       user.setPassword(encoder.encode(data.getNewPassword()));
       repo.save(user);
@@ -90,8 +63,11 @@ public class UserService {
 
   @Transactional
   public User registerValidUser(@Valid SignUpDTO dto) {
-    helper.verifyExistingEmail(dto.getEmail());
-    User user = buildUser(dto);
+    queryService.findByEmailAndThrowIfExists(dto.getEmail());
+    User user =BuildUserUtil.buildUser(dto);
+    Role role = roleRepo.findByRoleEnum(RoleEnum.USER).orElseThrow(()-> new NotFoundException("Role USER not found"));
+    user.setPassword(encoder.encode(dto.getPassword()));
+    user.setRole(role);
 
     try {
       repo.saveAndFlush(user);

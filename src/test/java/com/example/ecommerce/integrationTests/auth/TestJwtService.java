@@ -13,6 +13,8 @@ import com.example.ecommerce.auth.utils.JwtTokenParser;
 import com.example.ecommerce.auth.utils.JwtTokenProvider;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserAdminService;
+import com.example.ecommerce.users.services.UserQueryService;
+
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,7 @@ public class TestJwtService {
   @Autowired private JwtService service;
   @Autowired private JwtTokenProvider provider;
   @Autowired private UserAdminService userService;
+  @Autowired private UserQueryService userQueryService;
   @Autowired private AuthService authService;
   @Autowired private JwtTokenParser parser;
 
@@ -81,7 +84,7 @@ public class TestJwtService {
         authService.signUp(
             new SignUpDTO("kroty0202@gmail.com", "Juan Antonio Chao Salinas", "Abcd12345#"));
 
-    User user = userService.getUserByEmail("kroty0202@gmail.com");
+    User user = userQueryService.findByEmailOrThrow("kroty0202@gmail.com");
     Claims accessToken = parser.extractPayload(authResponse.getAccessToken());
     AuthResponse loginTokens = authService.login(new LoginDTO("kroty0202@gmail.com", "Abcd12345#"));
 

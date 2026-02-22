@@ -11,6 +11,8 @@ import com.example.ecommerce.products.utils.ProductValidator;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserAdminService;
+import com.example.ecommerce.users.services.UserQueryService;
+
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -22,7 +24,7 @@ public class CartService {
   private final CartRepository repo;
   private final ProductValidator productValidator;
   private final CartItemService cartItemService;
-  private final UserAdminService userSertvice;
+  private final UserQueryService userQueryService;
   private final CartMappers mapper;
 
   public Cart getById(Long cartId) {
@@ -66,7 +68,7 @@ public class CartService {
 
   @Transactional
   public CartDetailsDTO addItem(Long cartId, String userEmail, CreateCartItem dto) {
-    User user = userSertvice.getUserByEmail(userEmail);
+    User user = userQueryService.findByEmailOrThrow(userEmail);
     Cart cart = getOrCreateIfNotExists(cartId, user);
     Product productInCartItem =
         productValidator.validateAvaibilityAndStockAndReturn(dto.getProductId(), dto.getQuantity());

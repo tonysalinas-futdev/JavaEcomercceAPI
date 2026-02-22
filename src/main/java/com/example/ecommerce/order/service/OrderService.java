@@ -18,6 +18,8 @@ import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
 import com.example.ecommerce.shared.utils.PageableUtils;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserAdminService;
+import com.example.ecommerce.users.services.UserQueryService;
+
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -34,7 +36,7 @@ public class OrderService {
   private final CartService cartService;
   private final OrderRepository repo;
   private final ProductValidator validator;
-  private final UserAdminService userService;
+  private final UserQueryService userQueryService;
   private final OrderMapper mapper;
 
   public Order getOrderEntityById(Long orderId) {
@@ -59,7 +61,7 @@ public class OrderService {
   public OrderDTO createOrder(Long cartId, UUID requestId, String userEmail) {
     Cart cart = cartService.getByCartItemIdAndBlockRow(cartId);
 
-    User user = userService.getUserByEmail(userEmail);
+    User user = userQueryService.findByEmailOrThrow(userEmail);
 
     cart.getItems()
         .forEach(
@@ -102,7 +104,7 @@ public class OrderService {
   public Page<Order> getAllUserOrders(Long userID, Integer size, Integer number) {
     var verifySize = PageableUtils.verifySize(size);
     var verifyPage = PageableUtils.verifyPage(number);
-    userService.getUserEntityById(userID);
+    userQueryService.findEntityByIdOrThrow(userID);
     Pageable pageable = PageRequest.of(verifyPage, verifySize, Sort.by("createdAt").ascending());
     return repo.findByUserId(userID, pageable);
   }

@@ -4,6 +4,7 @@ import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.users.dtos.UpdatePassword;
 import com.example.ecommerce.users.dtos.UpdateUserProfile;
 import com.example.ecommerce.users.dtos.UserProfile;
+import com.example.ecommerce.users.services.UserQueryService;
 import com.example.ecommerce.users.services.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -25,28 +26,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/me")
 public class UserControllers {
   private final UserService service;
+  private final UserQueryService queryService;
 
   @GetMapping("/profile")
   public ResponseEntity<UserProfile> getProfile(Authentication authentication) {
-    UserProfile user = service.getProfile(authentication.getName());
-
-    ThreadContext.putAll(Map.of("use_case", "get_profile", "entity", "user"));
+    UserProfile user = queryService.findByEmailAndReturnProfileDto(authentication.getName());
     return ResponseEntity.ok(user);
   }
 
-  @GetMapping(value = "/orders")
-  public ResponseEntity<List<Order>> getOrders(Authentication authentication) {
-    List<Order> orders = service.getUserByEmailAndLoadOrders(authentication.getName());
-
-    ThreadContext.putAll(Map.of("use_case", "get_orders", "entity", "user"));
-    return ResponseEntity.ok(orders);
-  }
 
   @PutMapping("/password")
   public ResponseEntity<?> updatePassword(
       @RequestBody @Valid UpdatePassword dto, Authentication authentication) {
     service.updatePassword(dto, authentication.getName());
-    ThreadContext.putAll(Map.of("use_case", "update_password", "entity", "user"));
     return ResponseEntity.ok().build();
   }
 
@@ -54,8 +46,6 @@ public class UserControllers {
   public ResponseEntity<UserProfile> updateProfile(
       @RequestBody @Valid UpdateUserProfile dto, Authentication authentication) {
     UserProfile user = service.updateProfile(dto, authentication.getName());
-
-    ThreadContext.putAll(Map.of("use_case", "update_profile", "entity", "user"));
     return ResponseEntity.ok(user);
   }
 }

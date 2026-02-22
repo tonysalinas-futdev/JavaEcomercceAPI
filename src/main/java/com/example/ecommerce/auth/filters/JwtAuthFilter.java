@@ -5,6 +5,8 @@ import com.example.ecommerce.auth.facade.JwtFacade;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserAdminService;
+import com.example.ecommerce.users.services.UserQueryService;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +28,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
   private final UserDetailsService userDetailsService;
-  private final UserAdminService userService;
+  private final UserQueryService userQueryService;
   private final JwtFacade facade;
 
   @Override
@@ -45,7 +47,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
       Map<String, String> data =
           facade.extractBearerTokenAndPayload(request.getHeader(HttpHeaders.AUTHORIZATION));
-      User user = userService.getUserEntityById(Long.valueOf(data.get("userId")));
+      User user = userQueryService.findEntityByIdOrThrow(Long.valueOf(data.get("userId")));
       UserDetails userDetails = this.userDetailsService.loadUserByUsername(user.getEmail());
 
       var authReponse =
