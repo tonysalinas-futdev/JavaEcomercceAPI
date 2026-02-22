@@ -76,8 +76,8 @@ public class TestPaymentCompletedEvent {
   public void shouldSetOrderAsPaidAndUpdateProductsStock() throws StripeException {
     savePaymentEntity();
     paymentService.updatePaymentStatus("id_43", createFakeEvent());
-    Payment payment = paymentService.getByOrderId(1L);
-    Order order = orderService.getOrderEntityById(1L);
+    Payment payment = paymentService.findByOrderIdOrThrow(1L);
+    Order order = orderService.findEntityByIdOrThrow(1L);
     List<Product> products = order.getOrderDetails().stream().map(itm -> itm.getProduct()).toList();
 
     Product productWithId16AndInitialStock18 =

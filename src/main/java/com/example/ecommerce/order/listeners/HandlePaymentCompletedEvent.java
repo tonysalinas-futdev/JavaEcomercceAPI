@@ -18,7 +18,7 @@ public class HandlePaymentCompletedEvent {
 
   @EventListener
   public void setCompletedStatus(PaymentCompletedEvent event) {
-    Order order = service.getEntityByIdAndLoadUser(event.getOrderId());
+    Order order = service.findEntityByIdAndLoadUserOrThrow(event.getOrderId());
     service.setStatus(event.getOrderId(), OrderStatus.PAID);
     publisher.publishEvent(new OrderCompletedEvent(order));
   }

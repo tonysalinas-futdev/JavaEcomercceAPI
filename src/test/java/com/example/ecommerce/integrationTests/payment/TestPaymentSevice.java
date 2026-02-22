@@ -65,7 +65,7 @@ public class TestPaymentSevice {
   public void shouldSavePaymentEntity() throws StripeException {
 
     PaymentIntent intent = service.createIntentAndSavePayment(paymentDto);
-    Payment payment = service.getByOrderId(1L);
+    Payment payment = service.findByOrderIdOrThrow(1L);
 
     assertThat(payment.getPaymentIntentId()).isEqualTo(intent.getId());
     assertThat(payment.getCurrency()).isEqualTo("usd");
@@ -76,13 +76,13 @@ public class TestPaymentSevice {
   @DisplayName("Should set PAID PaymentStatus")
   public void shouldSetPaidPaymentStatus() throws StripeException {
     PaymentIntent intent = service.createIntentAndSavePayment(paymentDto);
-    Payment payment = service.getByOrderId(1L);
+    Payment payment = service.findByOrderIdOrThrow(1L);
     Event event = new Event();
     event.setId("453");
     event.setType("payment_intent.succeeded");
 
     service.updatePaymentStatus(intent.getId(), event);
-    Payment updatePayment = service.getByOrderId(1L);
+    Payment updatePayment = service.findByOrderIdOrThrow(1L);
 
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.PENDING);
     assertThat(updatePayment.getStatus()).isEqualTo(PaymentStatus.PAID);
@@ -92,13 +92,13 @@ public class TestPaymentSevice {
   @DisplayName("Should set FAILED PaymentStatus")
   public void shouldSetFailedPaymentStatus() throws StripeException {
     PaymentIntent intent = service.createIntentAndSavePayment(paymentDto);
-    Payment payment = service.getByOrderId(1L);
+    Payment payment = service.findByOrderIdOrThrow(1L);
     Event event = new Event();
     event.setId("453");
     event.setType("payment_intent.payment_failed");
 
     service.updatePaymentStatus(intent.getId(), event);
-    Payment updatePayment = service.getByOrderId(1L);
+    Payment updatePayment = service.findByOrderIdOrThrow(1L);
 
     assertThat(payment.getStatus()).isEqualTo(PaymentStatus.PENDING);
     assertThat(updatePayment.getStatus()).isEqualTo(PaymentStatus.FAILED);

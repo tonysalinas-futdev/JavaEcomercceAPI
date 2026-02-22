@@ -8,6 +8,7 @@ import com.example.ecommerce.payments.model.Payment;
 import com.example.ecommerce.payments.model.WebHookEvent;
 import com.example.ecommerce.payments.repository.PaymentRepository;
 import com.example.ecommerce.payments.status.PaymentStatus;
+import com.example.ecommerce.payments.utils.BuildPaymentEntity;
 import com.example.ecommerce.payments.utils.IdentifyPaymentEvent;
 import com.example.ecommerce.payments.utils.PaymentIntentUtils;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
@@ -28,42 +29,29 @@ public class PaymentService {
   private PaymentIntentUtils utils;
   private final ApplicationEventPublisher publisher;
 
-  private Payment getByPaymentIntentId(String paymentIntentId) {
+  private Payment findByPaymentIntentOrThrow(String paymentIntentId) {
     return repo.findByPaymentIntentId(paymentIntentId)
         .orElseThrow(() -> new NotFoundException("Payment not found"));
   }
 
-  public Payment getByOrderId(Long orderId) {
+  public Payment findByOrderIdOrThrow(Long orderId) {
     return repo.findByOrderId(orderId)
         .orElseThrow(() -> new NotFoundException("Payment not found"));
   }
 
-  public void buildAndSavePayment(CreatePaymentDto dto, Order order, String paymentIntentId) {
-    Payment entity =
-        Payment.builder()
-            .orderId(order.getId())
-            .amount(order.getTotalAmount())
-            .currency(dto.getCurrency())
-            .status(PaymentStatus.PENDING)
-            .userId(order.getUser().getId())
-            .paymentIntentId(paymentIntentId)
-            .build();
-
-    repo.save(entity);
-  }
-
   public PaymentIntent createIntentAndSavePayment(CreatePaymentDto dto) throws StripeException {
-    Order order = orderService.getEntityByIdAndLoadUser(dto.getOrderId());
+    Order order = orderService.findEntityByIdAndLoadUserOrThrow(dto.getOrderId());
 
     PaymentIntent intent = utils.createPaymentIntent(order, dto);
 
-    buildAndSavePayment(dto, order, intent.getId());
+    Payment payment = BuildPaymentEntity.build(dto, order, intent.getId());
+    repo.save(payment);
 
     return intent;
   }
 
   public Payment setStatus(String paymentIntentId, PaymentStatus status) {
-    Payment payment = getByPaymentIntentId(paymentIntentId);
+    Payment payment = findByPaymentIntentOrThrow(paymentIntentId);
 
     payment.setStatus(status);
     repo.saveAndFlush(payment);

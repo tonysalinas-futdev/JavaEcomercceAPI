@@ -37,16 +37,16 @@ public class OrderService {
   private final UserQueryService userQueryService;
   private final OrderMapper mapper;
 
-  public Order getOrderEntityById(Long orderId) {
+  public Order findEntityByIdOrThrow(Long orderId) {
     return repo.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
   }
 
-  public OrderDTO getOrderDTO(Long orderId) {
-    Order order = getOrderEntityById(orderId);
+  public OrderDTO findByIdAndReturnDto(Long orderId) {
+    Order order = findEntityByIdOrThrow(orderId);
     return mapper.entityToOrderDTO(order);
   }
 
-  public Order getEntityByIdAndLoadUser(Long orderId) {
+  public Order findEntityByIdAndLoadUserOrThrow(Long orderId) {
     return repo.findByIdAndLoadUser(orderId)
         .orElseThrow(() -> new NotFoundException("Order not found"));
   }
@@ -73,7 +73,7 @@ public class OrderService {
     Order order = BuildOrderUtil.buildOrder(requestId, user, totalAmount, cart);
     try {
       repo.saveAndFlush(order);
-      Order refreshedOrder = getOrderEntityById(order.getId());
+      Order refreshedOrder = findEntityByIdOrThrow(order.getId());
       return mapper.entityToOrderDTO(refreshedOrder);
     } catch (DataAccessException e) {
       throw new PersistenceErrorException("Database Error", e);
@@ -83,13 +83,13 @@ public class OrderService {
   @Transactional
   @LogOrderEvent(orderEvent = OrderLogsEvents.ORDER_UPDATED, class_ = OrderService.class)
   public Order setStatus(Long orderId, OrderStatus status) {
-    Order order = getOrderEntityById(orderId);
+    Order order = findEntityByIdOrThrow(orderId);
     order.setStatus(status);
     repo.save(order);
     return order;
   }
 
-  public Page<Order> getByStatus(OrderStatus status, Integer number, Integer size) {
+  public Page<Order> findByStatus(OrderStatus status, Integer number, Integer size) {
     var verifyNumber = PageableUtils.verifyPage(number);
     var verifySize = PageableUtils.verifySize(size);
     Pageable pageable = PageRequest.of(verifyNumber, verifySize, Sort.by("createdAt").ascending());
@@ -99,7 +99,7 @@ public class OrderService {
     return page;
   }
 
-  public Page<Order> getAllUserOrders(Long userID, Integer size, Integer number) {
+  public Page<Order> findAllUserOrders(Long userID, Integer size, Integer number) {
     var verifySize = PageableUtils.verifySize(size);
     var verifyPage = PageableUtils.verifyPage(number);
     userQueryService.findEntityByIdOrThrow(userID);

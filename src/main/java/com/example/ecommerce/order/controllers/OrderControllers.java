@@ -29,7 +29,7 @@ public class OrderControllers {
 
   @GetMapping("/order/{orderId}")
   public ResponseEntity<?> getById(@PathVariable Long orderId) {
-    return ResponseEntity.ok(service.getOrderDTO(orderId));
+    return ResponseEntity.ok(service.findByIdAndReturnDto(orderId));
   }
 
   @PutMapping("/status/{id}")
@@ -41,7 +41,7 @@ public class OrderControllers {
   @GetMapping()
   public ResponseEntity<Page<Order>> getOrdersByStatus(
       OrderStatus status, @Positive Integer number, @Positive Integer size) {
-    Page<Order> page = service.getByStatus(status, number, size);
+    Page<Order> page = service.findByStatus(status, number, size);
     return ResponseEntity.ok(page);
   }
 
