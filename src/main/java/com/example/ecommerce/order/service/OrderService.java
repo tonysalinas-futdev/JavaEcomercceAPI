@@ -17,9 +17,7 @@ import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
 import com.example.ecommerce.shared.utils.PageableUtils;
 import com.example.ecommerce.users.models.User;
-import com.example.ecommerce.users.services.UserAdminService;
 import com.example.ecommerce.users.services.UserQueryService;
-
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

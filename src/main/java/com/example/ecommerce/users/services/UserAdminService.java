@@ -2,14 +2,11 @@ package com.example.ecommerce.users.services;
 
 import com.example.ecommerce.logger.annotations.LogDeleteEntityEvent;
 import com.example.ecommerce.logger.annotations.LogUserEvent;
-import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
-import com.example.ecommerce.shared.utils.PageableUtils;
 import com.example.ecommerce.users.dtos.CreateUser;
 import com.example.ecommerce.users.dtos.UpdateUser;
 import com.example.ecommerce.users.dtos.UserDetails;
-import com.example.ecommerce.users.dtos.UserList;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.logs.events.UserEvents;
 import com.example.ecommerce.users.mappers.UserMappers;
@@ -17,16 +14,10 @@ import com.example.ecommerce.users.models.Role;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.RoleRepository;
 import com.example.ecommerce.users.repository.UserRepository;
-import com.example.ecommerce.users.utils.BuildUserUtil;
-
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -48,8 +39,11 @@ public class UserAdminService {
     queryService.findByEmailAndThrowIfExists(dto.getEmail());
 
     User newUser = mapper.createUserDTOToEntity(dto);
-    Role role = roleRepo.findByRoleEnum(RoleEnum.ADMIN).orElseThrow(()-> new NotFoundException("Role USER not found"));
-    newUser.setPassword(encoder.encode( newUser.getPassword()));
+    Role role =
+        roleRepo
+            .findByRoleEnum(RoleEnum.ADMIN)
+            .orElseThrow(() -> new NotFoundException("Role USER not found"));
+    newUser.setPassword(encoder.encode(newUser.getPassword()));
     newUser.setRole(role);
 
     try {
@@ -58,9 +52,7 @@ public class UserAdminService {
     } catch (DataAccessException ex) {
       throw new PersistenceErrorException("Database Error", ex);
     }
-    
   }
-
 
   @Transactional
   @LogUserEvent(value = UserEvents.USER_UPDATE, type = UserAdminService.class)
@@ -88,5 +80,4 @@ public class UserAdminService {
       throw new PersistenceErrorException("Error en la base de datos", ex);
     }
   }
-
 }

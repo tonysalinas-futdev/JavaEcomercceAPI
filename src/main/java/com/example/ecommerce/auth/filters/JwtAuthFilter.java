@@ -4,9 +4,7 @@ import com.example.ecommerce.auth.exceptions.InvalidTokenException;
 import com.example.ecommerce.auth.facade.JwtFacade;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.users.models.User;
-import com.example.ecommerce.users.services.UserAdminService;
 import com.example.ecommerce.users.services.UserQueryService;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

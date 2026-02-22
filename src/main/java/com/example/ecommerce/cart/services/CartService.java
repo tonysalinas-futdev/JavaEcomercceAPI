@@ -10,9 +10,7 @@ import com.example.ecommerce.products.model.Product;
 import com.example.ecommerce.products.utils.ProductValidator;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.users.models.User;
-import com.example.ecommerce.users.services.UserAdminService;
 import com.example.ecommerce.users.services.UserQueryService;
-
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.AllArgsConstructor;

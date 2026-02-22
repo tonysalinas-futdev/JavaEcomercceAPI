@@ -1,16 +1,12 @@
 package com.example.ecommerce.users.controllers;
 
-import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.users.dtos.UpdatePassword;
 import com.example.ecommerce.users.dtos.UpdateUserProfile;
 import com.example.ecommerce.users.dtos.UserProfile;
 import com.example.ecommerce.users.services.UserQueryService;
 import com.example.ecommerce.users.services.UserService;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
-import org.apache.logging.log4j.ThreadContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -33,7 +29,6 @@ public class UserControllers {
     UserProfile user = queryService.findByEmailAndReturnProfileDto(authentication.getName());
     return ResponseEntity.ok(user);
   }
-
 
   @PutMapping("/password")
   public ResponseEntity<?> updatePassword(

@@ -9,9 +9,7 @@ import com.example.ecommerce.logger.annotations.LogAuthEvent;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;
 import com.example.ecommerce.users.services.UserService;
-
 import jakarta.validation.Valid;
-
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

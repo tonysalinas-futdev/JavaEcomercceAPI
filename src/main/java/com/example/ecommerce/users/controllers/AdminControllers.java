@@ -8,13 +8,10 @@ import com.example.ecommerce.users.dtos.UserList;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserAdminService;
 import com.example.ecommerce.users.services.UserQueryService;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.net.URI;
-import java.util.Map;
 import lombok.AllArgsConstructor;
-import org.apache.logging.log4j.ThreadContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;

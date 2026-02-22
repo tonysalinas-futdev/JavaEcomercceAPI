@@ -6,8 +6,6 @@ import com.example.ecommerce.users.models.Role;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.RoleRepository;
 import com.example.ecommerce.users.repository.UserRepository;
-import com.example.ecommerce.users.utils.BuildUserUtil;
-
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,7 +30,10 @@ public class JwtConftest {
             .password(encoder.encode("12345Abc#"))
             .build();
 
-    Role role = roleRepository.findByRoleEnum(RoleEnum.USER).orElseThrow(()-> new NotFoundException("Role USER not found"));
+    Role role =
+        roleRepository
+            .findByRoleEnum(RoleEnum.USER)
+            .orElseThrow(() -> new NotFoundException("Role USER not found"));
     user.setRole(role);
 
     userRepo.saveAndFlush(user);

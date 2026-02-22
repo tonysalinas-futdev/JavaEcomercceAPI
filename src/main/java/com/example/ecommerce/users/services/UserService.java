@@ -1,7 +1,6 @@
 package com.example.ecommerce.users.services;
 
 import com.example.ecommerce.auth.dtos.SignUpDTO;
-import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.shared.exceptions.InvalidRequestException;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
@@ -15,10 +14,8 @@ import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.RoleRepository;
 import com.example.ecommerce.users.repository.UserRepository;
 import com.example.ecommerce.users.utils.BuildUserUtil;
-
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,8 +61,11 @@ public class UserService {
   @Transactional
   public User registerValidUser(@Valid SignUpDTO dto) {
     queryService.findByEmailAndThrowIfExists(dto.getEmail());
-    User user =BuildUserUtil.buildUser(dto);
-    Role role = roleRepo.findByRoleEnum(RoleEnum.USER).orElseThrow(()-> new NotFoundException("Role USER not found"));
+    User user = BuildUserUtil.buildUser(dto);
+    Role role =
+        roleRepo
+            .findByRoleEnum(RoleEnum.USER)
+            .orElseThrow(() -> new NotFoundException("Role USER not found"));
     user.setPassword(encoder.encode(dto.getPassword()));
     user.setRole(role);
 
