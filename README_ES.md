@@ -14,7 +14,7 @@ Características principales
 
 * Mensajería: envío de emails para confirmaciones, notificaciones y recuperación de contraseña.
 
-* Logging y trazabilidad: logs estructurados; X-Correlation-ID propagado en peticiones y logs.
+* Logging y trazabilidad: logs técnicos, de auditoria y de error estructurados; X-Correlation-ID propagado en peticiones y logs para trazabilidad.
 
 * Eventos internos: publicación/consumo de eventos para desacoplar responsabilidades.
 
@@ -43,8 +43,6 @@ Características principales
 * Messaging — plantillas y envío de emails (órdenes, confirmaciones, alertas).
 
 * Logging — configuración centralizada de logs; propagación de X-Correlation-ID.
-
-* Events — eventos de dominio (OrderCreated, PaymentSucceeded, etc.).
 
 * Tests — test unitarios y de integración bien documentados.
 

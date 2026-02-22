@@ -1,0 +1,34 @@
+package com.example.ecommerce.auth.service;
+
+import com.example.ecommerce.auth.model.Token;
+import com.example.ecommerce.auth.repository.TokenRepository;
+import com.example.ecommerce.shared.exceptions.NotFoundException;
+import com.example.ecommerce.users.models.User;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@AllArgsConstructor
+public class TokenService {
+  private final TokenRepository repo;
+
+  public void saveUserToken(User user, String jwtToken) {
+    Token token = Token.builder().revoked(false).expired(false).user(user).token(jwtToken).build();
+    user.getTokens().add(token);
+    repo.saveAndFlush(token);
+  }
+
+  public void revokeAllTokensUser(User user) {
+    List<Token> tokens = repo.getAllTokensFromUser(user);
+    for (Token token : tokens) {
+      token.setRevoked(true);
+      token.setExpired(true);
+    }
+    repo.saveAllAndFlush(tokens);
+  }
+
+  public Token getToken(String value) {
+    return repo.getByToken(value).orElseThrow(() -> new NotFoundException("Token not found"));
+  }
+}
