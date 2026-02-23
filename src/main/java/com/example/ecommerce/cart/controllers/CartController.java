@@ -28,7 +28,7 @@ public class CartController {
 
   @GetMapping("/{id}")
   public ResponseEntity<CartDetailsDTO> getById(@Positive Long cartId) {
-    return ResponseEntity.ok(cartService.getCartDetailsDTO(cartId));
+    return ResponseEntity.ok(cartService.findByIdAndReturnCartDetailsDtoOrThrow(cartId));
   }
 
   @PostMapping()

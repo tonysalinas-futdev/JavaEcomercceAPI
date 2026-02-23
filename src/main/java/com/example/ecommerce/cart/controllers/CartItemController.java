@@ -22,12 +22,12 @@ public class CartItemController {
 
   @GetMapping("/{id}")
   public ResponseEntity<CartItem> getById(@PathVariable Long id) {
-    return ResponseEntity.ok(service.getCartItemById(id));
+    return ResponseEntity.ok(service.findByIdOrThrow(id));
   }
 
   @PutMapping("/quantity/{id}")
   public ResponseEntity<?> setItemQuantity(
       @PathVariable @Positive Long id, @RequestBody @Positive Integer quantity) {
-    return ResponseEntity.ok(service.setItemQuantity(id, quantity));
+    return ResponseEntity.ok(service.setQuantity(id, quantity));
   }
 }

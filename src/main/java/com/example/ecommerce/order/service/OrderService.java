@@ -12,6 +12,7 @@ import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.order.models.OrderStatus;
 import com.example.ecommerce.order.repositories.OrderRepository;
 import com.example.ecommerce.order.utils.BuildOrderUtil;
+import com.example.ecommerce.products.services.ProductService;
 import com.example.ecommerce.products.utils.ProductValidator;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
@@ -33,7 +34,7 @@ import org.springframework.stereotype.Service;
 public class OrderService {
   private final CartService cartService;
   private final OrderRepository repo;
-  private final ProductValidator validator;
+  private final ProductService productService;
   private final UserQueryService userQueryService;
   private final OrderMapper mapper;
 
@@ -57,15 +58,15 @@ public class OrderService {
       orderEvent = OrderLogsEvents.ORDER_CREATED,
       detailsEvent = OrderDetailsLogEvents.ORDER_DETAILS_CREATED)
   public OrderDTO createOrder(Long cartId, UUID requestId, String userEmail) {
-    Cart cart = cartService.getByCartItemIdAndBlockRow(cartId);
+    Cart cart = cartService.findByCartItemIdAndBlockRow(cartId);
 
     User user = userQueryService.findByEmailOrThrow(userEmail);
 
     cart.getItems()
         .forEach(
             itm -> {
-              validator.validateAvaibilityAndStockAndReturn(
-                  itm.getProduct().getId(), itm.getQuantity());
+              var product = productService.findByIdOrThrow(itm.getProduct().getId());
+              ProductValidator.validateAvaibilityAndStockAndReturn(product, itm.getQuantity());
             });
 
     Double totalAmount = CalculatePriceService.calculateTotalAmount(cart);

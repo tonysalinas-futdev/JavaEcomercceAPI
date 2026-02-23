@@ -24,7 +24,7 @@ public class EmailSender implements MessageSender<EmailMessageData> {
       log.info("Email sent to " + data.getTo());
 
     } catch (Exception e) {
-      log.warn("Failed to sent message to" + data.getTo());
+      log.error("Failed to sent message to" + data.getTo(), e);
     }
   }
 }

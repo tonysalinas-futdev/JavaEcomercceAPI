@@ -11,17 +11,17 @@ import org.springframework.stereotype.Service;
 public class CartItemService {
   private final CartItemRepository repo;
 
-  public CartItem getCartItemById(Long cartItemId) {
+  public CartItem findByIdOrThrow(Long cartItemId) {
     return repo.findById(cartItemId)
         .orElseThrow(() -> new NotFoundException("Cart Item not Found"));
   }
 
-  public CartItem getByProductAndCartId(Long productId, Long cartId) {
+  public CartItem findByProductAndCartId(Long productId, Long cartId) {
     return repo.findByCartAndProductId(productId, cartId).orElse(null);
   }
 
-  public CartItem setItemQuantity(Long cartItemId, Integer quantity) {
-    CartItem item = getCartItemById(cartItemId);
+  public CartItem setQuantity(Long cartItemId, Integer quantity) {
+    CartItem item = findByIdOrThrow(cartItemId);
 
     repo.save(item);
     return item;

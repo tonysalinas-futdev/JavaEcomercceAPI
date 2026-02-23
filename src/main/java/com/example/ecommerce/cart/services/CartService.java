@@ -6,13 +6,12 @@ import com.example.ecommerce.cart.mappers.CartMappers;
 import com.example.ecommerce.cart.models.Cart;
 import com.example.ecommerce.cart.models.CartItem;
 import com.example.ecommerce.cart.repositories.CartRepository;
-import com.example.ecommerce.products.model.Product;
+import com.example.ecommerce.products.services.ProductService;
 import com.example.ecommerce.products.utils.ProductValidator;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;
 import jakarta.transaction.Transactional;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,59 +19,50 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class CartService {
   private final CartRepository repo;
-  private final ProductValidator productValidator;
   private final CartItemService cartItemService;
+  private final ProductService productService;
   private final UserQueryService userQueryService;
   private final CartMappers mapper;
 
-  public Cart getById(Long cartId) {
+  public Cart findByIdOrThrow(Long cartId) {
     return repo.findById(cartId).orElseThrow(() -> new NotFoundException("Cart not found"));
   }
 
-  public CartDetailsDTO getCartDetailsDTO(Long cartId) {
-    Cart cart = getById(cartId);
-
+  public CartDetailsDTO findByIdAndReturnCartDetailsDtoOrThrow(Long cartId) {
+    Cart cart = findByIdOrThrow(cartId);
     return mapper.entityToCartDetailsDTO(cart);
   }
 
-  private Cart getByCartItemId(Long cartItemId) {
+  private Cart findByCartItemIdOrThrow(Long cartItemId) {
     return repo.findByCartItems_Id(cartItemId)
         .orElseThrow(() -> new NotFoundException("Cart not found"));
   }
 
   @Transactional
-  public Cart getByCartItemIdAndBlockRow(Long cartItemId) {
+  public Cart findByCartItemIdAndBlockRow(Long cartItemId) {
     return repo.findByIdForUpdate(cartItemId)
         .orElseThrow(() -> new NotFoundException("Cart not found"));
   }
 
-  private Cart buildAndSaveCart(User user) {
-    Cart saveCart = Cart.builder().user(user).build();
-    repo.saveAndFlush(saveCart);
-    return saveCart;
-  }
-
-  private Cart getOrCreateIfNotExists(Long cartId, User user) {
-    if (cartId == null) {
-      return buildAndSaveCart(user);
-    }
-    Optional<Cart> cart = repo.findById(cartId);
-    if (cart.isPresent()) {
-      return cart.get();
+  private Cart findByIdOrCreateIfNotExists(Long cartId, User user) {
+    if (cartId == null || repo.findById(cartId) == null) {
+      Cart saveCart = Cart.builder().user(user).build();
+      repo.saveAndFlush(saveCart);
+      return saveCart;
     }
 
-    return buildAndSaveCart(user);
+    return findByIdOrThrow(cartId);
   }
 
   @Transactional
   public CartDetailsDTO addItem(Long cartId, String userEmail, CreateCartItem dto) {
     User user = userQueryService.findByEmailOrThrow(userEmail);
-    Cart cart = getOrCreateIfNotExists(cartId, user);
-    Product productInCartItem =
-        productValidator.validateAvaibilityAndStockAndReturn(dto.getProductId(), dto.getQuantity());
+    Cart cart = findByIdOrCreateIfNotExists(cartId, user);
+    var productInCartItem = productService.findByIdOrThrow(dto.getProductId());
+    ProductValidator.validateAvaibilityAndStockAndReturn(productInCartItem, dto.getQuantity());
 
     CartItem existingItemInCart =
-        cartItemService.getByProductAndCartId(dto.getProductId(), cart.getId());
+        cartItemService.findByProductAndCartId(dto.getProductId(), cart.getId());
 
     if (existingItemInCart != null) {
       existingItemInCart.setQuantity(dto.getQuantity());
@@ -93,25 +83,25 @@ public class CartService {
     return mapper.entityToCartDetailsDTO(cart);
   }
 
+  @Transactional
   public Cart cleanCart(Long cartId) {
-    Cart cart = getById(cartId);
+    Cart cart = findByIdOrThrow(cartId);
     cart.getItems().clear();
     repo.saveAndFlush(cart);
     return cart;
   }
 
   public CartDetailsDTO deleteItemFromCart(Long cartItemId, Long cartId) {
-    Cart cart = getByCartItemId(cartId);
+    Cart cart = findByCartItemIdOrThrow(cartId);
     cart.getItems().removeIf(it -> it.getId().equals(cartItemId));
     repo.saveAndFlush(cart);
     CartDetailsDTO cartDetailsDTO = mapper.entityToCartDetailsDTO(cart);
-
     return cartDetailsDTO;
   }
 
   @Transactional
   public void deleteCart(Long cartId) {
-    Cart cart = getById(cartId);
+    Cart cart = findByIdOrThrow(cartId);
     repo.delete(cart);
   }
 }

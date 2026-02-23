@@ -59,7 +59,7 @@ public class TestCartServices {
 
   @Test
   public void shouldCleanAllItemsFromCart() {
-    Cart cart = service.getById(1L);
+    Cart cart = service.findByIdOrThrow(1L);
 
     assertEquals(3, cart.getItems().size());
   }
@@ -68,7 +68,7 @@ public class TestCartServices {
   public void shouldDeleteItemFromCartWithThreeItems() {
 
     service.deleteItemFromCart(1L, 1L);
-    Cart cart = service.getById(1L);
+    Cart cart = service.findByIdOrThrow(1L);
 
     assertEquals(2, cart.getItems().size());
   }

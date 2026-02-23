@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 import org.apache.logging.log4j.ThreadContext;
-import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
@@ -31,7 +30,6 @@ public class CorrelationAndRequestIdFilter extends OncePerRequestFilter {
       correlationId = UUID.randomUUID().toString();
       response.addHeader("X-Correlation-ID", correlationId);
       ThreadContext.put("X-Correlation-ID", correlationId);
-      MDC.put("X-Correlation-ID", correlationId);
     }
 
     if (requestId == null) {
@@ -42,7 +40,6 @@ public class CorrelationAndRequestIdFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
     } finally {
       ThreadContext.clearAll();
-      MDC.clear();
     }
   }
 }

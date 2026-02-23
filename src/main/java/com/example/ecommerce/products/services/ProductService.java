@@ -36,20 +36,20 @@ public class ProductService {
   private final ProductMappers productMapper;
   private final CategoryService categoryService;
 
-  public Product getEntityByName(String productName) {
+  public Product findByNameOrThrow(String productName) {
     return productRepo
         .getByName(productName)
         .orElseThrow(() -> new NotFoundException("Product not found"));
   }
 
-  public Product getProductEntityById(Long productId) {
+  public Product findByIdOrThrow(Long productId) {
     return productRepo
         .findById(productId)
         .orElseThrow(() -> new NotFoundException("Product not found"));
   }
 
   @Transactional
-  public Product getProductEntityByIdAndBlockRow(Long productId) {
+  public Product findByIdAndBlockRow(Long productId) {
     return productRepo
         .findByIdForUpdate(productId)
         .orElseThrow(() -> new NotFoundException("Product not found"));
@@ -58,7 +58,7 @@ public class ProductService {
   @Transactional
   @LogProductEvent(loggerName = ProductService.class, event = ProductLogEvent.PRODUCT_STOCK_UPDATE)
   public ProductDetailsDTO setStock(Long productId, Integer stock) {
-    var product = getProductEntityById(productId);
+    var product = findByIdOrThrow(productId);
     product.setStock(stock);
     productRepo.save(product);
     return productMapper.productToDetailsDTO(product);
@@ -86,8 +86,8 @@ public class ProductService {
     }
   }
 
-  public ProductDetailsDTO getProductById(Long id) {
-    Product product = getProductEntityById(id);
+  public ProductDetailsDTO findByIdAndReturnProductDetailsDto(Long id) {
+    Product product = findByIdOrThrow(id);
     return productMapper.productToDetailsDTO(product);
   }
 
@@ -113,7 +113,7 @@ public class ProductService {
   @Transactional
   @LogDeleteEntityEvent(event = "PRODUCT_DELETED", loggerName = ProductService.class)
   public void deleteProduct(Long id) {
-    Product product = getProductEntityById(id);
+    Product product = findByIdOrThrow(id);
     try {
       productRepo.delete(product);
     } catch (DataAccessException ex) {
@@ -127,7 +127,7 @@ public class ProductService {
     if (productRepo.getByName(dto.getName()).isPresent()) {
       throw new AlreadyExistsException("Product already exists");
     }
-    Product updatedProduct = productMapper.updateEntity(dto, getProductEntityById(productId));
+    Product updatedProduct = productMapper.updateEntity(dto, findByIdOrThrow(productId));
     try {
       productRepo.save(updatedProduct);
 
@@ -142,7 +142,7 @@ public class ProductService {
   public ProductDetailsDTO updateCategory(Long categoryId, Long productId) {
     Category category = categoryService.getCategoryEntityById(categoryId);
 
-    Product product = getProductEntityById(productId);
+    Product product = findByIdOrThrow(productId);
 
     product.setCategory(category);
     try {

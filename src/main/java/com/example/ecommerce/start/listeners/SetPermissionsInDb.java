@@ -5,7 +5,6 @@ import com.example.ecommerce.start.events.SettedPermissionsEvent;
 import com.example.ecommerce.users.models.Permission;
 import com.example.ecommerce.users.models.Role;
 import com.example.ecommerce.users.repository.PermissionRepository;
-import com.example.ecommerce.users.repository.RoleRepository;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class SetPermissionsInDb {
-  private final RoleRepository roleRepo;
   private final PermissionRepository repo;
   private final ApplicationEventPublisher publisher;
 

@@ -45,7 +45,7 @@ public class ProductController {
 
   @GetMapping("/{id}")
   public ResponseEntity<ProductDetailsDTO> getProduct(@PathVariable @Positive Long id) {
-    return ResponseEntity.status(200).body(productService.getProductById(id));
+    return ResponseEntity.status(200).body(productService.findByIdAndReturnProductDetailsDto(id));
   }
 
   @GetMapping()
