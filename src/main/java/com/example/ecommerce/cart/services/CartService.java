@@ -13,6 +13,9 @@ import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,8 +31,9 @@ public class CartService {
     return repo.findById(cartId).orElseThrow(() -> new NotFoundException("Cart not found"));
   }
 
-  public CartDetailsDTO findByIdAndReturnCartDetailsDtoOrThrow(Long cartId) {
-    Cart cart = findByIdOrThrow(cartId);
+  @Cacheable(value = "carts", key = "#id")
+  public CartDetailsDTO findByIdAndReturnCartDetailsDtoOrThrow(Long id) {
+    Cart cart = findByIdOrThrow(id);
     return mapper.entityToCartDetailsDTO(cart);
   }
 
@@ -55,9 +59,10 @@ public class CartService {
   }
 
   @Transactional
-  public CartDetailsDTO addItem(Long cartId, String userEmail, CreateCartItem dto) {
+  @CachePut(value = "carts", key = "#id", condition = "#id!=null")
+  public CartDetailsDTO addItem(Long id, String userEmail, CreateCartItem dto) {
     User user = userQueryService.findByEmailOrThrow(userEmail);
-    Cart cart = findByIdOrCreateIfNotExists(cartId, user);
+    Cart cart = findByIdOrCreateIfNotExists(id, user);
     var productInCartItem = productService.findByIdOrThrow(dto.getProductId());
     ProductValidator.validateAvaibilityAndStockAndReturn(productInCartItem, dto.getQuantity());
 
@@ -84,15 +89,17 @@ public class CartService {
   }
 
   @Transactional
-  public Cart cleanCart(Long cartId) {
-    Cart cart = findByIdOrThrow(cartId);
+  @CachePut(value = "carts", key = "#id")
+  public Cart cleanCart(Long id) {
+    Cart cart = findByIdOrThrow(id);
     cart.getItems().clear();
     repo.saveAndFlush(cart);
     return cart;
   }
 
-  public CartDetailsDTO deleteItemFromCart(Long cartItemId, Long cartId) {
-    Cart cart = findByCartItemIdOrThrow(cartId);
+  @CachePut(value = "carts", key = "#id")
+  public CartDetailsDTO deleteItemFromCart(Long cartItemId, Long id) {
+    Cart cart = findByCartItemIdOrThrow(id);
     cart.getItems().removeIf(it -> it.getId().equals(cartItemId));
     repo.saveAndFlush(cart);
     CartDetailsDTO cartDetailsDTO = mapper.entityToCartDetailsDTO(cart);
@@ -100,8 +107,9 @@ public class CartService {
   }
 
   @Transactional
-  public void deleteCart(Long cartId) {
-    Cart cart = findByIdOrThrow(cartId);
+  @CacheEvict(value = "carts", key = "#id")
+  public void deleteCart(Long id) {
+    Cart cart = findByIdOrThrow(id);
     repo.delete(cart);
   }
 }

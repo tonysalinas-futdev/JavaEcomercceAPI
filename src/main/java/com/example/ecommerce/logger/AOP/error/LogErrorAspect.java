@@ -49,7 +49,7 @@ public class LogErrorAspect {
         StructuredErrorLog.builder()
             .dateTime(LocalDateTime.now().toString())
             .message(ex.getMessage())
-            .stackTrace(stackTrace)
+            .stackTrace(ex.getStackTrace().toString())
             .exceptionType(ex.getClass().getName())
             .build();
 

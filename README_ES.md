@@ -24,6 +24,8 @@ Características principales
 
 * Testing: tests unitarios e integración para validar flujos críticos.
 
+* Caché: implementación de una estrategia de cache aside utilizando redis para reducir latencia en consultas. 
+
 * Idempotencia: soporte de claves de idempotencia en endpoints críticos (pagos, órdenes).
 
 ## Módulos principales

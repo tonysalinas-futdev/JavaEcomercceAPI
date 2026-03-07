@@ -22,6 +22,9 @@ import com.example.ecommerce.shared.utils.PageableUtils;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,6 +59,7 @@ public class ProductService {
   }
 
   @Transactional
+  @CachePut(value = "products", key = "#productId")
   @LogProductEvent(loggerName = ProductService.class, event = ProductLogEvent.PRODUCT_STOCK_UPDATE)
   public ProductDetailsDTO setStock(Long productId, Integer stock) {
     var product = findByIdOrThrow(productId);
@@ -86,11 +90,13 @@ public class ProductService {
     }
   }
 
+  @Cacheable(value = "products", key = "#id")
   public ProductDetailsDTO findByIdAndReturnProductDetailsDto(Long id) {
     Product product = findByIdOrThrow(id);
     return productMapper.productToDetailsDTO(product);
   }
 
+  @Cacheable(value = "products", key = "#page + '-' #size", unless = "#size < 10 || #size > 20")
   public PaginatedResponseDTO<ProductListDTO> getAllProducts(Integer page, Integer size) {
     page = PageableUtils.verifyPage(page);
     size = PageableUtils.verifySize(size);
@@ -111,6 +117,7 @@ public class ProductService {
   }
 
   @Transactional
+  @CacheEvict(value = "products", key = "#id")
   @LogDeleteEntityEvent(event = "PRODUCT_DELETED", loggerName = ProductService.class)
   public void deleteProduct(Long id) {
     Product product = findByIdOrThrow(id);
@@ -122,12 +129,13 @@ public class ProductService {
   }
 
   @Transactional
+  @CachePut(value = "products", key = "#id")
   @LogProductEvent(loggerName = ProductService.class, event = ProductLogEvent.PRODUCT_UPDATED)
-  public ProductDetailsDTO updateProduct(UpdateProduct dto, Long productId) {
+  public ProductDetailsDTO updateProduct(UpdateProduct dto, Long id) {
     if (productRepo.getByName(dto.getName()).isPresent()) {
       throw new AlreadyExistsException("Product already exists");
     }
-    Product updatedProduct = productMapper.updateEntity(dto, findByIdOrThrow(productId));
+    Product updatedProduct = productMapper.updateEntity(dto, findByIdOrThrow(id));
     try {
       productRepo.save(updatedProduct);
 

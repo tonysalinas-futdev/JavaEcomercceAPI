@@ -12,6 +12,7 @@ import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.UserRepository;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,7 @@ public class UserQueryService {
     return mapper.entityToUserDetailsDto(user);
   }
 
+  @Cacheable(value = "users", key = "#email")
   public UserProfile findByEmailAndReturnProfileDto(String email) {
     User user = findByEmailOrThrow(email);
     return mapper.entityToUserProfileDTO(user);
