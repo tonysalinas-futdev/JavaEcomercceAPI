@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.ecommerce.auth.dtos.SignUpDTO;
-import com.example.ecommerce.users.dtos.UpdateUser;
-import com.example.ecommerce.users.dtos.UserDetails;
+import com.example.ecommerce.users.dtos.UpdateUserDTO;
+import com.example.ecommerce.users.dtos.UserDetailsDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserAdminService;
@@ -78,9 +78,9 @@ public class testUserService {
         service.createUserByAdmin(
             conftest.buildCreateUserDto(
                 "vini@gmail.com", "Abcd1234#", "Vini Junior", RoleEnum.USER));
-    UpdateUser data = UpdateUser.builder().email("updated_email").name("updated_name").build();
+    UpdateUserDTO data = UpdateUserDTO.builder().email("updated_email").name("updated_name").build();
 
-    UserDetails updateUser = service.updateUser(user.getId(), data);
+    UserDetailsDTO updateUser = service.updateUser(user.getId(), data);
 
     assertTrue(updateUser.getName().equals("updated_name"));
   }

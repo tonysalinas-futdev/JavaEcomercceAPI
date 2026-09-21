@@ -4,9 +4,9 @@ import com.example.ecommerce.logger.annotations.LogDeleteEntityEvent;
 import com.example.ecommerce.logger.annotations.LogUserEvent;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
-import com.example.ecommerce.users.dtos.CreateUser;
-import com.example.ecommerce.users.dtos.UpdateUser;
-import com.example.ecommerce.users.dtos.UserDetails;
+import com.example.ecommerce.users.dtos.CreateUserDTO;
+import com.example.ecommerce.users.dtos.UpdateUserDTO;
+import com.example.ecommerce.users.dtos.UserDetailsDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.logs.events.UserEvents;
 import com.example.ecommerce.users.mappers.UserMappers;
@@ -34,17 +34,20 @@ public class UserAdminService {
 
   @Transactional
   @LogUserEvent(value = UserEvents.USER_CREATED, type = UserAdminService.class)
-  public User createUserByAdmin(@Valid CreateUser dto) {
-    queryService.findByNameAndThrowIfExists(dto.getName());
-    queryService.findByEmailAndThrowIfExists(dto.getEmail());
+  public User createUserByAdmin(@Valid CreateUserDTO dto) {
+
+    queryService.findByNameAndThrowIfExists(dto.name());
+    queryService.findByEmailAndThrowIfExists(dto.email());
 
     User newUser = mapper.createUserDTOToEntity(dto);
     Role role =
         roleRepo
             .findByRoleEnum(RoleEnum.ADMIN)
             .orElseThrow(() -> new NotFoundException("Role USER not found"));
+
+
     newUser.setPassword(encoder.encode(newUser.getPassword()));
-    newUser.setRole(role);
+    newUser.getRoles().add(role);
 
     try {
       repo.saveAndFlush(newUser);
@@ -56,9 +59,9 @@ public class UserAdminService {
 
   @Transactional
   @LogUserEvent(value = UserEvents.USER_UPDATE, type = UserAdminService.class)
-  public UserDetails updateUser(Long id, UpdateUser dto) {
-    queryService.findByEmailAndThrowIfExists(dto.getEmail());
-    queryService.findByNameAndThrowIfExists(dto.getName());
+  public UserDetailsDTO updateUser(Long id, UpdateUserDTO dto) {
+    queryService.findByEmailAndThrowIfExists(dto.email());
+    queryService.findByNameAndThrowIfExists(dto.name());
 
     User user = mapper.updateUserDTOToEntity(dto, queryService.findEntityByIdOrThrow(id));
     try {

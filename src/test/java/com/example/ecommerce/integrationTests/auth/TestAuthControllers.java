@@ -2,7 +2,7 @@ package com.example.ecommerce.integrationTests.auth;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.example.ecommerce.auth.dtos.AuthResponse;
+import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
@@ -26,9 +26,9 @@ public class TestAuthControllers {
   @Test
   public void shouldReturnAccessTokenWhenSignUp() {
     SignUpDTO request = new SignUpDTO("krooty24@gmail.com", "Tony Kroos", "Abcd12345#");
-    AuthResponse response =
+    AuthResponseDTO response =
         restTemplate.postForObject(
-            "http://localhost:8000/api/v1/auth/sign_up", request, AuthResponse.class);
+            "http://localhost:8000/api/v1/auth/sign_up", request, AuthResponseDTO.class);
 
     assertTrue(response.getAccessToken() != null);
   }
@@ -39,9 +39,9 @@ public class TestAuthControllers {
     User user = conftest.createUser();
 
     LoginDTO loginDto = new LoginDTO(user.getEmail(), "12345678Ja#");
-    AuthResponse response2 =
+    AuthResponseDTO response2 =
         restTemplate.postForObject(
-            "http://localhost:8000/api/v1/auth/login", loginDto, AuthResponse.class);
+            "http://localhost:8000/api/v1/auth/login", loginDto, AuthResponseDTO.class);
 
     assertTrue(response2.getAccessToken() != null);
   }

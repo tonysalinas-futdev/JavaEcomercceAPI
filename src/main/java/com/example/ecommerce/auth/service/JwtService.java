@@ -1,6 +1,6 @@
 package com.example.ecommerce.auth.service;
 
-import com.example.ecommerce.auth.dtos.AuthResponse;
+import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.utils.JwtTokenProvider;
 import com.example.ecommerce.users.models.User;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +13,14 @@ public class JwtService {
   private final JwtTokenProvider provider;
 
   public void saveNewUserToken(User user, String tokenValue) {
-    tokenService.revokeAllTokensUser(user);
-    tokenService.saveUserToken(user, tokenValue);
+    tokenService.revokeUserToken(user);
+    tokenService.saveUserTokenAndDeletePrevious(user, tokenValue);
   }
 
-  public AuthResponse buildAuthResponse(User user) {
+  public AuthResponseDTO buildAuthResponse(User user) {
     var accessToken = provider.createAccessToken(user);
     var refreshToken = provider.createRefreshToken(user);
 
-    return AuthResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    return AuthResponseDTO.builder().accessToken(accessToken).refreshToken(refreshToken).build();
   }
 }

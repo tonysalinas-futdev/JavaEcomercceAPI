@@ -1,9 +1,12 @@
 package com.example.ecommerce.auth.config;
 
+import com.example.ecommerce.users.models.Permission;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @RequiredArgsConstructor
-public class AppConfig {
+public class AuthConfig {
   private final UserRepository repo;
 
   @Bean
@@ -34,9 +37,10 @@ public class AppConfig {
               .orElseThrow(() -> new UsernameNotFoundException("User not found"));
       List<String> authorities = new ArrayList<>();
 
-      authorities.add("ROLE_" + user.getRole().getRoleEnum().name());
-
-      user.getRole().getPermissions().forEach(p -> authorities.add(p.getPermissionName()));
+      user.getRoles().forEach(role-> {
+          authorities.add("ROLE_" + role.getRoleEnum().name());
+          role.getPermissions().forEach(p->authorities.add(p.getName()));
+          });
 
       return org.springframework.security.core.userdetails.User.builder()
           .username(user.getEmail())

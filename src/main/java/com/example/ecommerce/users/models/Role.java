@@ -37,7 +37,7 @@ public class Role {
   @Enumerated(EnumType.STRING)
   private RoleEnum roleEnum;
 
-  @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+  @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
   private List<User> users;
 
   @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

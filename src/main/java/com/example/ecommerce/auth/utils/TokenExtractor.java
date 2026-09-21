@@ -6,13 +6,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ExtractToken {
+public class TokenExtractor {
 
   public String extractBearerToken(String authHeader) {
     if (authHeader == null || !authHeader.startsWith("Bearer")) {
       throw new InvalidTokenException("Invalid token");
     }
-    String refreshToken = authHeader.substring(7);
-    return refreshToken;
+     return authHeader.substring(7);
+
   }
 }

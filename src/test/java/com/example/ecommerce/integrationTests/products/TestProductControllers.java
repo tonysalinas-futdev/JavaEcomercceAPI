@@ -2,7 +2,7 @@ package com.example.ecommerce.integrationTests.products;
 
 import static org.hamcrest.Matchers.equalTo;
 
-import com.example.ecommerce.auth.dtos.AuthResponse;
+import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.products.DTOs.CreateProductDTO;
 import com.example.ecommerce.products.DTOs.UpdateProduct;
@@ -26,9 +26,9 @@ public class TestProductControllers {
   @Autowired private ProductService productService;
   @Autowired private GlobalConftest globalConftest;
 
-  private AuthResponse adminCredentials;
-  private AuthResponse userCredentials;
-  private AuthResponse managerCredentials;
+  private AuthResponseDTO adminCredentials;
+  private AuthResponseDTO userCredentials;
+  private AuthResponseDTO managerCredentials;
 
   @BeforeAll
   public void createUsersAndSetCredentials() {

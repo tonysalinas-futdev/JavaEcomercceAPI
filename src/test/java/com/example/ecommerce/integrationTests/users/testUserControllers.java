@@ -3,8 +3,8 @@ package com.example.ecommerce.integrationTests.users;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
-import com.example.ecommerce.users.dtos.CreateUser;
-import com.example.ecommerce.users.dtos.UpdateUserProfile;
+import com.example.ecommerce.users.dtos.CreateUserDTO;
+import com.example.ecommerce.users.dtos.UpdateUserProfileDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
@@ -47,7 +47,7 @@ public class testUserControllers {
     RestAssured.given()
         .contentType("application/json")
         .header("Authorization", "Bearer " + userCredentials.getAccessToken())
-        .body(new UpdateUserProfile("Jose Alejandro", "newuser@gmail.com"))
+        .body(new UpdateUserProfileDTO("Jose Alejandro", "newuser@gmail.com"))
         .when()
         .put("http://localhost:8000/api/v1/me/profile")
         .then()
@@ -68,7 +68,7 @@ public class testUserControllers {
     RestAssured.given()
         .contentType("application/json")
         .header("Authorization", "Bearer " + userCredentials.getAccessToken())
-        .body(new UpdateUserProfile("Jose Alejandro", "admin@gmail.com"))
+        .body(new UpdateUserProfileDTO("Jose Alejandro", "admin@gmail.com"))
         .when()
         .put("http://localhost:8000/api/v1/me/profile")
         .then()
@@ -82,8 +82,8 @@ public class testUserControllers {
   public void shouldCreateUserByAdmin() {
     globalConftest.createAdmin();
     var adminCredentials = globalConftest.obtainAdminCredentials();
-    CreateUser userData =
-        CreateUser.builder()
+    CreateUserDTO userData =
+        CreateUserDTO.builder()
             .name("User Created")
             .email("example@gmail.com")
             .role(RoleEnum.ADMIN)

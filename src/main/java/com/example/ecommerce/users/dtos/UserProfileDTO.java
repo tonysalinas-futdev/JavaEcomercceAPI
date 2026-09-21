@@ -6,12 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class UserProfile {
-  private String name;
-  private String email;
-}
+public record UserProfileDTO(
+        String name,
+        String email
+) {}
+

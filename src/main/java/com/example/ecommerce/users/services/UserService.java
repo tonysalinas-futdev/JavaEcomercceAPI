@@ -3,26 +3,28 @@ package com.example.ecommerce.users.services;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.shared.exceptions.InvalidRequestException;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
-import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
-import com.example.ecommerce.users.dtos.UpdatePassword;
-import com.example.ecommerce.users.dtos.UpdateUserProfile;
-import com.example.ecommerce.users.dtos.UserProfile;
+import com.example.ecommerce.users.dtos.UpdatePasswordDTO;
+import com.example.ecommerce.users.dtos.UpdateUserProfileDTO;
+import com.example.ecommerce.users.dtos.UserProfileDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.mappers.UserMappers;
 import com.example.ecommerce.users.models.Role;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.RoleRepository;
 import com.example.ecommerce.users.repository.UserRepository;
-import com.example.ecommerce.users.utils.BuildUserUtil;
+import com.example.ecommerce.users.utils.BuilderUserUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import org.springframework.dao.DataAccessException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
   private final UserRepository repo;
   private final PasswordEncoder encoder;
@@ -31,27 +33,26 @@ public class UserService {
   private final RoleRepository roleRepo;
 
   @Transactional
-  public UserProfile updateProfile(UpdateUserProfile dto, String userEmail) {
+  public UserProfileDTO updateProfile(UpdateUserProfileDTO dto, String userEmail) {
     User user = queryService.findByEmailOrThrow(userEmail);
-    if (dto.getEmail() != null) {
-      queryService.findByEmailAndThrowIfExists(dto.getEmail());
+    if (dto.email() != null) {
+      queryService.findByEmailAndThrowIfExists(dto.email());
     }
 
-    try {
       mapper.updateUserProfileWithDTO(dto, user);
       repo.saveAndFlush(user);
+      log.info("Succesfully updated the profile of the user with email = {}", userEmail);
       return mapper.entityToUserProfileDTO(user);
-    } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Database Error", ex);
-    }
+
   }
 
   @Transactional
-  public void updatePassword(UpdatePassword data, String userEmail) {
+  public void updatePassword(UpdatePasswordDTO data, String userEmail) {
     User user = queryService.findByEmailOrThrow(userEmail);
-    if (encoder.matches(data.getOldPassword(), user.getPassword())) {
-      user.setPassword(encoder.encode(data.getNewPassword()));
+    if (encoder.matches(data.oldPassword(), user.getPassword())) {
+      user.setPassword(encoder.encode(data.newPassword()));
       repo.save(user);
+      log.info("Successfully updated password of user with email = {}", userEmail);
       return;
     }
 
@@ -60,21 +61,22 @@ public class UserService {
 
   @Transactional
   public User registerValidUser(@Valid SignUpDTO dto) {
-    queryService.findByEmailAndThrowIfExists(dto.getEmail());
-    User user = BuildUserUtil.buildUser(dto);
-    Role role =
+    queryService.findByEmailAndThrowIfExists(dto.email());
+    User user = BuilderUserUtil.build(dto);
+
+    Role userRole =
         roleRepo
             .findByRoleEnum(RoleEnum.USER)
-            .orElseThrow(() -> new NotFoundException("Role USER not found"));
-    user.setPassword(encoder.encode(dto.getPassword()));
-    user.setRole(role);
+            .orElseThrow(() -> new NotFoundException("Role not found"));
 
-    try {
-      repo.saveAndFlush(user);
+    user.setPassword(encoder.encode(dto.password()));
+    List<Role> updatedRoleList= user.getRoles();
+    updatedRoleList.add(userRole);
+    user.setRoles(updatedRoleList);
 
-    } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Database Error", ex);
-    }
+    User savedUser = repo.saveAndFlush(user);
+    log.info("Register user with email = {}, id = {} , name = {}", dto.email(), savedUser.getId(), dto.name());
+
     return user;
   }
 }

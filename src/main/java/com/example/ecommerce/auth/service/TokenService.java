@@ -13,22 +13,23 @@ import org.springframework.stereotype.Service;
 public class TokenService {
   private final TokenRepository repo;
 
-  public void saveUserToken(User user, String jwtToken) {
+  public void saveUserTokenAndDeletePrevious(User user, String jwtToken) {
     Token token = Token.builder().revoked(false).expired(false).user(user).token(jwtToken).build();
-    user.getTokens().add(token);
+    if (user.getToken() != null){
+        repo.delete(user.getToken());
+    }
+    user.setToken(token);
+    repo.saveAndFlush(token);
+
+  }
+
+  public void revokeUserToken(User user) {
+    Token token = user.getToken();
+    token.setRevoked(true);
     repo.saveAndFlush(token);
   }
 
-  public void revokeAllTokensUser(User user) {
-    List<Token> tokens = repo.getAllTokensFromUser(user);
-    for (Token token : tokens) {
-      token.setRevoked(true);
-      token.setExpired(true);
-    }
-    repo.saveAllAndFlush(tokens);
-  }
-
-  public Token getToken(String value) {
+  public Token getByValue(String value) {
     return repo.getByToken(value).orElseThrow(() -> new NotFoundException("Token not found"));
   }
 }

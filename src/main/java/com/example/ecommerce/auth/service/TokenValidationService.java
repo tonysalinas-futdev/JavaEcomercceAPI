@@ -5,6 +5,8 @@ import com.example.ecommerce.auth.model.Token;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
 import com.example.ecommerce.users.models.User;
 import java.util.Date;
+
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,23 +17,18 @@ public class TokenValidationService {
   private final TokenService tokenService;
   private final JwtTokenParser parser;
 
-  public boolean isTokenExpired(String token) {
-    Date today = new Date(System.currentTimeMillis());
-    Date expiredDate = parser.extractPayload(token).getExpiration();
-    return today.after(expiredDate);
-  }
 
-  public boolean isTokenRevoked(String value) {
-    Token token = tokenService.getToken(value);
-
-    return token.isRevoked();
-  }
-
-  public void isTokenValid(String token, User user) {
-    String userEmail = tokenService.getToken(token).getUser().getEmail();
-    String emailInPayload = parser.extractPayload(token).getSubject();
-    if (isTokenExpired(token) || isTokenRevoked(token) || !userEmail.equals(emailInPayload)) {
-      throw new InvalidTokenException("Refresh token is invalid or expired");
+    public boolean isTokenExpired(String tokenValue) {
+        Date today = new Date(System.currentTimeMillis());
+        Date expiredDate = parser.parse(tokenValue).getExpiration();
+        return today.after(expiredDate);
     }
-  }
+
+    public void validateRefreshToken(Token token){
+        Claims claims=parser.parse(token.getToken());
+        if (isTokenExpired(token.getToken()) || token.isRevoked() || !claims.get("token_type").equals("refresh_token")){
+            throw new InvalidTokenException("Token invalid or expired");
+        }
+
+    }
 }

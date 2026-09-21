@@ -1,7 +1,6 @@
 package com.example.ecommerce.auth.filters;
 
 import com.example.ecommerce.auth.exceptions.InvalidTokenException;
-import com.example.ecommerce.auth.facade.JwtFacade;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;

@@ -8,16 +8,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class BuildUserUtil {
+public class BuilderUserUtil {
 
-  public static User buildUser(@Valid SignUpDTO dto) {
-    User user =
+  public static User build(@Valid SignUpDTO dto) {
+   return
         User.builder()
-            .name(dto.getName())
-            .email(dto.getEmail())
+            .name(dto.name())
+            .email(dto.email())
             .isEnabled(true)
             .accountNoLocked(true)
             .build();
-    return user;
+
   }
 }

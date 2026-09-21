@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS role_permission(
     PRIMARY KEY (role_id, permission_id)
 );
 
+
 CREATE TABLE IF NOT EXISTS Users(
     id SERIAL PRIMARY KEY,
     joined_at TIMESTAMP,
@@ -31,7 +32,11 @@ CREATE TABLE IF NOT EXISTS Users(
 
 );
 
-
+CREATE TABLE IF NOT EXISTS role_permission(
+    role_id INT REFERENCES Roles(id),
+    permission_id INT REFERENCES Permissions(id),
+    PRIMARY KEY (role_id, permission_id)
+);
 
 CREATE TABLE IF NOT EXISTS categories(
     id SERIAL PRIMARY KEY,

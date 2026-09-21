@@ -10,20 +10,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-@Getter
-@Setter
-public class SignUpDTO {
-  @Email @NotNull private String email;
+public record SignUpDTO(
+        @Email(message = "Invalid email format") @NotBlank(message = "The email cannot be null or empty") String email,
 
-  @NotNull @NotBlank private String name;
+        @NotBlank(message = "The name cannot be null or empty") String name,
 
-  @NotNull
-  @NotBlank(
-      message =
-          "La contraseña debe tener al menos una letra mayúscula , una letra minúscula, un número y un caracter especial")
-  @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*#?&]{8,}$")
-  private String password;
+@NotBlank(
+        message =
+                "The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character among @$!%*?&#")
+@Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*#?&]{8,}$")
+    String password
+) {
+
 }

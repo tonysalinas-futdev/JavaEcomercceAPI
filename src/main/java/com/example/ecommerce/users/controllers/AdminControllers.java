@@ -1,10 +1,10 @@
 package com.example.ecommerce.users.controllers;
 
 import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
-import com.example.ecommerce.users.dtos.CreateUser;
-import com.example.ecommerce.users.dtos.UpdateUser;
-import com.example.ecommerce.users.dtos.UserDetails;
-import com.example.ecommerce.users.dtos.UserList;
+import com.example.ecommerce.users.dtos.CreateUserDTO;
+import com.example.ecommerce.users.dtos.UpdateUserDTO;
+import com.example.ecommerce.users.dtos.UserDetailsDTO;
+import com.example.ecommerce.users.dtos.UserListDTO;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserAdminService;
 import com.example.ecommerce.users.services.UserQueryService;
@@ -35,7 +35,7 @@ public class AdminControllers {
 
   @PostMapping()
   @PreAuthorize("hasRole('ADMIN') and hasAuthority('CREATE_USER')")
-  public ResponseEntity<?> createUser(@RequestBody @Valid CreateUser dto) {
+  public ResponseEntity<?> createUser(@RequestBody @Valid CreateUserDTO dto) {
     User user = service.createUserByAdmin(dto);
     URI location = URI.create("/api/v1/users/" + user.getId());
     return ResponseEntity.created(location).body(user);
@@ -43,13 +43,13 @@ public class AdminControllers {
 
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<UserDetails> getUserById(@PathVariable @Positive Long id) {
+  public ResponseEntity<UserDetailsDTO> getUserById(@PathVariable @Positive Long id) {
     return ResponseEntity.status(200).body(queryService.findByIdAndReturnDetailsDto(id));
   }
 
   @GetMapping()
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<PaginatedResponseDTO<UserList>> getAllUsers(
+  public ResponseEntity<PaginatedResponseDTO<UserListDTO>> getAllUsers(
       @RequestParam @Positive Integer page, @RequestParam @Positive Integer size) {
     return ResponseEntity.status(200).body(queryService.getAllUsers(page, size));
   }
@@ -63,7 +63,7 @@ public class AdminControllers {
 
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_USER')")
-  public ResponseEntity<UserDetails> updateUser(@RequestBody UpdateUser dto, @Positive Long id) {
+  public ResponseEntity<UserDetailsDTO> updateUser(@RequestBody UpdateUserDTO dto, @Positive Long id) {
 
     return ResponseEntity.ok(service.updateUser(id, dto));
   }

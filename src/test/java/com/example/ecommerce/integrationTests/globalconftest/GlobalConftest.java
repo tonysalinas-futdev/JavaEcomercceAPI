@@ -1,9 +1,9 @@
 package com.example.ecommerce.integrationTests.globalconftest;
 
-import com.example.ecommerce.auth.dtos.AuthResponse;
+import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.service.AuthService;
-import com.example.ecommerce.users.dtos.CreateUser;
+import com.example.ecommerce.users.dtos.CreateUserDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.UserRepository;
@@ -19,8 +19,8 @@ public class GlobalConftest {
   private final UserRepository userRepo;
 
   public User createAdmin() {
-    CreateUser dto =
-        CreateUser.builder()
+    CreateUserDTO dto =
+        CreateUserDTO.builder()
             .name("admin")
             .password("12345678Ja#")
             .email("admin@gmail.com")
@@ -35,8 +35,8 @@ public class GlobalConftest {
       return user.get();
     }
 
-    CreateUser dto =
-        CreateUser.builder()
+    CreateUserDTO dto =
+        CreateUserDTO.builder()
             .name("user")
             .password("12345678Ja#")
             .email("user@gmail.com")
@@ -46,8 +46,8 @@ public class GlobalConftest {
   }
 
   public User createManager() {
-    CreateUser dto =
-        CreateUser.builder()
+    CreateUserDTO dto =
+        CreateUserDTO.builder()
             .name("manager")
             .password("12345678Ja#")
             .email("manager@gmail.com")
@@ -56,22 +56,22 @@ public class GlobalConftest {
     return service.createUserByAdmin(dto);
   }
 
-  public AuthResponse obtainAdminCredentials() {
+  public AuthResponseDTO obtainAdminCredentials() {
     LoginDTO request = LoginDTO.builder().email("admin@gmail.com").password("12345678Ja#").build();
-    AuthResponse response = authService.login(request);
+    AuthResponseDTO response = authService.login(request);
     return response;
   }
 
-  public AuthResponse obtainUserCredentials() {
+  public AuthResponseDTO obtainUserCredentials() {
     LoginDTO request = LoginDTO.builder().email("user@gmail.com").password("12345678Ja#").build();
-    AuthResponse response = authService.login(request);
+    AuthResponseDTO response = authService.login(request);
     return response;
   }
 
-  public AuthResponse obtainManagerCredentials() {
+  public AuthResponseDTO obtainManagerCredentials() {
     LoginDTO request =
         LoginDTO.builder().email("manager@gmail.com").password("12345678Ja#").build();
-    AuthResponse response = authService.login(request);
+    AuthResponseDTO response = authService.login(request);
     return response;
   }
 }

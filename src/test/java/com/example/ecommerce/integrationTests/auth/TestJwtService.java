@@ -3,7 +3,7 @@ package com.example.ecommerce.integrationTests.auth;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.example.ecommerce.auth.dtos.AuthResponse;
+import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.auth.model.Token;
@@ -55,7 +55,7 @@ public class TestJwtService {
   public void shouldReturnAccessAndRefreshTokenWithUserData() {
     User user = conftest.returnSaveUser();
 
-    AuthResponse authResponse = authService.login(new LoginDTO(user.getEmail(), "12345Abc#"));
+    AuthResponseDTO authResponse = authService.login(new LoginDTO(user.getEmail(), "12345Abc#"));
 
     Claims accessTokenPayload = parser.extractPayload(authResponse.getAccessToken());
     Claims refreshTokenPayload = parser.extractPayload(authResponse.getRefreshToken());
@@ -79,13 +79,13 @@ public class TestJwtService {
 
   @Test
   public void shouldCreateUserAndReturnAccessToken() {
-    AuthResponse authResponse =
+    AuthResponseDTO authResponse =
         authService.signUp(
             new SignUpDTO("kroty0202@gmail.com", "Juan Antonio Chao Salinas", "Abcd12345#"));
 
     User user = userQueryService.findByEmailOrThrow("kroty0202@gmail.com");
     Claims accessToken = parser.extractPayload(authResponse.getAccessToken());
-    AuthResponse loginTokens = authService.login(new LoginDTO("kroty0202@gmail.com", "Abcd12345#"));
+    AuthResponseDTO loginTokens = authService.login(new LoginDTO("kroty0202@gmail.com", "Abcd12345#"));
 
     assertTrue(accessToken.getSubject().equals("kroty0202@gmail.com"));
     assertTrue(user.getName().equals("Juan Antonio Chao Salinas"));

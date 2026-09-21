@@ -33,7 +33,7 @@ public class Permission {
   private Long id;
 
   @Column(name = "permission_name", unique = true)
-  private String permissionName;
+  private String name;
 
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(

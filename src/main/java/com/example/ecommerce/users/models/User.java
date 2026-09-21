@@ -5,18 +5,8 @@ import com.example.ecommerce.cart.models.Cart;
 import com.example.ecommerce.order.models.Order;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,15 +56,19 @@ public class User {
   @JoinColumn(name = "cart_id", unique = true)
   private Cart cart;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "role_id")
-  private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "role_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+
+    @Builder.Default
+  private List<Role> roles = new ArrayList<>();
 
   @OneToMany(mappedBy = "user")
   @Builder.Default
   private List<Order> orders = new ArrayList<>();
 
-  @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
-  @Builder.Default
-  private List<Token> tokens = new ArrayList<>();
+  @OneToOne(fetch = FetchType.EAGER, mappedBy = "user")
+  private Token token;
 }
