@@ -3,9 +3,7 @@ package com.example.ecommerce.auth.utils;
 import com.example.ecommerce.auth.config.JwtProperties;
 import com.example.ecommerce.users.models.User;
 import io.jsonwebtoken.Jwts;
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +22,20 @@ public class JwtTokenProvider {
   }
 
   public String buildToken(User user, Long expiration, String type) {
+    List<String> permissions = new ArrayList<>();
+
+    user.getRoles()
+        .forEach(
+            role -> {
+              role.getPermissions().forEach(p -> permissions.add(p.getName()));
+            });
+
     return Jwts.builder()
         .id(UUID.randomUUID().toString())
         .claim("token_type", type)
-        .claims(Map.of("id", user.getId().toString()))
+        .claim("id", user.getId().toString())
+        .claim("roles", user.getRoles().stream().map(r -> r.getRoleEnum().name()).toList())
+        .claim("permissions", permissions)
         .subject(user.getEmail())
         .issuedAt(new Date(System.currentTimeMillis()))
         .expiration(new Date(System.currentTimeMillis() + expiration))

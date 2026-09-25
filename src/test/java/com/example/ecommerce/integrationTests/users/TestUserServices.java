@@ -1,14 +1,13 @@
 package com.example.ecommerce.integrationTests.users;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.ecommerce.auth.dtos.SignUpDTO;
-import com.example.ecommerce.users.dtos.UpdateUser;
-import com.example.ecommerce.users.dtos.UserDetails;
+import com.example.ecommerce.users.dtos.UpdateUserDTO;
+import com.example.ecommerce.users.dtos.UserDetailsDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.models.User;
-import com.example.ecommerce.users.services.UserAdminService;
+import com.example.ecommerce.users.services.AdminService;
 import com.example.ecommerce.users.services.UserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
@@ -28,20 +27,21 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
-public class testUserService {
-  @Autowired private UserAdminService service;
+public class TestUserServices {
+  @Autowired private AdminService service;
   @Autowired private UserService userService;
   @Autowired private UserConftest conftest;
 
   @Test
-  public void mustCreateAndReturnUser() {
+  public void shouldCreateUserByAdminSuccessfully() {
     User user =
         service.createUserByAdmin(
             conftest.buildCreateUserDto(
                 "emailexample@gmail.com", "Abc123456#", "Pedro Gonzalez", RoleEnum.USER));
 
-    assertTrue(user.getName().equals("Pedro Gonzalez"));
-    assertTrue(user.getId() != null);
+    assertEquals("Pedro Gonzalez", user.getName());
+    assertEquals(RoleEnum.USER, user.getRoles().getFirst().getRoleEnum());
+    assertNotNull(user.getId());
   }
 
   @ParameterizedTest
@@ -50,7 +50,8 @@ public class testUserService {
     ", user@gmail.cu, Abcd123456#",
     "Juan Antonio Salinas, user@gmail.cu, invalidpassword",
   })
-  public void shouldFailToCreateUserGivenInvalidInput(String name, String email, String password) {
+  public void shouldFailToCreateUserGivenInvalidEmailNullNameAndInvalidPassword(
+      String name, String email, String password) {
     assertThrows(
         ConstraintViolationException.class,
         () -> {
@@ -60,28 +61,30 @@ public class testUserService {
   }
 
   @Test
-  public void shouldCreateUserBySignUp() {
+  public void shouldCreateUserBySignUpSuccessfully() {
     SignUpDTO data =
         conftest.buildSignUpDto(
             "Eduardo Camavinga Celmi", "camavinguismo@gmail.com", "Abcd123456#");
 
-    User user = userService.registerValidUser(data);
+    User user = userService.registerUser(data);
 
-    assertTrue(user.getName().equals("Eduardo Camavinga Celmi"));
-    assertTrue(user.getId() != null);
-    assertTrue(user.getRole().getRoleEnum().equals(RoleEnum.USER));
+    assertEquals("Eduardo Camavinga Celmi", user.getName());
+    assertNotNull(user.getId());
+    assertEquals(RoleEnum.USER, user.getRoles().getFirst().getRoleEnum());
   }
 
   @Test
-  public void shouldUpdateUser() {
+  public void shouldUpdateUserSuccessfully() {
     User user =
         service.createUserByAdmin(
             conftest.buildCreateUserDto(
                 "vini@gmail.com", "Abcd1234#", "Vini Junior", RoleEnum.USER));
-    UpdateUser data = UpdateUser.builder().email("updated_email").name("updated_name").build();
+    UpdateUserDTO data =
+        UpdateUserDTO.builder().email("updated_email").name("updated_name").build();
 
-    UserDetails updateUser = service.updateUser(user.getId(), data);
+    UserDetailsDTO updateUser = service.updateUser(user.getId(), data);
 
-    assertTrue(updateUser.getName().equals("updated_name"));
+    assertEquals("updated_name", updateUser.name());
+    assertEquals("updated_email", updateUser.email());
   }
 }

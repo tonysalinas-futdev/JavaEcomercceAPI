@@ -4,7 +4,7 @@ import com.example.ecommerce.logger.annotations.LogUserEvent;
 import com.example.ecommerce.logger.builders.audit.StructuredUserEventLogWriter;
 import com.example.ecommerce.logger.enums.MarkerTypes;
 import com.example.ecommerce.logger.mappers.UserLogMapper;
-import com.example.ecommerce.users.dtos.UserDetails;
+import com.example.ecommerce.users.dtos.UserDetailsDTO;
 import com.example.ecommerce.users.logs.events.UserEvents;
 import com.example.ecommerce.users.models.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,7 +42,7 @@ public class LogUserEventAspect {
         structuredData = mapper.entityToStructuredLog(u);
         structuredData.setEvent(userEvent);
       }
-      case UserDetails u -> {
+      case UserDetailsDTO u -> {
         structuredData = mapper.detailsDtoToStructuredLog(u);
         structuredData.setEvent(userEvent);
       }

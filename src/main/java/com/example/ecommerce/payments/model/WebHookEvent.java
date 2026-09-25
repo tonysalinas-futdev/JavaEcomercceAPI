@@ -31,6 +31,8 @@ public class WebHookEvent {
 
   @Column(name = "event_type")
   private String eventType;
+
   @Column(name = "created_at")
-  @CreationTimestamp private LocalDateTime createdAt;
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 }

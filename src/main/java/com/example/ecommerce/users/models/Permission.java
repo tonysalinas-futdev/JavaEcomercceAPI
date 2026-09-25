@@ -13,11 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Builder
 @NoArgsConstructor
@@ -27,13 +23,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@ToString(onlyExplicitlyIncluded = true)
 public class Permission {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @ToString.Include
   @Column(name = "permission_name", unique = true)
-  private String permissionName;
+  private String name;
 
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(

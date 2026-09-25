@@ -11,15 +11,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "Roles")
@@ -28,16 +23,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class Role {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @ToString.Include
   @Column(name = "role_name", unique = true)
   @Enumerated(EnumType.STRING)
   private RoleEnum roleEnum;
 
-  @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+  @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
   private List<User> users;
 
   @ManyToMany(mappedBy = "roles", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

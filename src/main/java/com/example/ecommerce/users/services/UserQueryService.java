@@ -4,9 +4,9 @@ import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import com.example.ecommerce.shared.exceptions.AlreadyExistsException;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.shared.utils.PageableUtils;
-import com.example.ecommerce.users.dtos.UserDetails;
-import com.example.ecommerce.users.dtos.UserList;
-import com.example.ecommerce.users.dtos.UserProfile;
+import com.example.ecommerce.users.dtos.UserDetailsDTO;
+import com.example.ecommerce.users.dtos.UserListDTO;
+import com.example.ecommerce.users.dtos.UserProfileDTO;
 import com.example.ecommerce.users.mappers.UserMappers;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.UserRepository;
@@ -25,23 +25,20 @@ public class UserQueryService {
   private final UserMappers mapper;
 
   public User findEntityByIdOrThrow(Long userId) {
-    User user = repo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-    return user;
+    return repo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
   }
 
   public User findByEmailOrThrow(String email) {
-    User user =
-        repo.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
-    return user;
+    return repo.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
   }
 
-  public UserDetails findByIdAndReturnDetailsDto(Long id) {
+  public UserDetailsDTO findByIdAndReturnDetailsDto(Long id) {
     User user = findEntityByIdOrThrow(id);
     return mapper.entityToUserDetailsDto(user);
   }
 
   @Cacheable(value = "users", key = "#email")
-  public UserProfile findByEmailAndReturnProfileDto(String email) {
+  public UserProfileDTO findByEmailAndReturnProfileDto(String email) {
     User user = findByEmailOrThrow(email);
     return mapper.entityToUserProfileDTO(user);
   }
@@ -58,12 +55,12 @@ public class UserQueryService {
     }
   }
 
-  public PaginatedResponseDTO<UserList> getAllUsers(Integer page, Integer size) {
+  public PaginatedResponseDTO<UserListDTO> getAllUsers(Integer page, Integer size) {
     var verifyPage = PageableUtils.verifyPage(page);
     var verifySize = PageableUtils.verifySize(size);
     Pageable pageable = PageRequest.of(verifyPage, verifySize);
     Page<User> users = repo.findAll(pageable);
-    List<UserList> usersList = users.stream().map(u -> mapper.entityToUserListDTO(u)).toList();
+    List<UserListDTO> usersList = users.stream().map(mapper::entityToUserListDTO).toList();
 
     return new PaginatedResponseDTO<>(
         usersList,

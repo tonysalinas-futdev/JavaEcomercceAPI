@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TokenRepository extends JpaRepository<Token, UUID> {
-  public Optional<Token> findByToken(String token);
 
   @Query("SELECT t FROM Token t WHERE t.user = :user")
   public List<Token> getAllTokensFromUser(@Param("user") User user);
@@ -20,6 +19,6 @@ public interface TokenRepository extends JpaRepository<Token, UUID> {
   @Query("SELECT t FROM Token t WHERE t.revoked=true AND t.expired=true")
   public List<Token> getAllInvalidTokens();
 
-  @Query("SELECT t FROM Token t WHERE t.token= :token")
-  public Optional<Token> getByToken(@Param("token") String token);
+  @Query("SELECT t FROM Token t WHERE t.value= :value")
+  public Optional<Token> findByValue(@Param("value") String value);
 }

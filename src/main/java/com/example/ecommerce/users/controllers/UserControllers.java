@@ -1,8 +1,8 @@
 package com.example.ecommerce.users.controllers;
 
-import com.example.ecommerce.users.dtos.UpdatePassword;
-import com.example.ecommerce.users.dtos.UpdateUserProfile;
-import com.example.ecommerce.users.dtos.UserProfile;
+import com.example.ecommerce.users.dtos.UpdatePasswordDTO;
+import com.example.ecommerce.users.dtos.UpdateUserProfileDTO;
+import com.example.ecommerce.users.dtos.UserProfileDTO;
 import com.example.ecommerce.users.services.UserQueryService;
 import com.example.ecommerce.users.services.UserService;
 import jakarta.validation.Valid;
@@ -25,22 +25,22 @@ public class UserControllers {
   private final UserQueryService queryService;
 
   @GetMapping("/profile")
-  public ResponseEntity<UserProfile> getProfile(Authentication authentication) {
-    UserProfile user = queryService.findByEmailAndReturnProfileDto(authentication.getName());
+  public ResponseEntity<UserProfileDTO> getProfile(Authentication authentication) {
+    UserProfileDTO user = queryService.findByEmailAndReturnProfileDto(authentication.getName());
     return ResponseEntity.ok(user);
   }
 
   @PutMapping("/password")
   public ResponseEntity<?> updatePassword(
-      @RequestBody @Valid UpdatePassword dto, Authentication authentication) {
+      @RequestBody @Valid UpdatePasswordDTO dto, Authentication authentication) {
     service.updatePassword(dto, authentication.getName());
     return ResponseEntity.ok().build();
   }
 
   @PutMapping("/profile")
-  public ResponseEntity<UserProfile> updateProfile(
-      @RequestBody @Valid UpdateUserProfile dto, Authentication authentication) {
-    UserProfile user = service.updateProfile(dto, authentication.getName());
+  public ResponseEntity<UserProfileDTO> updateProfile(
+      @RequestBody @Valid UpdateUserProfileDTO dto, Authentication authentication) {
+    UserProfileDTO user = service.updateProfile(dto, authentication.getName());
     return ResponseEntity.ok(user);
   }
 }

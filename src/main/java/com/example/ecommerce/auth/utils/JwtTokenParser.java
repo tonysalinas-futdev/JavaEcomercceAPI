@@ -10,14 +10,11 @@ import org.springframework.stereotype.Component;
 public class JwtTokenParser {
   private final SecretKeyProvider provider;
 
-  public Claims extractPayload(String token) {
-    Claims payload =
-        Jwts.parser()
-            .verifyWith(provider.getTokenSecretKey())
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
-
-    return payload;
+  public Claims parse(String token) {
+    return Jwts.parser()
+        .verifyWith(provider.getTokenSecretKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
   }
 }
