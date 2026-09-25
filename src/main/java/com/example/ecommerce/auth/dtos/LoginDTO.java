@@ -5,15 +5,11 @@ import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 @Builder
-public record LoginDTO (
-        @NotBlank(message = "The email cannot be null or empty") String email,
-
-        @NotBlank(
-          message =
-                  "The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character among @$!%*?&#")
-        @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*#?&]{8,}$")
-          String password
-
-){
-
-}
+public record LoginDTO(
+    @NotBlank(message = "The email cannot be null or empty") String email,
+    @NotBlank(
+            message =
+                "The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character among @$!%*?&#")
+        @Pattern(
+            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*#?&]{8,}$")
+        String password) {}

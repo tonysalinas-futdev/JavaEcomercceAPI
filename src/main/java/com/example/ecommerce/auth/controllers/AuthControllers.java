@@ -4,10 +4,9 @@ import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.auth.service.AuthService;
-import java.util.Map;
-
 import com.example.ecommerce.auth.utils.CookieBuilder;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.http.HttpHeaders;
@@ -24,27 +23,31 @@ public class AuthControllers {
   private final CookieBuilder cookieBuilder;
 
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Endpoint for sign up" , description = "Endpoint for sign up")
+  @Operation(summary = "Endpoint for sign up", description = "Endpoint for sign up")
   @PostMapping("/sign_up")
   public ResponseEntity<?> signUp(@RequestBody SignUpDTO dto) {
     AuthResponseDTO tokens = service.signUp(dto);
-      ResponseCookie accessCookie=cookieBuilder.buildAccessTokenCookie(tokens);
-      ResponseCookie refreshCookie=cookieBuilder.buildRefreshTokenCookie(tokens);
+    ResponseCookie accessCookie = cookieBuilder.buildAccessTokenCookie(tokens);
+    ResponseCookie refreshCookie = cookieBuilder.buildRefreshTokenCookie(tokens);
 
     ThreadContext.putAll(Map.of("use_case", "register_user", "entity", "user"));
     return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE,accessCookie.toString()).header(HttpHeaders.SET_COOKIE,refreshCookie.toString()).build();
+        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+        .build();
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "Endpoint for login" , description = "Endpoint for login")
+  @Operation(summary = "Endpoint for login", description = "Endpoint for login")
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
     AuthResponseDTO tokens = service.login(dto);
-      ResponseCookie accessCookie=cookieBuilder.buildAccessTokenCookie(tokens);
-      ResponseCookie refreshCookie=cookieBuilder.buildRefreshTokenCookie(tokens);
+    ResponseCookie accessCookie = cookieBuilder.buildAccessTokenCookie(tokens);
+    ResponseCookie refreshCookie = cookieBuilder.buildRefreshTokenCookie(tokens);
     ThreadContext.putAll(Map.of("use_case", "user_login", "entity", "user"));
     return ResponseEntity.ok()
-              .header(HttpHeaders.SET_COOKIE,accessCookie.toString()).header(HttpHeaders.SET_COOKIE,refreshCookie.toString()).build();
+        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+        .build();
   }
 }

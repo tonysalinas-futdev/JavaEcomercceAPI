@@ -7,14 +7,14 @@ import com.example.ecommerce.users.dtos.CreateUserDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.UserRepository;
-import com.example.ecommerce.users.services.UserAdminService;
+import com.example.ecommerce.users.services.AdminService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class GlobalConftest {
-  private final UserAdminService service;
+  private final AdminService service;
   private final AuthService authService;
   private final UserRepository userRepo;
 

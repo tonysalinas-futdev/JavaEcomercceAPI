@@ -32,14 +32,14 @@ public class UserControllers {
 
   @PutMapping("/password")
   public ResponseEntity<?> updatePassword(
-          @RequestBody @Valid UpdatePasswordDTO dto, Authentication authentication) {
+      @RequestBody @Valid UpdatePasswordDTO dto, Authentication authentication) {
     service.updatePassword(dto, authentication.getName());
     return ResponseEntity.ok().build();
   }
 
   @PutMapping("/profile")
   public ResponseEntity<UserProfileDTO> updateProfile(
-          @RequestBody @Valid UpdateUserProfileDTO dto, Authentication authentication) {
+      @RequestBody @Valid UpdateUserProfileDTO dto, Authentication authentication) {
     UserProfileDTO user = service.updateProfile(dto, authentication.getName());
     return ResponseEntity.ok(user);
   }

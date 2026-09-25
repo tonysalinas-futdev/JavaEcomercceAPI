@@ -11,12 +11,10 @@ public class JwtTokenParser {
   private final SecretKeyProvider provider;
 
   public Claims parse(String token) {
-    return
-        Jwts.parser()
-            .verifyWith(provider.getTokenSecretKey())
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
-
+    return Jwts.parser()
+        .verifyWith(provider.getTokenSecretKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
   }
 }

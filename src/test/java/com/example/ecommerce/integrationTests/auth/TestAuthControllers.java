@@ -1,8 +1,8 @@
 package com.example.ecommerce.integrationTests.auth;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.web.client.RestTemplate;
@@ -20,29 +22,31 @@ import org.springframework.web.client.RestTemplate;
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 public class TestAuthControllers {
-  private RestTemplate restTemplate = new RestTemplate();
+  private final RestTemplate restTemplate = new RestTemplate();
   @Autowired private GlobalConftest conftest;
 
-  @Test
-  public void shouldReturnAccessTokenWhenSignUp() {
-    SignUpDTO request = new SignUpDTO("krooty24@gmail.com", "Tony Kroos", "Abcd12345#");
-    AuthResponseDTO response =
-        restTemplate.postForObject(
-            "http://localhost:8000/api/v1/auth/sign_up", request, AuthResponseDTO.class);
+  private final String basicRoute = "http://localhost:8080/api/v1/auth/";
 
-    assertTrue(response.getAccessToken() != null);
+  @Test
+  public void shouldReturn200AndSetCookiesWhenSignUp() {
+    SignUpDTO request = new SignUpDTO("krooty24@gmail.com", "Tony Kroos", "Abcd12345#");
+    ResponseEntity<?> response =
+        restTemplate.postForEntity(basicRoute + "sign_up", request, Void.class);
+
+    assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+    assertTrue(response.getHeaders().containsKey("Set-Cookie"));
   }
 
   @Test
-  public void shouldLoginUser() {
+  public void shouldReturn200AndSetCookiesWhenLogin() {
 
     User user = conftest.createUser();
 
     LoginDTO loginDto = new LoginDTO(user.getEmail(), "12345678Ja#");
-    AuthResponseDTO response2 =
-        restTemplate.postForObject(
-            "http://localhost:8000/api/v1/auth/login", loginDto, AuthResponseDTO.class);
+    ResponseEntity<?> response =
+        restTemplate.postForEntity(basicRoute + "login", loginDto, Void.class);
 
-    assertTrue(response2.getAccessToken() != null);
+    assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+    assertTrue(response.getHeaders().containsKey("Set-Cookie"));
   }
 }

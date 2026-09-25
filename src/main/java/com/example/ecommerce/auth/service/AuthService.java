@@ -28,7 +28,7 @@ public class AuthService {
   private final AuthenticationManager authenticationManager;
   private final TokenService tokenService;
   private final JwtTokenProvider jwtTokenProvider;
-  private  final JwtTokenParser parser;
+  private final JwtTokenParser parser;
   public final TokenValidationService validationService;
 
   @LogAuthEvent(event = AuthLogEvents.USER_LOGIN, loggerName = AuthService.class)
@@ -38,27 +38,24 @@ public class AuthService {
     User user = userQueryService.findByEmailOrThrow(dto.email());
     String accessToken = jwtTokenProvider.createAccessToken(user);
     String refreshToken = jwtTokenProvider.createRefreshToken(user);
-    tokenService.saveUserTokenAndDeletePrevious(user,refreshToken);
+    tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
     return new AuthResponseDTO(accessToken, refreshToken);
-
-
   }
 
   @LogAuthEvent(event = AuthLogEvents.USER_REGISTER, loggerName = AuthService.class)
   public AuthResponseDTO signUp(@Valid SignUpDTO dto) {
-    User user = userService.registerValidUser(dto);
-      String accessToken = jwtTokenProvider.createAccessToken(user);
-      String refreshToken = jwtTokenProvider.createRefreshToken(user);
-      tokenService.saveUserTokenAndDeletePrevious(user,refreshToken);
-      return new AuthResponseDTO(accessToken, refreshToken);
-
+    User user = userService.registerUser(dto);
+    String accessToken = jwtTokenProvider.createAccessToken(user);
+    String refreshToken = jwtTokenProvider.createRefreshToken(user);
+    tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
+    return new AuthResponseDTO(accessToken, refreshToken);
   }
 
   public AuthResponseDTO refreshToken(String tokenValue) {
     Token token = tokenService.getByValue(tokenValue);
 
     validationService.validateRefreshToken(token);
-      Claims payload = parser.parse(token.getToken());
+    Claims payload = parser.parse(token.getValue());
     User user = userQueryService.findByEmailOrThrow(payload.getSubject());
     tokenService.revokeUserToken(user);
 
@@ -67,8 +64,5 @@ public class AuthService {
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
 
     return new AuthResponseDTO(accessToken, refreshToken);
-
-
-
   }
 }

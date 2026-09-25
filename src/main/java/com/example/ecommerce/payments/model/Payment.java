@@ -29,15 +29,17 @@ public class Payment {
 
   @Column(name = "order_id")
   private Long orderId;
+
   @Column(name = "user_id")
   private Long userId;
-  
+
   private Double amount;
 
   private String currency;
 
   @Column(unique = true, name = "payment_intent_id")
   private String paymentIntentId;
+
   @Enumerated(EnumType.STRING)
   private PaymentStatus status;
 }

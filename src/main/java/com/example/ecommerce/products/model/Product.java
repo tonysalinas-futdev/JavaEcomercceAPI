@@ -48,9 +48,12 @@ public class Product {
   private Boolean available;
 
   @Column(name = "created_at")
-  @CreationTimestamp private LocalDateTime createdAt;
+  @CreationTimestamp
+  private LocalDateTime createdAt;
+
   @Column(name = "update_at")
-  @UpdateTimestamp private LocalDateTime updateAt;
+  @UpdateTimestamp
+  private LocalDateTime updateAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "category_id")

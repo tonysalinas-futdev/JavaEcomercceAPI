@@ -8,11 +8,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TokenExtractor {
 
-  public String extractBearerToken(String authHeader) {
+  public static String extract(String authHeader) {
     if (authHeader == null || !authHeader.startsWith("Bearer")) {
       throw new InvalidTokenException("Invalid token");
     }
-     return authHeader.substring(7);
-
+    return authHeader.substring(7);
   }
 }

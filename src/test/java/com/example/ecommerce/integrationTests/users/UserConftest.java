@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class UserConftest {
 
-  public CreateUserDTO buildCreateUserDto(String email, String password, String name, RoleEnum role) {
+  public CreateUserDTO buildCreateUserDto(
+      String email, String password, String name, RoleEnum role) {
     return CreateUserDTO.builder().email(email).password(password).name(name).role(role).build();
   }
 

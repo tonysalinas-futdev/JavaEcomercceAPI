@@ -8,6 +8,7 @@ import com.example.ecommerce.users.dtos.UpdateUserProfileDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,18 +20,24 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-public class testUserControllers {
+public class TestUserControllers {
   @Autowired private GlobalConftest globalConftest;
+  private final String BasicRoute = "http://localhost:8080/api/v1/";
+
+  public RequestSpecification getRequestEspecification(String credentials) {
+    return RestAssured.given()
+        .contentType("application/json")
+        .header("Authorization", "Bearer " + credentials);
+  }
 
   @Test
-  public void mustReturnUserProfileAndStatus200() {
+  public void shouldGetUserProfileAndStatus200() {
     globalConftest.createUser();
     var userCredentials = globalConftest.obtainUserCredentials();
-    RestAssured.given()
-        .contentType("application/json")
-        .header("Authorization", "Bearer " + userCredentials.getAccessToken())
+
+    getRequestEspecification(userCredentials.accessToken())
         .when()
-        .get("http://localhost:8000/api/v1/me/profile")
+        .get(BasicRoute + "me/profile")
         .then()
         .body("email", equalTo("user@gmail.com"))
         .body("name", equalTo("user"))
@@ -44,12 +51,10 @@ public class testUserControllers {
     globalConftest.createUser();
     var userCredentials = globalConftest.obtainUserCredentials();
 
-    RestAssured.given()
-        .contentType("application/json")
-        .header("Authorization", "Bearer " + userCredentials.getAccessToken())
+    getRequestEspecification(userCredentials.accessToken())
         .body(new UpdateUserProfileDTO("Jose Alejandro", "newuser@gmail.com"))
         .when()
-        .put("http://localhost:8000/api/v1/me/profile")
+        .put(BasicRoute + "me/profile")
         .then()
         .body("email", equalTo("newuser@gmail.com"))
         .body("name", equalTo("Jose Alejandro"))
@@ -65,12 +70,10 @@ public class testUserControllers {
     globalConftest.createAdmin();
     RestAssured.defaultParser = Parser.JSON;
 
-    RestAssured.given()
-        .contentType("application/json")
-        .header("Authorization", "Bearer " + userCredentials.getAccessToken())
+    getRequestEspecification(userCredentials.accessToken())
         .body(new UpdateUserProfileDTO("Jose Alejandro", "admin@gmail.com"))
         .when()
-        .put("http://localhost:8000/api/v1/me/profile")
+        .put(BasicRoute + "me/profile")
         .then()
         .body("message", equalTo("Email already exists"))
         .log()
@@ -79,7 +82,7 @@ public class testUserControllers {
   }
 
   @Test
-  public void shouldCreateUserByAdmin() {
+  public void shouldCreateUserByAdminSuccessFullyAndReturn201() {
     globalConftest.createAdmin();
     var adminCredentials = globalConftest.obtainAdminCredentials();
     CreateUserDTO userData =
@@ -92,10 +95,10 @@ public class testUserControllers {
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + adminCredentials.getAccessToken())
+        .header("Authorization", "Bearer " + adminCredentials.accessToken())
         .body(userData)
         .when()
-        .post("http://localhost:8000/api/v1/admin")
+        .post(BasicRoute + "admin")
         .then()
         .body("name", equalTo("User Created"))
         .log()

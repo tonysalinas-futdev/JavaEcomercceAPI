@@ -11,13 +11,11 @@ import org.springframework.stereotype.Service;
 public class BuilderUserUtil {
 
   public static User build(@Valid SignUpDTO dto) {
-   return
-        User.builder()
-            .name(dto.name())
-            .email(dto.email())
-            .isEnabled(true)
-            .accountNoLocked(true)
-            .build();
-
+    return User.builder()
+        .name(dto.name())
+        .email(dto.email())
+        .isEnabled(true)
+        .accountNoLocked(true)
+        .build();
   }
 }

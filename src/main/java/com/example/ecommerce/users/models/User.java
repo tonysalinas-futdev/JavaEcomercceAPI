@@ -6,15 +6,10 @@ import com.example.ecommerce.order.models.Order;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
@@ -25,6 +20,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Builder
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@ToString()
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +36,7 @@ public class User {
   @Column(nullable = false, unique = true)
   private String email;
 
+  @ToString.Exclude
   @Column(nullable = false)
   private String password;
 
@@ -52,23 +49,26 @@ public class User {
   @Column(name = "credentials_no_expired")
   private Boolean credentialsNoExpired;
 
-  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+  @ToString.Exclude
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
   @JoinColumn(name = "cart_id", unique = true)
   private Cart cart;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "role_user",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-
-    @Builder.Default
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+      name = "role_user",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
+  @Builder.Default
   private List<Role> roles = new ArrayList<>();
 
-  @OneToMany(mappedBy = "user")
+  @ToString.Exclude
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   @Builder.Default
   private List<Order> orders = new ArrayList<>();
 
-  @OneToOne(fetch = FetchType.EAGER, mappedBy = "user")
+  @ToString.Exclude
+  @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
+  @JoinColumn(name = "token_id", unique = true)
   private Token token;
 }

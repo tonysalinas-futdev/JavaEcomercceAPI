@@ -15,12 +15,11 @@ import com.example.ecommerce.users.repository.UserRepository;
 import com.example.ecommerce.users.utils.BuilderUserUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -39,11 +38,10 @@ public class UserService {
       queryService.findByEmailAndThrowIfExists(dto.email());
     }
 
-      mapper.updateUserProfileWithDTO(dto, user);
-      repo.saveAndFlush(user);
-      log.info("Succesfully updated the profile of the user with email = {}", userEmail);
-      return mapper.entityToUserProfileDTO(user);
-
+    mapper.updateUserProfileWithDTO(dto, user);
+    repo.saveAndFlush(user);
+    log.info("Succesfully updated the profile of the user with email = {}", userEmail);
+    return mapper.entityToUserProfileDTO(user);
   }
 
   @Transactional
@@ -60,7 +58,7 @@ public class UserService {
   }
 
   @Transactional
-  public User registerValidUser(@Valid SignUpDTO dto) {
+  public User registerUser(@Valid SignUpDTO dto) {
     queryService.findByEmailAndThrowIfExists(dto.email());
     User user = BuilderUserUtil.build(dto);
 
@@ -70,12 +68,16 @@ public class UserService {
             .orElseThrow(() -> new NotFoundException("Role not found"));
 
     user.setPassword(encoder.encode(dto.password()));
-    List<Role> updatedRoleList= user.getRoles();
+    List<Role> updatedRoleList = user.getRoles();
     updatedRoleList.add(userRole);
     user.setRoles(updatedRoleList);
 
     User savedUser = repo.saveAndFlush(user);
-    log.info("Register user with email = {}, id = {} , name = {}", dto.email(), savedUser.getId(), dto.name());
+    log.info(
+        "Register user with email = {}, id = {} , name = {}",
+        dto.email(),
+        savedUser.getId(),
+        dto.name());
 
     return user;
   }

@@ -56,7 +56,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + adminCredentials.getAccessToken())
+        .header("Authorization", "Bearer " + adminCredentials.accessToken())
         .body(dto)
         .log()
         .all()
@@ -84,7 +84,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + adminCredentials.getAccessToken())
+        .header("Authorization", "Bearer " + adminCredentials.accessToken())
         .body(dto)
         .log()
         .all()
@@ -111,7 +111,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + managerCredentials.getAccessToken())
+        .header("Authorization", "Bearer " + managerCredentials.accessToken())
         .body(dto)
         .log()
         .all()
@@ -127,7 +127,7 @@ public class TestProductControllers {
   public void shouldReturn200WhenGettingProductByIdEqual1() {
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + userCredentials.getAccessToken())
+        .header("Authorization", "Bearer " + userCredentials.accessToken())
         .when()
         .get("http://localhost:8000/api/v1/products/1")
         .then()
@@ -157,7 +157,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + managerCredentials.getAccessToken())
+        .header("Authorization", "Bearer " + managerCredentials.accessToken())
         .body(dto)
         .log()
         .all()
@@ -182,7 +182,7 @@ public class TestProductControllers {
 
     RestAssured.given()
         .contentType("application/json")
-        .header("Authorization", "Bearer " + managerCredentials.getAccessToken())
+        .header("Authorization", "Bearer " + managerCredentials.accessToken())
         .body(dto)
         .log()
         .all()

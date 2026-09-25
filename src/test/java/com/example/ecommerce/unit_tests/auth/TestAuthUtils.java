@@ -1,11 +1,11 @@
 package com.example.ecommerce.unit_tests.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.example.ecommerce.auth.utils.ExtractToken;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
 import com.example.ecommerce.auth.utils.JwtTokenProvider;
+import com.example.ecommerce.auth.utils.TokenExtractor;
 import com.example.ecommerce.users.models.User;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
@@ -14,10 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
-public class AuthModuleTestClass {
-  @Autowired private JwtTokenParser parser;
+public class TestAuthUtils {
+  @Autowired JwtTokenParser parser;
   @Autowired private JwtTokenProvider provider;
-  @Autowired private ExtractToken extractor;
+  @Autowired private TokenExtractor extractor;
 
   public User buildUserOfTests() {
     return User.builder()
@@ -29,37 +29,37 @@ public class AuthModuleTestClass {
   }
 
   @Test
-  public void mustCreateAccessToken() {
+  public void shouldCreateAccessTokenSuccessfully() {
     User user = buildUserOfTests();
 
     String access_token = provider.createAccessToken(user);
-    Object type = parser.extractPayload(access_token).get("token_type");
+    Claims payload = parser.parse(access_token);
 
-    assertTrue(type.equals("access_token"));
+    assertEquals("access_token", payload.get("token_type"));
     assertTrue(access_token.length() >= 10);
   }
 
   @Test
-  public void mustCreateRefreshToken() {
+  public void shouldCreateRefreshTokenSuccessfully() {
     User user = buildUserOfTests();
 
     String refreshToken = provider.createRefreshToken(user);
-    Object type = parser.extractPayload(refreshToken).get("token_type");
+    Object type = parser.parse(refreshToken).get("token_type");
 
-    assertTrue(type.equals("refresh_token"));
+    assertEquals("refresh_token", type.equals("refresh_token"));
     assertTrue(refreshToken.length() >= 10);
   }
 
   @Test
-  public void mustExtractDataOfToken() {
+  public void shouldExtractInfoFromToken() {
     User user = buildUserOfTests();
     String access_token = provider.createAccessToken(user);
 
-    Claims accessTokenPayload = parser.extractPayload(access_token);
+    Claims accessTokenPayload = parser.parse(access_token);
     String email = accessTokenPayload.getSubject();
     Object id = accessTokenPayload.get("id");
 
-    assertTrue(email.equals("kroosismo0202@gmail.com"));
+    assertEquals("kroosismo0202@gmail.com", email);
     assertThat(id).isEqualTo(user.getId().toString());
   }
 
@@ -67,8 +67,8 @@ public class AuthModuleTestClass {
   public void shouldExtractTokenFromHeader() {
     User user = buildUserOfTests();
     String authHeader = "Bearer " + provider.createRefreshToken(user);
-    String refreshToken = extractor.extractBearerToken(authHeader);
+    String refreshToken = extractor.extract(authHeader);
 
-    assertTrue(!refreshToken.startsWith("Bearer "));
+    assertFalse(refreshToken.startsWith("Bearer "));
   }
 }

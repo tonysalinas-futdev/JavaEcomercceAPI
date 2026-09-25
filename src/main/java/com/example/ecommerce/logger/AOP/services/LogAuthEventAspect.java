@@ -40,10 +40,10 @@ public class LogAuthEventAspect {
     }
     switch (userData) {
       case LoginDTO u -> {
-        log.setUserEmail(u.getEmail());
+        log.setUserEmail(u.email());
       }
       case SignUpDTO u -> {
-        log.setUserEmail(u.getEmail());
+        log.setUserEmail(u.email());
       }
 
       default -> log.setUserEmail("None");

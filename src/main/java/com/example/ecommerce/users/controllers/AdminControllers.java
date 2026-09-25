@@ -6,7 +6,7 @@ import com.example.ecommerce.users.dtos.UpdateUserDTO;
 import com.example.ecommerce.users.dtos.UserDetailsDTO;
 import com.example.ecommerce.users.dtos.UserListDTO;
 import com.example.ecommerce.users.models.User;
-import com.example.ecommerce.users.services.UserAdminService;
+import com.example.ecommerce.users.services.AdminService;
 import com.example.ecommerce.users.services.UserQueryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/admin")
 @AllArgsConstructor
 public class AdminControllers {
-  private final UserAdminService service;
+  private final AdminService service;
   private final UserQueryService queryService;
 
   @PostMapping()
@@ -63,7 +63,8 @@ public class AdminControllers {
 
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_USER')")
-  public ResponseEntity<UserDetailsDTO> updateUser(@RequestBody UpdateUserDTO dto, @Positive Long id) {
+  public ResponseEntity<UserDetailsDTO> updateUser(
+      @RequestBody UpdateUserDTO dto, @Positive Long id) {
 
     return ResponseEntity.ok(service.updateUser(id, dto));
   }

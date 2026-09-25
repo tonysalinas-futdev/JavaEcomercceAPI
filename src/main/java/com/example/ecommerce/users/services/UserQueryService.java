@@ -25,13 +25,11 @@ public class UserQueryService {
   private final UserMappers mapper;
 
   public User findEntityByIdOrThrow(Long userId) {
-      return  repo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-
+    return repo.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
   }
 
   public User findByEmailOrThrow(String email) {
-     return repo.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
-
+    return repo.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
   }
 
   public UserDetailsDTO findByIdAndReturnDetailsDto(Long id) {
