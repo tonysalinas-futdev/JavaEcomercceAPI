@@ -1,24 +1,22 @@
 package com.example.ecommerce.shared.dtos.paginatedresponse;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
-@SuperBuilder
-@AllArgsConstructor
-@NoArgsConstructor
-public class PaginatedResponseDTO<T> {
-  private List<T> items;
-  private Boolean hasNext;
-  private Boolean hasPrevious;
-  private Integer page;
-  private Integer totalPages;
-  private Long totalElements;
-  private Integer numberOfElementsInPage;
-  private Integer size;
+
+@Builder
+public record PaginatedResponseDTO<T>(
+        List<T> items,
+        Boolean hasNext,
+        Boolean hasPrevious,
+        Integer page,
+        Integer totalPages,
+        Long totalElements,
+        Integer numberOfElementsInPage,
+        Integer size
+) {
+
+
 }

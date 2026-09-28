@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class BuilderUserUtil {
 
   public static User build(@Valid SignUpDTO dto) {
@@ -16,6 +15,7 @@ public class BuilderUserUtil {
         .email(dto.email())
         .isEnabled(true)
         .accountNoLocked(true)
+            .credentialsNoExpired(true)
         .build();
   }
 }

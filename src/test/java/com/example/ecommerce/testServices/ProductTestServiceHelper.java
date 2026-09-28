@@ -15,7 +15,7 @@ public class ProductTestServiceHelper {
   @Autowired private CategoryRepository categoryRepo;
 
   public Category createCategory() {
-    if (categoryRepo.getByName("Muebles").isEmpty()) {
+    if (categoryRepo.findByName("Muebles").isEmpty()) {
       Category category =
           Category.builder().name("Muebles").description("Muebles para la casa").pic("fsd").build();
 
@@ -24,7 +24,7 @@ public class ProductTestServiceHelper {
 
     } else
       return categoryRepo
-          .getByName("Muebles")
+          .findByName("Muebles")
           .orElseThrow(() -> new NotFoundException("No se ha encontrado la categoría"));
   }
 

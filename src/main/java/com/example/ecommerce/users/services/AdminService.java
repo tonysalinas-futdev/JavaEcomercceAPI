@@ -57,7 +57,7 @@ public class AdminService {
   }
 
   @Transactional
-  public User addNewRoleToUser(Long userId, RoleEnum role) {
+  public void addNewRoleToUser(Long userId, RoleEnum role) {
 
     User user = queryService.findEntityByIdOrThrow(userId);
     Role roleToAdd =
@@ -70,11 +70,11 @@ public class AdminService {
     repo.saveAndFlush(user);
 
     log.info("Role: {} added successfully to user : {}", role, user);
-    return user;
+
   }
 
   @Transactional
-  public User removeUserRole(Long adminId, Long userId, RoleEnum role) {
+  public void removeUserRole(Long adminId, Long userId, RoleEnum role) {
     User user = queryService.findEntityByIdOrThrow(userId);
     User adminUser = queryService.findEntityByIdOrThrow(adminId);
     Role roleToAdd =
@@ -83,7 +83,7 @@ public class AdminService {
     user.getRoles().removeIf(r -> r.getRoleEnum().equals(role));
     repo.saveAndFlush(user);
     log.info("Successfully removed role: {} from user: {}", role, user);
-    return user;
+
   }
 
   public void removeUserRoleConditionals(User adminUser, User user, Role role) {

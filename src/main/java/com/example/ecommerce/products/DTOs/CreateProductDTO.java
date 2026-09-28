@@ -3,34 +3,26 @@ package com.example.ecommerce.products.DTOs;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class CreateProductDTO {
+public record CreateProductDTO(
+        @NotBlank(message = "Product name cannot be blank")
+        String name,
 
-  @NotBlank(message = "Product name cannot be blank")
-  private String name;
+        @Size(max = 2000, message = "Description cannot exceed 2000 characters")
+        String description,
 
-  @Size(max = 2000)
-  private String description;
+        String pic,
 
-  private String pic;
+        @Positive(message = "Price must be positive")
+        Double price,
 
-  private Double price;
+        @Positive(message = "Stock must be a positive integer")
+        Integer stock,
 
-  @Positive(message = "Stock must be integer")
-  private Integer stock;
+        Boolean isAvailable,
 
-  private Boolean available;
-
-  @Positive(message = "Category id must be positive")
-  private Long categoryId;
-}
+        @Positive(message = "Category id must be positive")
+        Long categoryId
+) {}

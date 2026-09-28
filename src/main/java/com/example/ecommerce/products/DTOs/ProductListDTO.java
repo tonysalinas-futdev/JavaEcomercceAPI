@@ -6,17 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Builder
-public class ProductListDTO {
-  private String name;
+public record ProductListDTO(
+       String name,
 
-  private Double price;
+        Double price,
 
-  private String description;
+        String description,
 
-  private String pic;
+        String pic
+) {
+
 }

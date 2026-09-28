@@ -30,7 +30,7 @@ public class LogCategoryEventsAspect {
   public void logEvent(JoinPoint jp, LogCategoryEvent event, Object categoryDetails) {
     Marker marker = MarkerManager.getMarker(MarkerTypes.AUDIT.toString());
     StructuredCategoryEventLog info = new StructuredCategoryEventLog();
-
+/*
     info.setEvent(event);
     if (categoryDetails instanceof CategoryDetailsDTO c) {
       info.setCategoryId(c.getId());
@@ -38,5 +38,7 @@ public class LogCategoryEventsAspect {
       logger.info(marker, new ObjectMessage(info));
     }
     System.out.println("Category Aspect ejecuted");
+
+ */
   }
 }

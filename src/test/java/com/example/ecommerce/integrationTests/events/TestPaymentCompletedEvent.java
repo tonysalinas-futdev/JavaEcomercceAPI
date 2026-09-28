@@ -50,7 +50,7 @@ public class TestPaymentCompletedEvent {
   }
 
   @BeforeEach
-  private void mockPaymentIntentWraper() throws StripeException {
+  public void mockPaymentIntentWraper() throws StripeException {
 
     PaymentIntent fakePaymentIntent = new PaymentIntent();
     fakePaymentIntent.setId("id_43");

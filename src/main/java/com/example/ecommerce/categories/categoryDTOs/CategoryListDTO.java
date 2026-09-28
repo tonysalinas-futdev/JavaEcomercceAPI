@@ -1,22 +1,17 @@
 package com.example.ecommerce.categories.categoryDTOs;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Builder
-public class CategoryListDTO {
-  private Long id;
+public record CategoryListDTO(
+        Long id,
 
-  private String name;
+        String name,
 
-  private String description;
+        String description,
 
-  private String pic;
+        String pic
+) {
+
 }

@@ -64,7 +64,7 @@ public class CartService {
     User user = userQueryService.findByEmailOrThrow(userEmail);
     Cart cart = findByIdOrCreateIfNotExists(id, user);
     var productInCartItem = productService.findByIdOrThrow(dto.getProductId());
-    ProductValidator.validateAvaibilityAndStockAndReturn(productInCartItem, dto.getQuantity());
+    ProductValidator.validateAvailabilityAndStock(productInCartItem, dto.getQuantity());
 
     CartItem existingItemInCart =
         cartItemService.findByProductAndCartId(dto.getProductId(), cart.getId());

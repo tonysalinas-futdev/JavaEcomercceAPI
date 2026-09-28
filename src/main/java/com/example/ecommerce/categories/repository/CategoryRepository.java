@@ -9,5 +9,5 @@ import org.springframework.data.repository.query.Param;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
   @Query("SELECT c FROM Category c WHERE c.name= :name")
-  Optional<Category> getByName(@Param("name") String name);
+  Optional<Category> findByName(@Param("name") String name);
 }

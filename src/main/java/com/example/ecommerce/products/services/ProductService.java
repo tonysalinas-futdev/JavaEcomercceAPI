@@ -8,7 +8,7 @@ import com.example.ecommerce.products.DTOs.CreateProductDTO;
 import com.example.ecommerce.products.DTOs.ProductDetailsDTO;
 import com.example.ecommerce.products.DTOs.ProductListDTO;
 import com.example.ecommerce.products.DTOs.SearchProductDTO;
-import com.example.ecommerce.products.DTOs.UpdateProduct;
+import com.example.ecommerce.products.DTOs.UpdateProductDTO;
 import com.example.ecommerce.products.logs.ProductLogEvent;
 import com.example.ecommerce.products.mappers.ProductMappers;
 import com.example.ecommerce.products.model.Product;
@@ -17,15 +17,15 @@ import com.example.ecommerce.products.specifications.ProductSpecifications;
 import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import com.example.ecommerce.shared.exceptions.AlreadyExistsException;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
-import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
 import com.example.ecommerce.shared.utils.PageableUtils;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import lombok.AllArgsConstructor;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,28 +33,17 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Slf4j
 public class ProductService {
   private final ProductRepository productRepo;
   private final ProductMappers productMapper;
   private final CategoryService categoryService;
 
-  public Product findByNameOrThrow(String productName) {
-    return productRepo
-        .getByName(productName)
-        .orElseThrow(() -> new NotFoundException("Product not found"));
-  }
 
   public Product findByIdOrThrow(Long productId) {
     return productRepo
         .findById(productId)
-        .orElseThrow(() -> new NotFoundException("Product not found"));
-  }
-
-  @Transactional
-  public Product findByIdAndBlockRow(Long productId) {
-    return productRepo
-        .findByIdForUpdate(productId)
         .orElseThrow(() -> new NotFoundException("Product not found"));
   }
 
@@ -64,30 +53,31 @@ public class ProductService {
   public ProductDetailsDTO setStock(Long productId, Integer stock) {
     var product = findByIdOrThrow(productId);
     product.setStock(stock);
-    productRepo.save(product);
+      log.info("Successfully setted stock = {}", stock);
+
+    productRepo.saveAndFlush(product);
     return productMapper.productToDetailsDTO(product);
   }
 
   @Transactional
   @LogProductEvent(loggerName = ProductService.class, event = ProductLogEvent.PRODUCT_CREATED)
   public ProductDetailsDTO createProduct(CreateProductDTO dto) {
-    if (productRepo.getByName(dto.getName()).isPresent()) {
-      throw new AlreadyExistsException("Already exists product with name: " + dto.getName());
+    if (productRepo.getByName(dto.name()).isPresent()) {
+      throw new AlreadyExistsException("Already exists product with name: " + dto.name());
     }
 
     Product newProduct = productMapper.createProductDTOToEntity(dto);
 
-    Category category = categoryService.getCategoryEntityById(dto.getCategoryId());
+    Category category = categoryService.getEntityByIdOrThrow(dto.categoryId());
 
     newProduct.setCategory(category);
-    newProduct.setAvailable(true);
+    newProduct.setIsAvailable(true);
 
-    try {
-      productRepo.saveAndFlush(newProduct);
-      return productMapper.productToDetailsDTO(newProduct);
-    } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Database Error", ex);
-    }
+
+    productRepo.saveAndFlush(newProduct);
+    log.info("Successfully created product: {}", newProduct);
+    return productMapper.productToDetailsDTO(newProduct);
+
   }
 
   @Cacheable(value = "products", key = "#id")
@@ -96,7 +86,7 @@ public class ProductService {
     return productMapper.productToDetailsDTO(product);
   }
 
-  @Cacheable(value = "products", key = "#page + '-' #size", unless = "#size < 10 || #size > 20")
+  @Cacheable(value = "products", key = "#page + '-' + #size", unless = "#size < 10 || #size > 20")
   public PaginatedResponseDTO<ProductListDTO> getAllProducts(Integer page, Integer size) {
     page = PageableUtils.verifyPage(page);
     size = PageableUtils.verifySize(size);
@@ -121,44 +111,38 @@ public class ProductService {
   @LogDeleteEntityEvent(event = "PRODUCT_DELETED", loggerName = ProductService.class)
   public void deleteProduct(Long id) {
     Product product = findByIdOrThrow(id);
-    try {
-      productRepo.delete(product);
-    } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Database Error", ex);
-    }
+    productRepo.delete(product);
+    log.info("Successfully deleted product: {}", product);
+
   }
 
   @Transactional
   @CachePut(value = "products", key = "#id")
   @LogProductEvent(loggerName = ProductService.class, event = ProductLogEvent.PRODUCT_UPDATED)
-  public ProductDetailsDTO updateProduct(UpdateProduct dto, Long id) {
-    if (productRepo.getByName(dto.getName()).isPresent()) {
+  public ProductDetailsDTO updateProduct(UpdateProductDTO dto, Long id) {
+    if (productRepo.getByName(dto.name()).isPresent()) {
       throw new AlreadyExistsException("Product already exists");
     }
     Product updatedProduct = productMapper.updateEntity(dto, findByIdOrThrow(id));
-    try {
-      productRepo.save(updatedProduct);
 
-    } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Database error", ex);
-    }
+    productRepo.saveAndFlush(updatedProduct);
+    log.info("Successfully updated product: {}", updatedProduct);
+
 
     return productMapper.productToDetailsDTO(updatedProduct);
   }
 
   @Transactional
   public ProductDetailsDTO updateCategory(Long categoryId, Long productId) {
-    Category category = categoryService.getCategoryEntityById(categoryId);
+    Category category = categoryService.getEntityByIdOrThrow(categoryId);
 
     Product product = findByIdOrThrow(productId);
 
     product.setCategory(category);
-    try {
-      productRepo.save(product);
 
-    } catch (DataAccessException ex) {
-      throw new PersistenceErrorException("Database error", ex);
-    }
+    productRepo.save(product);
+
+    log.info("Successfully updated product: {} to category: {}", product , category);
 
     return productMapper.productToDetailsDTO(product);
   }
@@ -168,10 +152,10 @@ public class ProductService {
     Specification<Product> specification =
         ProductSpecifications.hasName(dto.getName())
             .and(ProductSpecifications.filterByMaxPrice(dto.getMaxPrice()))
-            .and(ProductSpecifications.filterbyMinPrice(dto.getMinPrice()));
+            .and(ProductSpecifications.filterByMinPrice(dto.getMinPrice()));
 
     if (dto.getCategoryId() != null) {
-      Category category = categoryService.getCategoryEntityById(dto.getCategoryId());
+      Category category = categoryService.getEntityByIdOrThrow(dto.getCategoryId());
       specification = specification.and(ProductSpecifications.filterByCategory(category));
     }
 

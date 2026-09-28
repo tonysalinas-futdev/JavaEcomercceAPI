@@ -1,32 +1,18 @@
 package com.example.ecommerce.products.DTOs;
 
 import com.example.ecommerce.categories.categoryDTOs.CategoryListDTO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 
-@AllArgsConstructor
-@Getter
-@Setter
-@NoArgsConstructor
-@SuperBuilder
-public class ProductDetailsDTO {
 
-  private Long id;
-
-  private String name;
-
-  private String description;
-
-  private String pic;
-
-  private Double price;
-
-  private Boolean available;
-
-  private Integer stock;
-
-  private CategoryListDTO category;
-}
+@Builder
+public record ProductDetailsDTO(
+        Long id,
+        String name,
+        String description,
+        String pic,
+        Double price,
+        Boolean isAvailable,
+        Integer stock,
+        CategoryListDTO category
+) {}

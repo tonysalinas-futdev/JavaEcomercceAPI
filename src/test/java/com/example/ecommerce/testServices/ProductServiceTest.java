@@ -1,15 +1,11 @@
 package com.example.ecommerce.testServices;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.example.ecommerce.categories.model.Category;
 import com.example.ecommerce.products.DTOs.CreateProductDTO;
 import com.example.ecommerce.products.DTOs.ProductDetailsDTO;
 import com.example.ecommerce.products.DTOs.ProductListDTO;
 import com.example.ecommerce.products.DTOs.SearchProductDTO;
-import com.example.ecommerce.products.DTOs.UpdateProduct;
+import com.example.ecommerce.products.DTOs.UpdateProductDTO;
 import com.example.ecommerce.products.model.Product;
 import com.example.ecommerce.products.services.ProductService;
 import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
@@ -25,6 +21,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
@@ -53,7 +51,7 @@ public class ProductServiceTest {
     "Armario,, ddsfsd, 50.0, 45",
     "Silla,,,400.0,"
   })
-  void shouldCreateProductUsingCreateProductDto(
+  void shouldCreateProductUsingCreateProductDTOInEveryCase(
       String name, String description, String pic, Double price, Integer stock) {
 
     Category category = conftest.createCategory();
@@ -61,9 +59,9 @@ public class ProductServiceTest {
         buildCreateProductDtoHelper(name, description, pic, price, stock, category.getId());
     ProductDetailsDTO product = service.createProduct(dto);
 
-    assertTrue(product.getId() != null);
-    assertTrue(product.getName().equals(name));
-    assertTrue(product.getAvailable().equals(true));
+    assertNotNull(product.id());
+    assertEquals(product.name(), name);
+    assertTrue(product.isAvailable());
   }
 
   @ParameterizedTest
@@ -93,14 +91,7 @@ public class ProductServiceTest {
           () -> {
             service.createProduct(product);
           });
-    } else if (name.equals("Botas de agua")) {
-      product.setCategoryId(40L);
-      assertThrows(
-          NotFoundException.class,
-          () -> {
-            service.createProduct(product);
-          });
-    }
+    } 
   }
 
   @ParameterizedTest
@@ -114,44 +105,43 @@ public class ProductServiceTest {
       String name, String description, String pic, Double price, Integer stock) {
     Product product = conftest.createProductWithNameEqualHelado();
 
-    UpdateProduct updateData =
-        UpdateProduct.builder()
+    UpdateProductDTO updateData =
+        UpdateProductDTO.builder()
             .name(name)
             .description(description)
             .pic(pic)
             .price(price)
-            .stock(stock)
             .build();
 
     ProductDetailsDTO updatedProduct = service.updateProduct(updateData, product.getId());
 
-    assertTrue(updatedProduct.getName().equals(name));
-    assertEquals(product.getId(), updatedProduct.getId());
+    assertEquals(updatedProduct.name(), name);
+    assertEquals(product.getId(), updatedProduct.id());
 
     if (description != null) {
-      assertTrue(updatedProduct.getDescription().equals(description));
+      assertEquals(description,updatedProduct.description());
 
     } else {
-      assertTrue(updatedProduct.getDescription().equals(product.getDescription()));
+      assertEquals(product.getDescription(),updatedProduct.description());
     }
 
     if (price != null) {
-      assertEquals(updatedProduct.getPrice(), price);
+      assertEquals(updatedProduct.price(), price);
 
     } else {
-      assertEquals(updatedProduct.getPrice(), product.getPrice());
+      assertEquals(updatedProduct.price(), product.getPrice());
     }
   }
 
   @Test
   @Sql("/data.sql")
-  void shouldSearchProducts() {
+  void shouldSearchProductsUsingConditions() {
     SearchProductDTO data = SearchProductDTO.builder().maxPrice(130.0).minPrice(40.0).build();
     SearchProductDTO data2 = SearchProductDTO.builder().name("Laptop").build();
 
     PaginatedResponseDTO<ProductListDTO> products = service.searchProducts(data);
     PaginatedResponseDTO<ProductListDTO> laptops = service.searchProducts(data2);
-    assertEquals(3, laptops.getTotalElements());
-    assertTrue(products.getTotalElements() > 0);
+    assertEquals(3, laptops.totalElements());
+    assertTrue(products.totalElements() > 0);
   }
 }

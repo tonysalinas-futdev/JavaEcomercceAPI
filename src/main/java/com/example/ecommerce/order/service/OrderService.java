@@ -66,7 +66,7 @@ public class OrderService {
         .forEach(
             itm -> {
               var product = productService.findByIdOrThrow(itm.getProduct().getId());
-              ProductValidator.validateAvaibilityAndStockAndReturn(product, itm.getQuantity());
+              ProductValidator.validateAvailabilityAndStock(product, itm.getQuantity());
             });
 
     Double totalAmount = CalculatePriceService.calculateTotalAmount(cart);

@@ -4,14 +4,15 @@ import com.example.ecommerce.products.DTOs.CreateProductDTO;
 import com.example.ecommerce.products.DTOs.ProductDetailsDTO;
 import com.example.ecommerce.products.DTOs.ProductListDTO;
 import com.example.ecommerce.products.DTOs.SearchProductDTO;
-import com.example.ecommerce.products.DTOs.UpdateProduct;
+import com.example.ecommerce.products.DTOs.UpdateProductDTO;
 import com.example.ecommerce.products.services.ProductService;
 import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.net.URI;
 import java.util.Map;
-import lombok.AllArgsConstructor;
+
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/products")
 public class ProductController {
   private final ProductService productService;
@@ -38,14 +38,14 @@ public class ProductController {
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')and hasAuthority('EDIT_CATALOGUE')")
   public ResponseEntity<?> createProduct(@RequestBody @Valid CreateProductDTO dto) {
     ProductDetailsDTO product = productService.createProduct(dto);
-    URI location = URI.create("/api/v1/products/" + product.getId());
+    URI location = URI.create("/api/v1/products/" + product.id());
 
     return ResponseEntity.created(location).contentType(MediaType.APPLICATION_JSON).body(product);
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<ProductDetailsDTO> getProduct(@PathVariable @Positive Long id) {
-    return ResponseEntity.status(200).body(productService.findByIdAndReturnProductDetailsDto(id));
+    return ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(productService.findByIdAndReturnProductDetailsDto(id));
   }
 
   @GetMapping()
@@ -58,7 +58,7 @@ public class ProductController {
   @PatchMapping("/{productId}")
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')and hasAuthority('EDIT_CATALOGUE')")
   public ResponseEntity<ProductDetailsDTO> updateProduct(
-      @Valid @RequestBody UpdateProduct dto, @PathVariable @Positive Long productId) {
+          @Valid @RequestBody UpdateProductDTO dto, @PathVariable @Positive Long productId) {
 
     return ResponseEntity.status(200).body(productService.updateProduct(dto, productId));
   }
@@ -81,7 +81,7 @@ public class ProductController {
 
   @GetMapping("/search")
   public ResponseEntity<PaginatedResponseDTO<ProductListDTO>> searchProducts(
-      @Valid @ModelAttribute SearchProductDTO dto) {
+      @Valid @RequestBody SearchProductDTO dto) {
     ThreadContext.putAll(Map.of("use_case", "search_products", "entity", "product"));
 
     return ResponseEntity.ok(productService.searchProducts(dto));

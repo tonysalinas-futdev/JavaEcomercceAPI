@@ -68,17 +68,10 @@ public class UserService {
             .orElseThrow(() -> new NotFoundException("Role not found"));
 
     user.setPassword(encoder.encode(dto.password()));
-    List<Role> updatedRoleList = user.getRoles();
-    updatedRoleList.add(userRole);
-    user.setRoles(updatedRoleList);
-
-    User savedUser = repo.saveAndFlush(user);
+    user.getRoles().add(userRole);
+    repo.saveAndFlush(user);
     log.info(
-        "Register user with email = {}, id = {} , name = {}",
-        dto.email(),
-        savedUser.getId(),
-        dto.name());
-
+        "Register user:{}", user);
     return user;
   }
 }

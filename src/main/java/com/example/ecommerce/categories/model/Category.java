@@ -12,18 +12,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
 @Table(name = "categories")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@ToString()
 public class Category {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +33,13 @@ public class Category {
   @Column(nullable = false, unique = true)
   private String name;
 
+  @ToString.Exclude
   private String description;
+
+  @ToString.Exclude
   private String pic;
 
+  @ToString.Exclude
   @OneToMany(mappedBy = "category")
   List<Product> products;
 }

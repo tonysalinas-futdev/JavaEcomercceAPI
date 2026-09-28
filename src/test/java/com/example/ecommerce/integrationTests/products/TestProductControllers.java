@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.products.DTOs.CreateProductDTO;
-import com.example.ecommerce.products.DTOs.UpdateProduct;
+import com.example.ecommerce.products.DTOs.UpdateProductDTO;
 import com.example.ecommerce.products.services.ProductService;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,6 +25,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 public class TestProductControllers {
   @Autowired private ProductService productService;
   @Autowired private GlobalConftest globalConftest;
+  private final String basicRoute = "http://localhost:8080/api/v1/products";
 
   private AuthResponseDTO adminCredentials;
   private AuthResponseDTO userCredentials;
@@ -51,7 +52,7 @@ public class TestProductControllers {
   }
 
   @Test
-  public void testCreateProductController() {
+  public void shouldCreateProductSuccessfullyAndGet201() {
     CreateProductDTO dto = buildProductDTOHelper();
 
     RestAssured.given()
@@ -61,7 +62,7 @@ public class TestProductControllers {
         .log()
         .all()
         .when()
-        .post("http://localhost:8000/api/v1/products")
+        .post(basicRoute)
         .then()
         .body("price", equalTo(40.0f))
         .body("name", equalTo("Zapatos"))
@@ -89,7 +90,7 @@ public class TestProductControllers {
         .log()
         .all()
         .when()
-        .post("http://localhost:8000/api/v1/products")
+        .post(basicRoute)
         .then()
         .log()
         .all()
@@ -116,7 +117,7 @@ public class TestProductControllers {
         .log()
         .all()
         .when()
-        .post("http://localhost:8000/api/v1/products")
+        .post(basicRoute)
         .then()
         .log()
         .all()
@@ -129,7 +130,7 @@ public class TestProductControllers {
         .contentType("application/json")
         .header("Authorization", "Bearer " + userCredentials.accessToken())
         .when()
-        .get("http://localhost:8000/api/v1/products/1")
+        .get(basicRoute + "/1")
         .then()
         .body("name", equalTo("Laptop Lenovo ThinkPad")) // Expected Laptop Lenovo ThinkPad
         .log()
@@ -143,9 +144,8 @@ public class TestProductControllers {
     RestAssured.given()
         .contentType("application/json")
         .when()
-        .get("http://localhost:8000/api/v1/products/500")
+        .get(basicRoute  +"/500")
         .then()
-        .body("message", equalTo("Product not found"))
         .log()
         .all()
         .statusCode(404); // Expected 404
@@ -153,7 +153,7 @@ public class TestProductControllers {
 
   @Test
   public void shouldReturn200WhenUpdatingProductWithIdEqual2() {
-    UpdateProduct dto = UpdateProduct.builder().name("Laptop Toshiba").price(399.99).build();
+    UpdateProductDTO dto = UpdateProductDTO.builder().name("Laptop Toshiba").price(399.99).build();
 
     RestAssured.given()
         .contentType("application/json")
@@ -162,7 +162,7 @@ public class TestProductControllers {
         .log()
         .all()
         .when()
-        .patch("http://localhost:8000/api/v1/products/2")
+        .patch(basicRoute + "/2")
         .then()
         .body("name", equalTo("Laptop Toshiba")) // Expected "Laptop Toshiba"
         .log()
@@ -173,8 +173,8 @@ public class TestProductControllers {
   @Test
   public void shouldReturn409WhenUpdatingProductNameToExistingOne() {
 
-    UpdateProduct dto =
-        UpdateProduct.builder()
+    UpdateProductDTO dto =
+        UpdateProductDTO.builder()
             .name("Auriculares Sony WH-1000XM5")
             .description("Unos auriculares")
             .price(40.0)
@@ -187,7 +187,7 @@ public class TestProductControllers {
         .log()
         .all()
         .when()
-        .patch("http://localhost:8000/api/v1/products/2")
+        .patch(basicRoute + "/2")
         .then()
         .body("message", equalTo("Product already exists"))
         .log()

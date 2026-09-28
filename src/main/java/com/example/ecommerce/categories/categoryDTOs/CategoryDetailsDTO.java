@@ -8,19 +8,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Builder
-public class CategoryDetailsDTO {
-  private Long id;
+public record CategoryDetailsDTO(
+         Long id,
 
-  private String name;
+         String name,
 
-  private String description;
+         String description,
 
-  private String pic;
+        String pic,
 
-  private List<ProductListDTO> products;
+        List<ProductListDTO> products
+) {
+
 }

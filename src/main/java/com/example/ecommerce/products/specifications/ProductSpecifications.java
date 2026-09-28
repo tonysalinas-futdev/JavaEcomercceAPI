@@ -12,7 +12,7 @@ public class ProductSpecifications {
             : cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
   }
 
-  public static Specification<Product> filterbyMinPrice(Double minPrice) {
+  public static Specification<Product> filterByMinPrice(Double minPrice) {
     return (root, query, cb) ->
         minPrice == null ? cb.conjunction() : cb.greaterThanOrEqualTo(root.get("price"), minPrice);
   }

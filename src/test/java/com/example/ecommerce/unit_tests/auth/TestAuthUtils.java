@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 public class TestAuthUtils {
   @Autowired JwtTokenParser parser;
   @Autowired private JwtTokenProvider provider;
-  @Autowired private TokenExtractor extractor;
 
   public User buildUserOfTests() {
     return User.builder()
@@ -44,9 +43,9 @@ public class TestAuthUtils {
     User user = buildUserOfTests();
 
     String refreshToken = provider.createRefreshToken(user);
-    Object type = parser.parse(refreshToken).get("token_type");
+    String type = parser.parse(refreshToken).get("token_type").toString();
 
-    assertEquals("refresh_token", type.equals("refresh_token"));
+    assertEquals("refresh_token", type);
     assertTrue(refreshToken.length() >= 10);
   }
 
@@ -67,7 +66,7 @@ public class TestAuthUtils {
   public void shouldExtractTokenFromHeader() {
     User user = buildUserOfTests();
     String authHeader = "Bearer " + provider.createRefreshToken(user);
-    String refreshToken = extractor.extract(authHeader);
+    String refreshToken = TokenExtractor.extract(authHeader);
 
     assertFalse(refreshToken.startsWith("Bearer "));
   }
