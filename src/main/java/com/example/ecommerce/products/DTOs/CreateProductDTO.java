@@ -7,22 +7,10 @@ import lombok.Builder;
 
 @Builder
 public record CreateProductDTO(
-        @NotBlank(message = "Product name cannot be blank")
-        String name,
-
-        @Size(max = 2000, message = "Description cannot exceed 2000 characters")
-        String description,
-
-        String pic,
-
-        @Positive(message = "Price must be positive")
-        Double price,
-
-        @Positive(message = "Stock must be a positive integer")
-        Integer stock,
-
-        Boolean isAvailable,
-
-        @Positive(message = "Category id must be positive")
-        Long categoryId
-) {}
+    @NotBlank(message = "Product name cannot be blank") String name,
+    @Size(max = 2000, message = "Description cannot exceed 2000 characters") String description,
+    String pic,
+    @Positive(message = "Price must be positive") Double price,
+    @Positive(message = "Stock must be a positive integer") Integer stock,
+    Boolean isAvailable,
+    @Positive(message = "Category id must be positive") Long categoryId) {}

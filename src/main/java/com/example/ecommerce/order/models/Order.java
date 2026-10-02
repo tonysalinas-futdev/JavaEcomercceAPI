@@ -18,14 +18,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+@ToString
 @Setter
 @Getter
 @Entity
@@ -34,7 +31,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Order {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -54,6 +50,7 @@ public class Order {
   @Enumerated(EnumType.STRING)
   private OrderStatus status;
 
+  @ToString.Exclude
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
@@ -61,6 +58,7 @@ public class Order {
   @Column(name = "total_amount")
   private Double totalAmount;
 
+  @ToString.Exclude
   @OneToMany(
       mappedBy = "order",
       fetch = FetchType.EAGER,

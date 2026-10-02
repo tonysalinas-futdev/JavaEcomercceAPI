@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
-
 import lombok.*;
 
 @Entity
@@ -33,11 +32,9 @@ public class Category {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @ToString.Exclude
-  private String description;
+  @ToString.Exclude private String description;
 
-  @ToString.Exclude
-  private String pic;
+  @ToString.Exclude private String pic;
 
   @ToString.Exclude
   @OneToMany(mappedBy = "category")

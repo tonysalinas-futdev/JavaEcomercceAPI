@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.example.ecommerce.order.dtos.order.OrderDTO;
+import com.example.ecommerce.order.dtos.order.OrderAllDetailsDTO;
 import com.example.ecommerce.order.service.OrderService;
 import com.example.ecommerce.payments.dto.CreatePaymentDto;
 import com.example.ecommerce.payments.model.Payment;
@@ -44,9 +44,10 @@ public class TestPaymentSevice {
   @BeforeEach
   public void createOrderAndReturnCreatePaymentDto() {
 
-    OrderDTO order = orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
+    OrderAllDetailsDTO order =
+        orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
 
-    paymentDto = CreatePaymentDto.builder().currency("usd").orderId(order.getId()).build();
+    paymentDto = CreatePaymentDto.builder().currency("usd").orderId(order.id()).build();
   }
 
   @BeforeEach

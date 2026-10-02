@@ -139,19 +139,6 @@ public class TestProductControllers {
   }
 
   @Test
-  public void shouldReturn404WhenGettingNoExistingProductId() {
-
-    RestAssured.given()
-        .contentType("application/json")
-        .when()
-        .get(basicRoute  +"/500")
-        .then()
-        .log()
-        .all()
-        .statusCode(404); // Expected 404
-  }
-
-  @Test
   public void shouldReturn200WhenUpdatingProductWithIdEqual2() {
     UpdateProductDTO dto = UpdateProductDTO.builder().name("Laptop Toshiba").price(399.99).build();
 

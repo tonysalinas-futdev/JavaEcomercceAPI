@@ -1,6 +1,6 @@
 package com.example.ecommerce.users.controllers;
 
-import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
+import com.example.ecommerce.shared.utils.PaginationCriteria;
 import com.example.ecommerce.users.dtos.CreateUserDTO;
 import com.example.ecommerce.users.dtos.UpdateUserDTO;
 import com.example.ecommerce.users.dtos.UserDetailsDTO;
@@ -8,10 +8,12 @@ import com.example.ecommerce.users.dtos.UserListDTO;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.AdminService;
 import com.example.ecommerce.users.services.UserQueryService;
+import com.example.ecommerce.users.utils.UserSortCriteria;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.net.URI;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -49,16 +51,21 @@ public class AdminControllers {
 
   @GetMapping()
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<PaginatedResponseDTO<UserListDTO>> getAllUsers(
-      @RequestParam @Positive Integer page, @RequestParam @Positive Integer size) {
-    return ResponseEntity.status(200).body(queryService.getAllUsers(page, size));
+  public ResponseEntity<Page<UserListDTO>> getAllUsers(
+      @RequestParam(required = false, defaultValue = "0") Integer page,
+      @RequestParam(required = false, defaultValue = "10") Integer items,
+      @RequestParam(required = false, defaultValue = "true") Boolean ascending,
+      @RequestParam(required = false, defaultValue = "id") UserSortCriteria userSortCriteria) {
+    PaginationCriteria<UserSortCriteria> paginationCriteria =
+        new PaginationCriteria<>(page, items, userSortCriteria, ascending);
+    return ResponseEntity.status(200).body(queryService.getAllUsers(paginationCriteria));
   }
 
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN') and hasAuthority('DELETE_USER')")
   public ResponseEntity<?> deleteUser(@Positive Long id) {
     service.deleteUser(id);
-    return ResponseEntity.status(200).build();
+    return ResponseEntity.noContent().build();
   }
 
   @PutMapping("/{id}")

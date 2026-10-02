@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.example.ecommerce.order.dtos.order.OrderDTO;
+import com.example.ecommerce.order.dtos.order.OrderAllDetailsDTO;
 import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.order.models.OrderStatus;
 import com.example.ecommerce.order.service.OrderService;
@@ -44,9 +44,10 @@ public class TestPaymentCompletedEvent {
 
   public CreatePaymentDto createOrderAndReturnCreatePaymentDto() {
 
-    OrderDTO order = orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
+    OrderAllDetailsDTO order =
+        orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
 
-    return CreatePaymentDto.builder().currency("usd").orderId(order.getId()).build();
+    return CreatePaymentDto.builder().currency("usd").orderId(order.id()).build();
   }
 
   @BeforeEach

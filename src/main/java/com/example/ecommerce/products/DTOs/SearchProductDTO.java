@@ -1,5 +1,7 @@
 package com.example.ecommerce.products.DTOs;
 
+import com.example.ecommerce.products.utils.ProductSortCriteria;
+import com.example.ecommerce.shared.utils.PaginationCriteria;
 import jakarta.validation.constraints.AssertTrue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +31,5 @@ public class SearchProductDTO {
 
   private Long categoryId;
 
-  @Builder.Default private Integer page = 0;
-
-  @Builder.Default private Integer size = 10;
+  PaginationCriteria<ProductSortCriteria> paginationCriteria;
 }

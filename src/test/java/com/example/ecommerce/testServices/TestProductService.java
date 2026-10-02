@@ -1,5 +1,7 @@
 package com.example.ecommerce.testServices;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.example.ecommerce.categories.model.Category;
 import com.example.ecommerce.products.DTOs.CreateProductDTO;
 import com.example.ecommerce.products.DTOs.ProductDetailsDTO;
@@ -8,28 +10,27 @@ import com.example.ecommerce.products.DTOs.SearchProductDTO;
 import com.example.ecommerce.products.DTOs.UpdateProductDTO;
 import com.example.ecommerce.products.model.Product;
 import com.example.ecommerce.products.services.ProductService;
-import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
+import com.example.ecommerce.products.utils.ProductSortCriteria;
 import com.example.ecommerce.shared.exceptions.AlreadyExistsException;
 import com.example.ecommerce.shared.exceptions.InvalidRequestException;
-import com.example.ecommerce.shared.exceptions.NotFoundException;
+import com.example.ecommerce.shared.utils.PaginationCriteria;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
 @Sql(
     scripts = {"/clean.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
-public class ProductServiceTest {
+public class TestProductService {
   @Autowired private ProductService service;
   @Autowired private ProductTestServiceHelper conftest;
 
@@ -91,7 +92,7 @@ public class ProductServiceTest {
           () -> {
             service.createProduct(product);
           });
-    } 
+    }
   }
 
   @ParameterizedTest
@@ -119,10 +120,10 @@ public class ProductServiceTest {
     assertEquals(product.getId(), updatedProduct.id());
 
     if (description != null) {
-      assertEquals(description,updatedProduct.description());
+      assertEquals(description, updatedProduct.description());
 
     } else {
-      assertEquals(product.getDescription(),updatedProduct.description());
+      assertEquals(product.getDescription(), updatedProduct.description());
     }
 
     if (price != null) {
@@ -136,12 +137,15 @@ public class ProductServiceTest {
   @Test
   @Sql("/data.sql")
   void shouldSearchProductsUsingConditions() {
-    SearchProductDTO data = SearchProductDTO.builder().maxPrice(130.0).minPrice(40.0).build();
-    SearchProductDTO data2 = SearchProductDTO.builder().name("Laptop").build();
+    var pc = new PaginationCriteria<ProductSortCriteria>(0, 10, ProductSortCriteria.ID, true);
+    SearchProductDTO data =
+        SearchProductDTO.builder().maxPrice(130.0).minPrice(40.0).paginationCriteria(pc).build();
+    SearchProductDTO data2 =
+        SearchProductDTO.builder().name("Laptop").paginationCriteria(pc).build();
 
-    PaginatedResponseDTO<ProductListDTO> products = service.searchProducts(data);
-    PaginatedResponseDTO<ProductListDTO> laptops = service.searchProducts(data2);
-    assertEquals(3, laptops.totalElements());
-    assertTrue(products.totalElements() > 0);
+    Page<ProductListDTO> products = service.searchProducts(data);
+    Page<ProductListDTO> laptops = service.searchProducts(data2);
+    assertEquals(3, laptops.getNumberOfElements());
+    assertTrue(products.getNumberOfElements() > 0);
   }
 }

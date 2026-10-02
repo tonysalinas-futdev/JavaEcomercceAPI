@@ -5,13 +5,13 @@ import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.order.models.OrderDetails;
 import com.example.ecommerce.order.models.OrderStatus;
 import com.example.ecommerce.users.models.User;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BuildOrderUtil {
 
-  public static Order buildOrder(UUID requestId, User user, Double totalAmount, Cart cart) {
+  public static Order build(UUID requestId, User user, Double totalAmount, Cart cart) {
 
     Order order =
         Order.builder()
@@ -21,19 +21,16 @@ public class BuildOrderUtil {
             .user(user)
             .build();
 
-    List<OrderDetails> details = new ArrayList<>();
-    cart.getItems()
-        .forEach(
-            itm -> {
-              OrderDetails detail =
-                  OrderDetails.builder()
-                      .product(itm.getProduct())
-                      .quantity(itm.getQuantity())
-                      .order(order)
-                      .build();
-
-              details.add(detail);
-            });
+    List<OrderDetails> details =
+        cart.getItems().stream()
+            .map(
+                itm ->
+                    OrderDetails.builder()
+                        .product(itm.getProduct())
+                        .quantity(itm.getQuantity())
+                        .order(order)
+                        .build())
+            .collect(Collectors.toList());
 
     order.setOrderDetails(details);
     return order;

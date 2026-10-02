@@ -6,7 +6,7 @@ import com.example.ecommerce.logger.builders.audit.StructuredOrderEventLogWriter
 import com.example.ecommerce.logger.enums.MarkerTypes;
 import com.example.ecommerce.logger.mappers.OrderDetailssLogMapper;
 import com.example.ecommerce.logger.mappers.OrderLogMapper;
-import com.example.ecommerce.order.dtos.order.OrderDTO;
+import com.example.ecommerce.order.dtos.order.OrderListDTO;
 import com.example.ecommerce.order.logs.events.OrderDetailsLogEvents;
 import com.example.ecommerce.order.logs.events.OrderLogsEvents;
 import com.example.ecommerce.order.models.Order;
@@ -52,12 +52,8 @@ public class LogOrderEventAspect {
                 .toList();
         structuredOrderLog.setEvent(orderEvent);
       }
-      case OrderDTO dto -> {
+      case OrderListDTO dto -> {
         structuredOrderLog = mapper.fromDtoToStructuredLog(dto);
-        structuredOrderDetailsList =
-            dto.getOrderDetails().stream()
-                .map(od -> orderDetailsMapper.fromDtoToStructuredLog(od))
-                .toList();
         structuredOrderLog.setEvent(orderEvent);
       }
 

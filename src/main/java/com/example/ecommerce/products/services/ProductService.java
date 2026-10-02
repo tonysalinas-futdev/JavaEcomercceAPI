@@ -14,20 +14,18 @@ import com.example.ecommerce.products.mappers.ProductMappers;
 import com.example.ecommerce.products.model.Product;
 import com.example.ecommerce.products.repositories.ProductRepository;
 import com.example.ecommerce.products.specifications.ProductSpecifications;
-import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
+import com.example.ecommerce.products.utils.ProductSortCriteria;
 import com.example.ecommerce.shared.exceptions.AlreadyExistsException;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
-import com.example.ecommerce.shared.utils.PageableUtils;
+import com.example.ecommerce.shared.utils.BuildPageableUtil;
+import com.example.ecommerce.shared.utils.PaginationCriteria;
 import jakarta.transaction.Transactional;
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -39,7 +37,6 @@ public class ProductService {
   private final ProductRepository productRepo;
   private final ProductMappers productMapper;
   private final CategoryService categoryService;
-
 
   public Product findByIdOrThrow(Long productId) {
     return productRepo
@@ -53,7 +50,7 @@ public class ProductService {
   public ProductDetailsDTO setStock(Long productId, Integer stock) {
     var product = findByIdOrThrow(productId);
     product.setStock(stock);
-      log.info("Successfully setted stock = {}", stock);
+    log.info("Successfully setted stock = {}", stock);
 
     productRepo.saveAndFlush(product);
     return productMapper.productToDetailsDTO(product);
@@ -73,11 +70,9 @@ public class ProductService {
     newProduct.setCategory(category);
     newProduct.setIsAvailable(true);
 
-
     productRepo.saveAndFlush(newProduct);
     log.info("Successfully created product: {}", newProduct);
     return productMapper.productToDetailsDTO(newProduct);
-
   }
 
   @Cacheable(value = "products", key = "#id")
@@ -86,24 +81,12 @@ public class ProductService {
     return productMapper.productToDetailsDTO(product);
   }
 
-  @Cacheable(value = "products", key = "#page + '-' + #size", unless = "#size < 10 || #size > 20")
-  public PaginatedResponseDTO<ProductListDTO> getAllProducts(Integer page, Integer size) {
-    page = PageableUtils.verifyPage(page);
-    size = PageableUtils.verifySize(size);
+  public Page<ProductListDTO> getAllProducts(
+      PaginationCriteria<ProductSortCriteria> paginationCriteria) {
 
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Product> products = productRepo.findAll(pageable);
-    List<ProductListDTO> productList =
-        products.stream().map(p -> productMapper.productToProductListDTO(p)).toList();
-    return new PaginatedResponseDTO<ProductListDTO>(
-        productList,
-        products.hasNext(),
-        products.hasPrevious(),
-        products.getNumber(),
-        products.getTotalPages(),
-        products.getTotalElements(),
-        products.getNumberOfElements(),
-        products.getSize());
+    Pageable pageable = BuildPageableUtil.build(paginationCriteria);
+
+    return productRepo.findAll(pageable).map(productMapper::productToProductListDTO);
   }
 
   @Transactional
@@ -113,7 +96,6 @@ public class ProductService {
     Product product = findByIdOrThrow(id);
     productRepo.delete(product);
     log.info("Successfully deleted product: {}", product);
-
   }
 
   @Transactional
@@ -128,7 +110,6 @@ public class ProductService {
     productRepo.saveAndFlush(updatedProduct);
     log.info("Successfully updated product: {}", updatedProduct);
 
-
     return productMapper.productToDetailsDTO(updatedProduct);
   }
 
@@ -142,12 +123,12 @@ public class ProductService {
 
     productRepo.save(product);
 
-    log.info("Successfully updated product: {} to category: {}", product , category);
+    log.info("Successfully updated product: {} to category: {}", product, category);
 
     return productMapper.productToDetailsDTO(product);
   }
 
-  public PaginatedResponseDTO<ProductListDTO> searchProducts(SearchProductDTO dto) {
+  public Page<ProductListDTO> searchProducts(SearchProductDTO dto) {
 
     Specification<Product> specification =
         ProductSpecifications.hasName(dto.getName())
@@ -158,22 +139,9 @@ public class ProductService {
       Category category = categoryService.getEntityByIdOrThrow(dto.getCategoryId());
       specification = specification.and(ProductSpecifications.filterByCategory(category));
     }
-
     Page<Product> products =
-        productRepo.findAll(specification, PageRequest.of(dto.getPage(), dto.getSize()));
+        productRepo.findAll(specification, BuildPageableUtil.build(dto.getPaginationCriteria()));
 
-    List<ProductListDTO> listOfProductsDTO =
-        products.stream().map(p -> productMapper.productToProductListDTO(p)).toList();
-
-    return PaginatedResponseDTO.<ProductListDTO>builder()
-        .items(listOfProductsDTO)
-        .hasNext(products.hasNext())
-        .hasPrevious(products.hasPrevious())
-        .page(products.getNumber())
-        .size(products.getSize())
-        .numberOfElementsInPage(products.getNumberOfElements())
-        .totalPages(products.getTotalPages())
-        .totalElements(products.getTotalElements())
-        .build();
+    return products.map((productMapper::productToProductListDTO));
   }
 }

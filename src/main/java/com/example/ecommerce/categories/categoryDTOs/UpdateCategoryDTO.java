@@ -9,7 +9,6 @@ import lombok.*;
 @Builder
 public class UpdateCategoryDTO {
 
-
   @Size(max = 300)
   private final String name;
 

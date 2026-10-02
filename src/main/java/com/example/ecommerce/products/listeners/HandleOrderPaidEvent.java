@@ -5,7 +5,6 @@ import com.example.ecommerce.order.models.OrderDetails;
 import com.example.ecommerce.products.model.Product;
 import com.example.ecommerce.products.services.ProductService;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -19,7 +18,7 @@ public class HandleOrderPaidEvent {
 
   @EventListener
   public void updateProductsStock(OrderCompletedEvent event) {
-      log.info("Receiving the event: {}", event);
+    log.info("Receiving the event: {}", event);
 
     List<OrderDetails> items = event.getOrder().getOrderDetails();
 
@@ -28,6 +27,5 @@ public class HandleOrderPaidEvent {
           Product product = itm.getProduct();
           service.setStock(product.getId(), product.getStock() - itm.getQuantity());
         });
-
   }
 }

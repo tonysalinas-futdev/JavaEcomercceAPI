@@ -15,7 +15,6 @@ import com.example.ecommerce.users.repository.UserRepository;
 import com.example.ecommerce.users.utils.BuilderUserUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -70,8 +69,7 @@ public class UserService {
     user.setPassword(encoder.encode(dto.password()));
     user.getRoles().add(userRole);
     repo.saveAndFlush(user);
-    log.info(
-        "Register user:{}", user);
+    log.info("Register user:{}", user);
     return user;
   }
 }

@@ -3,34 +3,32 @@ package com.example.ecommerce.order.service;
 import com.example.ecommerce.cart.models.Cart;
 import com.example.ecommerce.cart.services.CartService;
 import com.example.ecommerce.cart.utils.CalculatePriceService;
-import com.example.ecommerce.logger.annotations.LogOrderEvent;
-import com.example.ecommerce.order.dtos.order.OrderDTO;
-import com.example.ecommerce.order.logs.events.OrderDetailsLogEvents;
-import com.example.ecommerce.order.logs.events.OrderLogsEvents;
+import com.example.ecommerce.order.dtos.order.OrderAllDetailsDTO;
+import com.example.ecommerce.order.dtos.order.OrderListDTO;
 import com.example.ecommerce.order.mappers.order.OrderMapper;
 import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.order.models.OrderStatus;
 import com.example.ecommerce.order.repositories.OrderRepository;
 import com.example.ecommerce.order.utils.BuildOrderUtil;
+import com.example.ecommerce.order.utils.OrderPaginationCriteria;
 import com.example.ecommerce.products.services.ProductService;
 import com.example.ecommerce.products.utils.ProductValidator;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
-import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
-import com.example.ecommerce.shared.utils.PageableUtils;
+import com.example.ecommerce.shared.utils.BuildPageableUtil;
+import com.example.ecommerce.shared.utils.PaginationCriteria;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import org.springframework.dao.DataAccessException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Slf4j
 public class OrderService {
   private final CartService cartService;
   private final OrderRepository repo;
@@ -42,9 +40,9 @@ public class OrderService {
     return repo.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
   }
 
-  public OrderDTO findByIdAndReturnDto(Long orderId) {
+  public OrderAllDetailsDTO findByIdOrThrowAndReturnDto(Long orderId) {
     Order order = findEntityByIdOrThrow(orderId);
-    return mapper.entityToOrderDTO(order);
+    return mapper.entityToAllDetailsDTO(order);
   }
 
   public Order findEntityByIdAndLoadUserOrThrow(Long orderId) {
@@ -53,13 +51,8 @@ public class OrderService {
   }
 
   @Transactional
-  @LogOrderEvent(
-      class_ = OrderService.class,
-      orderEvent = OrderLogsEvents.ORDER_CREATED,
-      detailsEvent = OrderDetailsLogEvents.ORDER_DETAILS_CREATED)
-  public OrderDTO createOrder(Long cartId, UUID requestId, String userEmail) {
+  public OrderAllDetailsDTO createOrder(Long cartId, UUID requestId, String userEmail) {
     Cart cart = cartService.findByCartItemIdAndBlockRow(cartId);
-
     User user = userQueryService.findByEmailOrThrow(userEmail);
 
     cart.getItems()
@@ -71,40 +64,32 @@ public class OrderService {
 
     Double totalAmount = CalculatePriceService.calculateTotalAmount(cart);
 
-    Order order = BuildOrderUtil.buildOrder(requestId, user, totalAmount, cart);
-    try {
-      repo.saveAndFlush(order);
-      Order refreshedOrder = findEntityByIdOrThrow(order.getId());
-      return mapper.entityToOrderDTO(refreshedOrder);
-    } catch (DataAccessException e) {
-      throw new PersistenceErrorException("Database Error", e);
-    }
+    Order order = BuildOrderUtil.build(requestId, user, totalAmount, cart);
+
+    repo.saveAndFlush(order);
+    log.info("Successfully created order: {}", order);
+
+    return mapper.entityToAllDetailsDTO(order);
   }
 
   @Transactional
-  @LogOrderEvent(orderEvent = OrderLogsEvents.ORDER_UPDATED, class_ = OrderService.class)
   public Order setStatus(Long orderId, OrderStatus status) {
     Order order = findEntityByIdOrThrow(orderId);
     order.setStatus(status);
-    repo.save(order);
+    repo.saveAndFlush(order);
+    log.info("Assigned status: {}, to order: {}", status.toString(), order);
     return order;
   }
 
-  public Page<Order> findByStatus(OrderStatus status, Integer number, Integer size) {
-    var verifyNumber = PageableUtils.verifyPage(number);
-    var verifySize = PageableUtils.verifySize(size);
-    Pageable pageable = PageRequest.of(verifyNumber, verifySize, Sort.by("createdAt").ascending());
-
-    Page<Order> page = repo.findByStatus(status, pageable);
-
-    return page;
+  public Page<OrderListDTO> findByStatus(
+      OrderStatus status, PaginationCriteria<OrderPaginationCriteria> paginationCriteria) {
+    Pageable pageable = BuildPageableUtil.build(paginationCriteria);
+    return repo.findByStatus(status, pageable).map(mapper::entityToOrderListDTO);
   }
 
-  public Page<Order> findAllUserOrders(Long userID, Integer size, Integer number) {
-    var verifySize = PageableUtils.verifySize(size);
-    var verifyPage = PageableUtils.verifyPage(number);
-    userQueryService.findEntityByIdOrThrow(userID);
-    Pageable pageable = PageRequest.of(verifyPage, verifySize, Sort.by("createdAt").ascending());
-    return repo.findByUserId(userID, pageable);
+  public Page<OrderListDTO> findAllUserOrders(
+      Long userID, PaginationCriteria<OrderPaginationCriteria> paginationCriteria) {
+    Pageable pageable = BuildPageableUtil.build(paginationCriteria);
+    return repo.findByUserId(userID, pageable).map(mapper::entityToOrderListDTO);
   }
 }

@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponseDTO> handleInternalServerError(
       HttpServletRequest request, Exception ex) {
     ErrorResponseDTO error =
-        new ErrorResponseDTO("Error interno en el servidor", request.getRequestURL().toString());
+        new ErrorResponseDTO("Internal server error", request.getRequestURL().toString());
 
     return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
   }
@@ -97,7 +97,7 @@ public class GlobalExceptionHandler {
       HttpServletRequest request, org.springframework.security.access.AccessDeniedException ex) {
 
     ErrorResponseDTO error =
-        new ErrorResponseDTO("Acces denegated", request.getRequestURL().toString());
+        new ErrorResponseDTO("Access denegated", request.getRequestURL().toString());
 
     return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
   }
@@ -111,10 +111,10 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(DataAccessException.class)
-  public ResponseEntity<ErrorResponseDTO> handleDataAccesException(
+  public ResponseEntity<ErrorResponseDTO> handleDataAccessException(
       HttpServletRequest request, DataAccessException ex) {
     ErrorResponseDTO error =
-        new ErrorResponseDTO("Error interno del servidor", request.getRequestURL().toString());
+        new ErrorResponseDTO("Internal server error", request.getRequestURL().toString());
     return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

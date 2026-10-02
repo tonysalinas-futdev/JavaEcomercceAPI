@@ -1,20 +1,19 @@
 package com.example.ecommerce.users.services;
 
-import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
 import com.example.ecommerce.shared.exceptions.AlreadyExistsException;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
-import com.example.ecommerce.shared.utils.PageableUtils;
+import com.example.ecommerce.shared.utils.BuildPageableUtil;
+import com.example.ecommerce.shared.utils.PaginationCriteria;
 import com.example.ecommerce.users.dtos.UserDetailsDTO;
 import com.example.ecommerce.users.dtos.UserListDTO;
 import com.example.ecommerce.users.dtos.UserProfileDTO;
 import com.example.ecommerce.users.mappers.UserMappers;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.UserRepository;
-import java.util.List;
+import com.example.ecommerce.users.utils.UserSortCriteria;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -55,21 +54,10 @@ public class UserQueryService {
     }
   }
 
-  public PaginatedResponseDTO<UserListDTO> getAllUsers(Integer page, Integer size) {
-    var verifyPage = PageableUtils.verifyPage(page);
-    var verifySize = PageableUtils.verifySize(size);
-    Pageable pageable = PageRequest.of(verifyPage, verifySize);
-    Page<User> users = repo.findAll(pageable);
-    List<UserListDTO> usersList = users.stream().map(mapper::entityToUserListDTO).toList();
+  public Page<UserListDTO> getAllUsers(PaginationCriteria<UserSortCriteria> paginationCriteria) {
 
-    return new PaginatedResponseDTO<>(
-        usersList,
-        users.hasNext(),
-        users.hasPrevious(),
-        users.getNumber(),
-        users.getTotalPages(),
-        users.getTotalElements(),
-        users.getNumberOfElements(),
-        users.getSize());
+    Pageable pageable = BuildPageableUtil.build(paginationCriteria);
+    Page<User> users = repo.findAll(pageable);
+    return users.map(mapper::entityToUserListDTO);
   }
 }

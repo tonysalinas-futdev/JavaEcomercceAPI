@@ -15,6 +15,5 @@ public class ProductValidator {
       throw new InvalidRequestException(
           "Insufficient stock for product " + product.getName() + " try again later");
     }
-
   }
 }

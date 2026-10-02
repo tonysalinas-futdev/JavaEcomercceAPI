@@ -6,26 +6,20 @@ import com.example.ecommerce.products.DTOs.ProductListDTO;
 import com.example.ecommerce.products.DTOs.SearchProductDTO;
 import com.example.ecommerce.products.DTOs.UpdateProductDTO;
 import com.example.ecommerce.products.services.ProductService;
-import com.example.ecommerce.shared.dtos.paginatedresponse.PaginatedResponseDTO;
+import com.example.ecommerce.products.utils.ProductSortCriteria;
+import com.example.ecommerce.shared.utils.PaginationCriteria;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.net.URI;
 import java.util.Map;
-
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Validated
@@ -45,20 +39,28 @@ public class ProductController {
 
   @GetMapping("/{id}")
   public ResponseEntity<ProductDetailsDTO> getProduct(@PathVariable @Positive Long id) {
-    return ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(productService.findByIdAndReturnProductDetailsDto(id));
+    return ResponseEntity.status(200)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(productService.findByIdAndReturnProductDetailsDto(id));
   }
 
   @GetMapping()
-  public ResponseEntity<PaginatedResponseDTO<ProductListDTO>> getAllProducts(
-      @Valid SearchProductDTO dto) {
+  public ResponseEntity<Page<ProductListDTO>> getAllProducts(
+      @RequestParam(required = false, defaultValue = "0") Integer page,
+      @RequestParam(required = false, defaultValue = "10") Integer size,
+      @RequestParam(required = false, defaultValue = "true") Boolean ascending,
+      @RequestParam(required = false, defaultValue = "id")
+          ProductSortCriteria productSortCriteria) {
+    PaginationCriteria<ProductSortCriteria> paginationCriteria =
+        new PaginationCriteria<>(page, size, productSortCriteria, ascending);
 
-    return ResponseEntity.status(200).body(productService.searchProducts(dto));
+    return ResponseEntity.status(200).body(productService.getAllProducts(paginationCriteria));
   }
 
   @PatchMapping("/{productId}")
   @PreAuthorize("hasAnyRole('ADMIN','MANAGER')and hasAuthority('EDIT_CATALOGUE')")
   public ResponseEntity<ProductDetailsDTO> updateProduct(
-          @Valid @RequestBody UpdateProductDTO dto, @PathVariable @Positive Long productId) {
+      @Valid @RequestBody UpdateProductDTO dto, @PathVariable @Positive Long productId) {
 
     return ResponseEntity.status(200).body(productService.updateProduct(dto, productId));
   }
@@ -80,10 +82,20 @@ public class ProductController {
   }
 
   @GetMapping("/search")
-  public ResponseEntity<PaginatedResponseDTO<ProductListDTO>> searchProducts(
-      @Valid @RequestBody SearchProductDTO dto) {
+  public ResponseEntity<Page<ProductListDTO>> searchProducts(
+      @RequestParam(required = false) Double minPrice,
+      @RequestParam(required = false) Double maxPrice,
+      @RequestParam(required = false, defaultValue = "0") Long categoryId,
+      @RequestParam(required = false, defaultValue = "0") Integer page,
+      @RequestParam(required = false, defaultValue = "0") String name,
+      @RequestParam(required = false, defaultValue = "10") Integer items,
+      @RequestParam(required = false, defaultValue = "true") Boolean ascending,
+      @RequestParam(required = false) ProductSortCriteria productSortCriteria) {
     ThreadContext.putAll(Map.of("use_case", "search_products", "entity", "product"));
-
-    return ResponseEntity.ok(productService.searchProducts(dto));
+    PaginationCriteria<ProductSortCriteria> paginationCriteria =
+        new PaginationCriteria<>(page, items, productSortCriteria, ascending);
+    SearchProductDTO searchProductDTO =
+        new SearchProductDTO(name, minPrice, maxPrice, categoryId, paginationCriteria);
+    return ResponseEntity.ok(productService.searchProducts(searchProductDTO));
   }
 }

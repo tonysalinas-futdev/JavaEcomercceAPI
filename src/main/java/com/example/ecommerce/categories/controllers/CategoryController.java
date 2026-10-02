@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.net.URI;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,7 +56,7 @@ public class CategoryController {
 
   @PatchMapping("/{id}")
   public ResponseEntity<CategoryDetailsDTO> updateCategory(
-          @RequestBody @Valid UpdateCategoryDTO dto, @PathVariable @Positive Long id) {
+      @RequestBody @Valid UpdateCategoryDTO dto, @PathVariable @Positive Long id) {
 
     return ResponseEntity.status(200).body(service.updateCategory(dto, id));
   }

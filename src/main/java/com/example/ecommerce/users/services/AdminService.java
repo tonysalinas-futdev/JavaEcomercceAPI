@@ -70,7 +70,6 @@ public class AdminService {
     repo.saveAndFlush(user);
 
     log.info("Role: {} added successfully to user : {}", role, user);
-
   }
 
   @Transactional
@@ -83,7 +82,6 @@ public class AdminService {
     user.getRoles().removeIf(r -> r.getRoleEnum().equals(role));
     repo.saveAndFlush(user);
     log.info("Successfully removed role: {} from user: {}", role, user);
-
   }
 
   public void removeUserRoleConditionals(User adminUser, User user, Role role) {

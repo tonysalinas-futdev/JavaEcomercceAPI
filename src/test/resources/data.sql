@@ -21,9 +21,6 @@ INSERT INTO Products (id ,name, description, price, pic, stock, is_available, ca
 INSERT INTO Products (id ,name, description, price, pic, stock, is_available, category_id) VALUES (19,'Mouse Gamer 2026', 'Mouse para jugar', 110.00, 'pc_hp.jpg', 18, TRUE, 5);
 
 
-
-
-
 INSERT INTO Roles(id, role_name) VALUES(1 ,'USER'), (2 ,'ADMIN'), (3,'MANAGER');
 INSERT INTO Permissions(id, permission_name) VALUES(1, 'EDIT_CATALOGUE'), (2, 'CREATE_USER'),(3,'DELETE_USER'), (4,'UPDATE_USER');
 INSERT INTO role_permission(role_id,permission_id)VALUES(2,1),(3,1), (2,2), (2,3),(2,4);
@@ -35,4 +32,12 @@ INSERT INTO Users(id, name, email, password,cart_id ) VALUES(10, 'Eduardo Camavi
 
 SELECT setval('cart_id_seq', (SELECT MAX(id) FROM Cart));
 SELECT setval('cart_item_id_seq', (SELECT MAX(id) FROM Cart_item));
+
+INSERT INTO Orders (id, request_id, status,  total_amount)
+VALUES
+    (50, '550e8400-e29b-41d4-a716-446655440001', 'PENDING' ,  99.99),
+    (51, '550e8400-e29b-41d4-a716-446655440002', 'PAID'    , 149.50),
+    (52, '550e8400-e29b-41d4-a716-446655440003', 'CANCELED', 250.75),
+    (53, '550e8400-e29b-41d4-a716-446655440004', 'PAID',  45.00),
+    (54, '550e8230-e29b-41d4-a716-446655440004', 'PAID',  45.00);
 
