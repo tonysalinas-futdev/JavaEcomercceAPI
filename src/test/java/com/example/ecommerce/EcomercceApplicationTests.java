@@ -11,13 +11,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 
 @SpringBootTest()
-@ComponentScan(
-    excludeFilters =
-        @ComponentScan.Filter(
-            type = FilterType.ASSIGNABLE_TYPE,
-            classes = {RedisConfig.class, RedisProperties.class}))
-@EnableAutoConfiguration(
-    exclude = {RedisAutoConfiguration.class, RedisRepositoriesAutoConfiguration.class})
+
+@EnableAutoConfiguration()
 class EcomercceApplicationTests {
 
   @Test

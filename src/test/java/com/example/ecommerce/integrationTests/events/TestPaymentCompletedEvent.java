@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.example.ecommerce.cart.services.CartService;
+import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.order.dtos.order.OrderAllDetailsDTO;
 import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.order.models.OrderStatus;
@@ -15,6 +17,7 @@ import com.example.ecommerce.payments.paymentintentwrapper.PaymentIntentWraper;
 import com.example.ecommerce.payments.service.PaymentService;
 import com.example.ecommerce.payments.status.PaymentStatus;
 import com.example.ecommerce.products.model.Product;
+import com.example.ecommerce.users.models.User;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
@@ -39,13 +42,18 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 public class TestPaymentCompletedEvent {
   @Autowired private OrderService orderService;
   @Autowired private PaymentService paymentService;
-
+    @Autowired private GlobalConftest conftest;
+    @Autowired private CartService cartService;
   @MockitoBean private PaymentIntentWraper wraper;
 
   public CreatePaymentDto createOrderAndReturnCreatePaymentDto() {
+      User user = conftest.createUser();
+      cartService.addItem(user.getId(),16,2);
+      cartService.addItem(user.getId(),17,4);
+      cartService.addItem(user.getId(),19,5);
 
     OrderAllDetailsDTO order =
-        orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
+        orderService.createOrder( UUID.randomUUID(), user.getEmail());
 
     return CreatePaymentDto.builder().currency("usd").orderId(order.id()).build();
   }

@@ -40,6 +40,7 @@ public class AuthService {
     String refreshToken = jwtTokenProvider.createRefreshToken(user);
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
     return new AuthResponseDTO(accessToken, refreshToken);
+
   }
 
   @LogAuthEvent(event = AuthLogEvents.USER_REGISTER, loggerName = AuthService.class)

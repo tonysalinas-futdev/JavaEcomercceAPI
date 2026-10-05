@@ -24,14 +24,8 @@ INSERT INTO Products (id ,name, description, price, pic, stock, is_available, ca
 INSERT INTO Roles(id, role_name) VALUES(1 ,'USER'), (2 ,'ADMIN'), (3,'MANAGER');
 INSERT INTO Permissions(id, permission_name) VALUES(1, 'EDIT_CATALOGUE'), (2, 'CREATE_USER'),(3,'DELETE_USER'), (4,'UPDATE_USER');
 INSERT INTO role_permission(role_id,permission_id)VALUES(2,1),(3,1), (2,2), (2,3),(2,4);
-INSERT INTO Cart(id)VALUES(1);
-INSERT INTO Cart_item(id, product_id, quantity, cart_id)VALUES(1, 16, 2, 1);
-INSERT INTO Cart_item(id, product_id, quantity, cart_id)VALUES(2, 17, 4, 1);
-INSERT INTO Cart_item(id, product_id, quantity, cart_id)VALUES(3, 19, 5, 1);
-INSERT INTO Users(id, name, email, password,cart_id ) VALUES(10, 'Eduardo Camavinga Celmi', 'camacelmi@gmail.com', '12345678Abc#',1);
 
-SELECT setval('cart_id_seq', (SELECT MAX(id) FROM Cart));
-SELECT setval('cart_item_id_seq', (SELECT MAX(id) FROM Cart_item));
+INSERT INTO Users(id, name, email, password) VALUES(10, 'Eduardo Camavinga Celmi', 'camacelmi@gmail.com', '12345678Abc#');
 
 INSERT INTO Orders (id, request_id, status,  total_amount)
 VALUES

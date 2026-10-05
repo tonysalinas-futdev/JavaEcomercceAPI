@@ -9,7 +9,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @SpringBootApplication
 @Slf4j
 @EnableAspectJAutoProxy
-@EnableCaching
 public class EcomercceApplication {
 
   public static void main(String[] args) {

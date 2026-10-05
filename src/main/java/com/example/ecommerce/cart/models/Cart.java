@@ -1,50 +1,22 @@
 package com.example.ecommerce.cart.models;
 
-import com.example.ecommerce.users.models.User;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Getter
 @Setter
-@Table(name = "Cart")
-@Entity
-public class Cart {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+@AllArgsConstructor
+@NoArgsConstructor
+@RedisHash("Cart")
+public class Cart implements Serializable {
 
-  @CreationTimestamp
-  @Column(name = "created_at")
-  private LocalDateTime createdAt;
+   @Id
+  private String userId;
 
-  @OneToOne(mappedBy = "cart")
-  private User user;
-
-  @OneToMany(
-      mappedBy = "cart",
-      fetch = FetchType.EAGER,
-      cascade = CascadeType.ALL,
-      orphanRemoval = true)
-  @Builder.Default
-  private List<CartItem> items = new ArrayList<CartItem>();
+  private Map<Integer, Integer> items = new HashMap<>();
 }

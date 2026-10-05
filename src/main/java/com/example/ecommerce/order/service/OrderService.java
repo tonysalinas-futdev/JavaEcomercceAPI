@@ -2,14 +2,13 @@ package com.example.ecommerce.order.service;
 
 import com.example.ecommerce.cart.models.Cart;
 import com.example.ecommerce.cart.services.CartService;
-import com.example.ecommerce.cart.utils.CalculatePriceService;
 import com.example.ecommerce.order.dtos.order.OrderAllDetailsDTO;
 import com.example.ecommerce.order.dtos.order.OrderListDTO;
 import com.example.ecommerce.order.mappers.order.OrderMapper;
 import com.example.ecommerce.order.models.Order;
+import com.example.ecommerce.order.models.OrderDetails;
 import com.example.ecommerce.order.models.OrderStatus;
 import com.example.ecommerce.order.repositories.OrderRepository;
-import com.example.ecommerce.order.utils.BuildOrderUtil;
 import com.example.ecommerce.order.utils.OrderPaginationCriteria;
 import com.example.ecommerce.products.services.ProductService;
 import com.example.ecommerce.products.utils.ProductValidator;
@@ -19,7 +18,9 @@ import com.example.ecommerce.shared.utils.PaginationCriteria;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;
 import jakarta.transaction.Transactional;
-import java.util.UUID;
+
+import java.util.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -51,20 +52,24 @@ public class OrderService {
   }
 
   @Transactional
-  public OrderAllDetailsDTO createOrder(Long cartId, UUID requestId, String userEmail) {
-    Cart cart = cartService.findByCartItemIdAndBlockRow(cartId);
+  public OrderAllDetailsDTO createOrder(UUID requestId, String userEmail) {
+
     User user = userQueryService.findByEmailOrThrow(userEmail);
+      Cart cart = cartService.findByUserIdOrCreate(user.getId());
+      Set<Map.Entry<Integer , Integer>> products =cart.getItems().entrySet();
+      Double totalAmount = 0.0;
+      List<OrderDetails> orderDetailsList =new ArrayList<>();
+      Order order = Order.builder().user(user).status(OrderStatus.PENDING).requestId(requestId).build();
 
-    cart.getItems()
-        .forEach(
-            itm -> {
-              var product = productService.findByIdOrThrow(itm.getProduct().getId());
-              ProductValidator.validateAvailabilityAndStock(product, itm.getQuantity());
-            });
+    for (Map.Entry<Integer, Integer> item : products) {
+      var product = productService.findByIdOrThrow(item.getKey().longValue());
+      totalAmount += product.getPrice();
+      ProductValidator.validateAvailabilityAndStock(product, item.getValue());
+      orderDetailsList.add(OrderDetails.builder().product(product).quantity(item.getValue()).build());
+    }
+    order.setOrderDetails(orderDetailsList);
+    order.setTotalAmount(totalAmount);
 
-    Double totalAmount = CalculatePriceService.calculateTotalAmount(cart);
-
-    Order order = BuildOrderUtil.build(requestId, user, totalAmount, cart);
 
     repo.saveAndFlush(order);
     log.info("Successfully created order: {}", order);

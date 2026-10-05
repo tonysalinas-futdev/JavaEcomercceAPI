@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.order.dtos.order.OrderAllDetailsDTO;
 import com.example.ecommerce.order.service.OrderService;
 import com.example.ecommerce.payments.dto.CreatePaymentDto;
@@ -11,6 +12,7 @@ import com.example.ecommerce.payments.model.Payment;
 import com.example.ecommerce.payments.paymentintentwrapper.PaymentIntentWraper;
 import com.example.ecommerce.payments.service.PaymentService;
 import com.example.ecommerce.payments.status.PaymentStatus;
+import com.example.ecommerce.users.models.User;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
@@ -36,16 +38,16 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 public class TestPaymentSevice {
   @Autowired private PaymentService service;
   @Autowired private OrderService orderService;
-
-  @MockitoBean private PaymentIntentWraper wraper;
+  @Autowired private GlobalConftest globalConftest;
+  @MockitoBean private PaymentIntentWraper wrapper;
 
   CreatePaymentDto paymentDto;
 
   @BeforeEach
   public void createOrderAndReturnCreatePaymentDto() {
-
+    User user = globalConftest.createUser();
     OrderAllDetailsDTO order =
-        orderService.createOrder(1L, UUID.randomUUID(), "camacelmi@gmail.com");
+        orderService.createOrder(UUID.randomUUID(), user.getEmail());
 
     paymentDto = CreatePaymentDto.builder().currency("usd").orderId(order.id()).build();
   }
@@ -57,7 +59,7 @@ public class TestPaymentSevice {
     fakePaymentIntent.setId("id_43");
     fakePaymentIntent.setCurrency("usd");
 
-    when(wraper.createPaymentIntent(any(PaymentIntentCreateParams.class)))
+    when(wrapper.createPaymentIntent(any(PaymentIntentCreateParams.class)))
         .thenReturn(fakePaymentIntent);
   }
 

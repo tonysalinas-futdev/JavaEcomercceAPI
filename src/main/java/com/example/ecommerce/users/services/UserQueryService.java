@@ -36,7 +36,6 @@ public class UserQueryService {
     return mapper.entityToUserDetailsDto(user);
   }
 
-  @Cacheable(value = "users", key = "#email")
   public UserProfileDTO findByEmailAndReturnProfileDto(String email) {
     User user = findByEmailOrThrow(email);
     return mapper.entityToUserProfileDTO(user);

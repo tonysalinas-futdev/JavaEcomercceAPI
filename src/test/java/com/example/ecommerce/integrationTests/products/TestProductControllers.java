@@ -14,8 +14,13 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.cache.CacheManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+
+import java.util.Arrays;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @Sql(
@@ -24,7 +29,9 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestProductControllers {
   @Autowired private ProductService productService;
+
   @Autowired private GlobalConftest globalConftest;
+
   private final String basicRoute = "http://localhost:8080/api/v1/products";
 
   private AuthResponseDTO adminCredentials;

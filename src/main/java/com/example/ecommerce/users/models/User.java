@@ -49,10 +49,6 @@ public class User {
   @Column(name = "credentials_no_expired")
   private Boolean credentialsNoExpired;
 
-  @ToString.Exclude
-  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-  @JoinColumn(name = "cart_id", unique = true)
-  private Cart cart;
 
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(

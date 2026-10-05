@@ -61,9 +61,8 @@ public class OrderControllers {
   }
 
   @PostMapping
-  public ResponseEntity<OrderAllDetailsDTO> createOrder(
-      Long cartId, @RequestHeader("X-Request-ID") UUID requestId, Authentication authentication) {
-    OrderAllDetailsDTO order = service.createOrder(cartId, requestId, authentication.getName());
+  public ResponseEntity<OrderAllDetailsDTO> createOrder(@RequestHeader("X-Request-ID") UUID requestId, Authentication authentication) {
+    OrderAllDetailsDTO order = service.createOrder( requestId, authentication.getName());
     URI location = URI.create("api/v1/}" + order.id());
     return ResponseEntity.created(location).body(order);
   }

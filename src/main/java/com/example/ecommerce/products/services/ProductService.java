@@ -41,11 +41,11 @@ public class ProductService {
   public Product findByIdOrThrow(Long productId) {
     return productRepo
         .findById(productId)
-        .orElseThrow(() -> new NotFoundException("Product not found"));
+        .orElseThrow(() -> new NotFoundException("Product with id " + productId + " not found"));
   }
 
+  @CachePut(value = "products", key = "#p0")
   @Transactional
-  @CachePut(value = "products", key = "#productId")
   @LogProductEvent(loggerName = ProductService.class, event = ProductLogEvent.PRODUCT_STOCK_UPDATE)
   public ProductDetailsDTO setStock(Long productId, Integer stock) {
     var product = findByIdOrThrow(productId);
@@ -74,8 +74,7 @@ public class ProductService {
     log.info("Successfully created product: {}", newProduct);
     return productMapper.productToDetailsDTO(newProduct);
   }
-
-  @Cacheable(value = "products", key = "#id")
+    @Cacheable(value = "products" ,key = "#p0")
   public ProductDetailsDTO findByIdAndReturnProductDetailsDto(Long id) {
     Product product = findByIdOrThrow(id);
     return productMapper.productToDetailsDTO(product);
@@ -90,7 +89,7 @@ public class ProductService {
   }
 
   @Transactional
-  @CacheEvict(value = "products", key = "#id")
+  @CacheEvict(value = "products", key = "#p0")
   @LogDeleteEntityEvent(event = "PRODUCT_DELETED", loggerName = ProductService.class)
   public void deleteProduct(Long id) {
     Product product = findByIdOrThrow(id);
@@ -99,7 +98,7 @@ public class ProductService {
   }
 
   @Transactional
-  @CachePut(value = "products", key = "#id")
+  @CachePut(value = "products", key = "#p1")
   @LogProductEvent(loggerName = ProductService.class, event = ProductLogEvent.PRODUCT_UPDATED)
   public ProductDetailsDTO updateProduct(UpdateProductDTO dto, Long id) {
     if (productRepo.getByName(dto.name()).isPresent()) {
@@ -114,6 +113,8 @@ public class ProductService {
   }
 
   @Transactional
+  @CachePut(value = "products", key = "#p1")
+
   public ProductDetailsDTO updateCategory(Long categoryId, Long productId) {
     Category category = categoryService.getEntityByIdOrThrow(categoryId);
 
