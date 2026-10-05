@@ -12,7 +12,6 @@ import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.UserRepository;
 import com.example.ecommerce.users.utils.UserSortCriteria;
 import lombok.AllArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

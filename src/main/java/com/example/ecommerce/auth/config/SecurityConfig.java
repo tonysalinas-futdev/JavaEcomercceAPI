@@ -48,6 +48,8 @@ public class SecurityConfig {
                     .authenticated()
                     .requestMatchers(HttpMethod.PUT, "/api/v1/users/*")
                     .authenticated()
+                    .requestMatchers(HttpMethod.PUT, "/api/v1/cart/*")
+                    .authenticated()
                     .requestMatchers("/api/v1/me/**")
                     .authenticated()
                     .anyRequest()

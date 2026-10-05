@@ -29,59 +29,55 @@ public class TestCartServices {
   @Autowired private GlobalConftest globalConftest;
   @Autowired private CartService service;
   @Autowired private ProductService productService;
-  @Autowired
-    private RedisConnectionFactory factory;
+  @Autowired private RedisConnectionFactory factory;
 
-    @BeforeEach
-    void cleanRedis() {
-        factory.getConnection()
-                .serverCommands()
-                .flushDb();
-    }
+  @BeforeEach
+  void cleanRedis() {
+    factory.getConnection().serverCommands().flushDb();
+  }
+
   @Test
   public void mustCreateCartAndAddTwoItems() {
     User user = globalConftest.createUser();
     Product product = productService.findByIdOrThrow(16L);
-    service.addItem(user.getId(),product.getId().intValue(),10);
+    service.addItem(user.getId(), product.getId().intValue(), 10);
 
     Cart cart = service.findByUserIdOrCreate(user.getId());
     assertEquals(1, cart.getItems().size());
   }
 
   @Test
-  public void shouldSetNewProductQuantity(){
+  public void shouldSetNewProductQuantity() {
     User user = globalConftest.createUser();
     service.findByUserIdOrCreate(user.getId());
-    service.addItem(user.getId(),17,40);
+    service.addItem(user.getId(), 17, 40);
 
-    service.setItemQuantity(user.getId(),17,5);
+    service.setItemQuantity(user.getId(), 17, 5);
     Cart updatedCart = service.findByUserIdOrCreate(user.getId());
-        Assertions.assertEquals(5,updatedCart.getItems().get(17));
+    Assertions.assertEquals(5, updatedCart.getItems().get(17));
   }
-
-
 
   @Test
   public void shouldCleanAllItemsFromCart() {
-      User user = globalConftest.createUser();
-      service.addItem(user.getId(),16,10);
+    User user = globalConftest.createUser();
+    service.addItem(user.getId(), 16, 10);
     Cart cart = service.findByUserIdOrCreate(user.getId());
-      service.addItem(user.getId(),16,10);
+    service.addItem(user.getId(), 16, 10);
 
     service.cleanItems(user.getId());
-      Cart updatedCart = service.findByUserIdOrCreate(user.getId());
+    Cart updatedCart = service.findByUserIdOrCreate(user.getId());
     assertTrue(updatedCart.getItems().isEmpty());
   }
 
   @Test
   public void shouldDeleteItemFromCartWithTwoItems() {
-      User user = globalConftest.createUser();
-      Cart cart = service.findByUserIdOrCreate(user.getId());
-      service.addItem(user.getId(),16,3);
-      service.addItem(user.getId(),17,3);
+    User user = globalConftest.createUser();
+    Cart cart = service.findByUserIdOrCreate(user.getId());
+    service.addItem(user.getId(), 16, 3);
+    service.addItem(user.getId(), 17, 3);
 
     service.deleteItem(17, 1L);
-     Cart updatedCart = service.findByUserIdOrCreate(user.getId());
+    Cart updatedCart = service.findByUserIdOrCreate(user.getId());
     assertEquals(1, updatedCart.getItems().size());
   }
 }

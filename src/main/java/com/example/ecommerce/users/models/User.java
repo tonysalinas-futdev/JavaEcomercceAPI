@@ -1,7 +1,6 @@
 package com.example.ecommerce.users.models;
 
 import com.example.ecommerce.auth.model.Token;
-import com.example.ecommerce.cart.models.Cart;
 import com.example.ecommerce.order.models.Order;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -49,7 +48,6 @@ public class User {
   @Column(name = "credentials_no_expired")
   private Boolean credentialsNoExpired;
 
-
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "role_user",
@@ -63,8 +61,8 @@ public class User {
   @Builder.Default
   private List<Order> orders = new ArrayList<>();
 
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, orphanRemoval = true)
   @ToString.Exclude
-  @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
-  @JoinColumn(name = "token_id", unique = true)
-  private Token token;
+  @Builder.Default
+  private List<Token> token = new ArrayList<>();
 }

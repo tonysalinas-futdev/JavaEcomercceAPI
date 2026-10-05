@@ -15,8 +15,7 @@ import org.springframework.data.redis.core.RedisHash;
 @RedisHash("Cart")
 public class Cart implements Serializable {
 
-   @Id
-  private String userId;
+  @Id private String userId;
 
   private Map<Integer, Integer> items = new HashMap<>();
 }

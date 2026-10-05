@@ -31,6 +31,7 @@ public class Token {
 
   private boolean expired;
 
-  @OneToOne(fetch = FetchType.EAGER, mappedBy = "token")
-  public User user;
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "user_id")
+  private User user;
 }

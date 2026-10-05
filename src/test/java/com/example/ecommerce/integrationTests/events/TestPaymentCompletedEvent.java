@@ -42,18 +42,17 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 public class TestPaymentCompletedEvent {
   @Autowired private OrderService orderService;
   @Autowired private PaymentService paymentService;
-    @Autowired private GlobalConftest conftest;
-    @Autowired private CartService cartService;
+  @Autowired private GlobalConftest conftest;
+  @Autowired private CartService cartService;
   @MockitoBean private PaymentIntentWraper wraper;
 
   public CreatePaymentDto createOrderAndReturnCreatePaymentDto() {
-      User user = conftest.createUser();
-      cartService.addItem(user.getId(),16,2);
-      cartService.addItem(user.getId(),17,4);
-      cartService.addItem(user.getId(),19,5);
+    User user = conftest.createUser();
+    cartService.addItem(user.getId(), 16, 2);
+    cartService.addItem(user.getId(), 17, 4);
+    cartService.addItem(user.getId(), 19, 5);
 
-    OrderAllDetailsDTO order =
-        orderService.createOrder( UUID.randomUUID(), user.getEmail());
+    OrderAllDetailsDTO order = orderService.createOrder(UUID.randomUUID(), user.getEmail());
 
     return CreatePaymentDto.builder().currency("usd").orderId(order.id()).build();
   }

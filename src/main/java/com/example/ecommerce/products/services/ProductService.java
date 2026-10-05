@@ -49,10 +49,15 @@ public class ProductService {
   @LogProductEvent(loggerName = ProductService.class, event = ProductLogEvent.PRODUCT_STOCK_UPDATE)
   public ProductDetailsDTO setStock(Long productId, Integer stock) {
     var product = findByIdOrThrow(productId);
+    var previousStock = product.getStock();
     product.setStock(stock);
-    log.info("Successfully setted stock = {}", stock);
 
     productRepo.saveAndFlush(product);
+    log.info(
+        "Product stock updated successfully. Product ID: {}, previous stock: {}, new stock: {}",
+        productId,
+        previousStock,
+        stock);
     return productMapper.productToDetailsDTO(product);
   }
 
@@ -62,19 +67,22 @@ public class ProductService {
     if (productRepo.getByName(dto.name()).isPresent()) {
       throw new AlreadyExistsException("Already exists product with name: " + dto.name());
     }
-
     Product newProduct = productMapper.createProductDTOToEntity(dto);
-
     Category category = categoryService.getEntityByIdOrThrow(dto.categoryId());
-
     newProduct.setCategory(category);
     newProduct.setIsAvailable(true);
-
     productRepo.saveAndFlush(newProduct);
-    log.info("Successfully created product: {}", newProduct);
+    log.info(
+        "Product created successfully. Product ID: {}, name: '{}', category ID: {}, price: {}, initial stock: {}",
+        newProduct.getId(),
+        newProduct.getName(),
+        category.getId(),
+        newProduct.getPrice(),
+        newProduct.getStock());
     return productMapper.productToDetailsDTO(newProduct);
   }
-    @Cacheable(value = "products" ,key = "#p0")
+
+  @Cacheable(value = "products", key = "#p0")
   public ProductDetailsDTO findByIdAndReturnProductDetailsDto(Long id) {
     Product product = findByIdOrThrow(id);
     return productMapper.productToDetailsDTO(product);
@@ -94,7 +102,11 @@ public class ProductService {
   public void deleteProduct(Long id) {
     Product product = findByIdOrThrow(id);
     productRepo.delete(product);
-    log.info("Successfully deleted product: {}", product);
+    log.info(
+        "Product deleted successfully. Product ID: {}, name: '{}', category ID: {}",
+        product.getId(),
+        product.getName(),
+        product.getCategory().getId());
   }
 
   @Transactional
@@ -107,14 +119,16 @@ public class ProductService {
     Product updatedProduct = productMapper.updateEntity(dto, findByIdOrThrow(id));
 
     productRepo.saveAndFlush(updatedProduct);
-    log.info("Successfully updated product: {}", updatedProduct);
+    log.info(
+        "Product updated successfully. Product ID: {}, name: '{}'",
+        updatedProduct.getId(),
+        updatedProduct.getName());
 
     return productMapper.productToDetailsDTO(updatedProduct);
   }
 
   @Transactional
   @CachePut(value = "products", key = "#p1")
-
   public ProductDetailsDTO updateCategory(Long categoryId, Long productId) {
     Category category = categoryService.getEntityByIdOrThrow(categoryId);
 
@@ -124,7 +138,10 @@ public class ProductService {
 
     productRepo.save(product);
 
-    log.info("Successfully updated product: {} to category: {}", product, category);
+    log.info(
+        "Product category updated successfully. Product ID: {} , new category: {}",
+        product.getId(),
+        category);
 
     return productMapper.productToDetailsDTO(product);
   }

@@ -27,7 +27,7 @@ public class AuthConfig {
   }
 
   @Bean
-  public UserDetailsService userdetailsService() {
+  public UserDetailsService userDetailsService() {
     return username -> {
       User user =
           repo.findUserByEmail(username)
@@ -52,7 +52,7 @@ public class AuthConfig {
   @Bean
   public AuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    provider.setUserDetailsService(userdetailsService());
+    provider.setUserDetailsService(userDetailsService());
     provider.setPasswordEncoder(passwordEncoder());
     return provider;
   }

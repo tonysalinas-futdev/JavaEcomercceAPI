@@ -7,6 +7,7 @@ import com.example.ecommerce.auth.model.Token;
 import com.example.ecommerce.auth.service.TokenService;
 import com.example.ecommerce.auth.utils.JwtTokenProvider;
 import com.example.ecommerce.users.models.User;
+import com.example.ecommerce.users.services.UserQueryService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.test.context.jdbc.Sql;
 public class TestTokenService {
   @Autowired private JwtConftest conftest;
   @Autowired private TokenService tokenService;
+  @Autowired private UserQueryService userService;
 
   @Autowired private JwtTokenProvider provider;
 
@@ -30,10 +32,12 @@ public class TestTokenService {
     String refreshToken = provider.createRefreshToken(user);
 
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
-    Token token = user.getToken();
+    User updatedUser = userService.findEntityByIdOrThrow(user.getId());
+    Token token = updatedUser.getToken().getFirst();
 
     assertFalse(token.isExpired());
     assertFalse(token.isRevoked());
     assertEquals(token.getValue(), refreshToken);
+    assertEquals(1, updatedUser.getToken().size());
   }
 }

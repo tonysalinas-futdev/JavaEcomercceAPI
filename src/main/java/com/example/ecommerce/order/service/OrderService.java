@@ -18,9 +18,7 @@ import com.example.ecommerce.shared.utils.PaginationCriteria;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;
 import jakarta.transaction.Transactional;
-
 import java.util.*;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -55,21 +53,22 @@ public class OrderService {
   public OrderAllDetailsDTO createOrder(UUID requestId, String userEmail) {
 
     User user = userQueryService.findByEmailOrThrow(userEmail);
-      Cart cart = cartService.findByUserIdOrCreate(user.getId());
-      Set<Map.Entry<Integer , Integer>> products =cart.getItems().entrySet();
-      Double totalAmount = 0.0;
-      List<OrderDetails> orderDetailsList =new ArrayList<>();
-      Order order = Order.builder().user(user).status(OrderStatus.PENDING).requestId(requestId).build();
+    Cart cart = cartService.findByUserIdOrCreate(user.getId());
+    Set<Map.Entry<Integer, Integer>> products = cart.getItems().entrySet();
+    Double totalAmount = 0.0;
+    List<OrderDetails> orderDetailsList = new ArrayList<>();
+    Order order =
+        Order.builder().user(user).status(OrderStatus.PENDING).requestId(requestId).build();
 
     for (Map.Entry<Integer, Integer> item : products) {
       var product = productService.findByIdOrThrow(item.getKey().longValue());
       totalAmount += product.getPrice();
       ProductValidator.validateAvailabilityAndStock(product, item.getValue());
-      orderDetailsList.add(OrderDetails.builder().product(product).quantity(item.getValue()).build());
+      orderDetailsList.add(
+          OrderDetails.builder().product(product).quantity(item.getValue()).build());
     }
     order.setOrderDetails(orderDetailsList);
     order.setTotalAmount(totalAmount);
-
 
     repo.saveAndFlush(order);
     log.info("Successfully created order: {}", order);

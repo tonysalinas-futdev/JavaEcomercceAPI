@@ -12,7 +12,6 @@ import com.example.ecommerce.order.service.OrderService;
 import com.example.ecommerce.order.utils.OrderPaginationCriteria;
 import com.example.ecommerce.shared.utils.PaginationCriteria;
 import com.example.ecommerce.users.models.User;
-import jakarta.transaction.Transactional;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -37,13 +36,12 @@ class TestOrderService {
   @DisplayName(
       "Debe registrar la orden como pendiente de pago y con un OrderDetails por producto del carrito(3)")
   public void shouldCreateOrderSuccessfully() {
-      User user = globalConftest.createUser();
-      cartService.addItem(user.getId(),16,5);
-      cartService.addItem(user.getId(),17,5);
-      cartService.addItem(user.getId(),19,5);
+    User user = globalConftest.createUser();
+    cartService.addItem(user.getId(), 16, 5);
+    cartService.addItem(user.getId(), 17, 5);
+    cartService.addItem(user.getId(), 19, 5);
 
-    OrderAllDetailsDTO order =
-        orderService.createOrder(UUID.randomUUID(), user.getEmail());
+    OrderAllDetailsDTO order = orderService.createOrder(UUID.randomUUID(), user.getEmail());
 
     assertEquals(3, order.orderDetails().size());
     assertEquals(OrderStatus.PENDING, order.status());
@@ -51,8 +49,7 @@ class TestOrderService {
 
   @Test
   public void shouldSetNewStatus() {
-    OrderAllDetailsDTO order =
-        orderService.createOrder(UUID.randomUUID(), "camacelmi@gmail.com");
+    OrderAllDetailsDTO order = orderService.createOrder(UUID.randomUUID(), "camacelmi@gmail.com");
 
     Order updateOrder = orderService.setStatus(order.id(), OrderStatus.PAID);
 

@@ -21,35 +21,50 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LoggingMiddleware implements Filter {
+
   private static final Logger logger = LogManager.getLogger(LoggingMiddleware.class);
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
+
     Instant start = Instant.now();
+
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
     String method = httpRequest.getMethod();
     String uri = httpRequest.getRequestURI();
 
-    chain.doFilter(request, response);
+    try {
+      chain.doFilter(request, response);
 
-    Integer status = httpResponse.getStatus();
+    } catch (Exception exception) {
 
-    var logInfo =
-        StructuredTechnicalMiddlewareLog.builder()
-            .method(method)
-            .path(uri)
-            .statusCode(status.toString())
-            .build();
-    Marker marker = MarkerManager.getMarker(MarkerTypes.TECHNICAL.toString());
+      logger.error("Request failed. method={}, path={}", method, uri, exception);
 
-    Instant end = Instant.now();
+      throw exception;
 
-    Duration totalTime = Duration.between(start, end);
-    logInfo.setDuration(totalTime.toString());
+    } finally {
 
-    logger.info(marker, new ObjectMessage(logInfo));
+      Integer status = httpResponse.getStatus();
+
+      var logInfo =
+          StructuredTechnicalMiddlewareLog.builder()
+              .method(method)
+              .path(uri)
+              .statusCode(status.toString())
+              .build();
+
+      Instant end = Instant.now();
+
+      Duration totalTime = Duration.between(start, end);
+
+      logInfo.setDuration(totalTime.toString());
+
+      Marker marker = MarkerManager.getMarker(MarkerTypes.TECHNICAL.toString());
+
+      logger.info(marker, new ObjectMessage(logInfo));
+    }
   }
 }

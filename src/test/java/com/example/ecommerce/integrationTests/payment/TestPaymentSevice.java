@@ -46,8 +46,7 @@ public class TestPaymentSevice {
   @BeforeEach
   public void createOrderAndReturnCreatePaymentDto() {
     User user = globalConftest.createUser();
-    OrderAllDetailsDTO order =
-        orderService.createOrder(UUID.randomUUID(), user.getEmail());
+    OrderAllDetailsDTO order = orderService.createOrder(UUID.randomUUID(), user.getEmail());
 
     paymentDto = CreatePaymentDto.builder().currency("usd").orderId(order.id()).build();
   }
