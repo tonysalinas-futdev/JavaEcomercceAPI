@@ -4,13 +4,19 @@ import com.example.ecommerce.auth.exceptions.InvalidTokenException;
 import com.example.ecommerce.auth.service.TokenValidationService;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
 import com.example.ecommerce.auth.utils.TokenExtractor;
+import com.example.ecommerce.users.models.User;
+import com.example.ecommerce.users.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,10 +29,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
   private final UserDetailsService userDetailsService;
   private final JwtTokenParser parser;
-  private final TokenValidationService validationService;
+  private final UserRepository userRepository;
 
   @Override
   protected void doFilterInternal(
@@ -41,16 +48,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     String tokenValue = TokenExtractor.extract(request.getHeader(HttpHeaders.AUTHORIZATION));
-    Claims payload = parser.parse(tokenValue);
-    if (payload.get("token_type").equals("access_token")) {
-      if (validationService.isTokenExpired(tokenValue)) {
-        throw new InvalidTokenException("Token Expired");
+      Claims payload;
+      try {
+          payload = parser.parse(tokenValue);
+      } catch (ExpiredJwtException ex) {
+          payload = ex.getClaims();
+
+          if ("access_token".equals(payload.get("token_type"))) {
+              userRepository.findUserByEmail(payload.getSubject()).ifPresent(user -> {
+                  user.setCredentialsExpired(true);
+                  userRepository.save(user);
+                  log.info("Assigned credentials expired to user with id:{}", user.getId());
+              });
+          }
+          throw new InvalidTokenException("Token Expired");
       }
-    }
 
     UserDetails userDetails = this.userDetailsService.loadUserByUsername(payload.getSubject());
 
-    var authReponse =
+    UsernamePasswordAuthenticationToken authReponse =
         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     authReponse.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

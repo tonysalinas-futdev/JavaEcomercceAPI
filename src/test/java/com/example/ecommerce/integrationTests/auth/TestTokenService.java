@@ -33,11 +33,11 @@ public class TestTokenService {
 
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
     User updatedUser = userService.findEntityByIdOrThrow(user.getId());
-    Token token = updatedUser.getToken().getFirst();
+    Token token = updatedUser.getTokens().getFirst();
 
     assertFalse(token.isExpired());
     assertFalse(token.isRevoked());
     assertEquals(token.getValue(), refreshToken);
-    assertEquals(1, updatedUser.getToken().size());
+    assertEquals(1, updatedUser.getTokens().size());
   }
 }

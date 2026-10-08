@@ -1,6 +1,8 @@
 package com.example.ecommerce.auth.config;
 
+import com.example.ecommerce.auth.filters.ExceptionHandlerFilter;
 import com.example.ecommerce.auth.filters.JwtAuthFilter;
+import com.example.ecommerce.logger.filters.LoggingMiddleware;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
   private final JwtAuthFilter jwtAuthFilter;
   private final AuthenticationProvider authenticationProvider;
+  private final ExceptionHandlerFilter exceptionHandlerFilter;
+  private final LoggingMiddleware loggingMiddleware;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -57,7 +61,9 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(exceptionHandlerFilter, JwtAuthFilter.class);
+
 
     return http.build();
   }

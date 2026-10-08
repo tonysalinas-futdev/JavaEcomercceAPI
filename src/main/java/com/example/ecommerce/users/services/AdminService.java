@@ -40,8 +40,8 @@ public class AdminService {
     queryService.findByEmailAndThrowIfExists(dto.email());
 
     User newUser = mapper.createUserDTOToEntity(dto);
-    newUser.setAccountNoLocked(true);
-    newUser.setCredentialsNoExpired(true);
+    newUser.setAccountLocked(false);
+    newUser.setCredentialsExpired(false);
     newUser.setIsEnabled(true);
 
     Role role =
@@ -101,7 +101,6 @@ public class AdminService {
   }
 
   @Transactional
-  @LogUserEvent(value = UserEvents.USER_UPDATE, type = AdminService.class)
   public UserDetailsDTO updateUser(Long id, UpdateUserDTO dto) {
     queryService.findByEmailAndThrowIfExists(dto.email());
     queryService.findByNameAndThrowIfExists(dto.name());
@@ -113,6 +112,30 @@ public class AdminService {
     return mapper.entityToUserDetailsDto(user);
   }
 
+  public void blockAccount(Long adminId, Long userToBlockId)
+  {
+      User user = queryService.findEntityByIdOrThrow(userToBlockId);
+      User adminUser = queryService.findEntityByIdOrThrow(adminId);
+
+      if (adminUser.getCreatedAt().isAfter(user.getCreatedAt()) && user.getRoles().stream().anyMatch(r->r.getRoleEnum().equals(RoleEnum.ADMIN))
+              && user.getRoles().stream().anyMatch(r -> r.getRoleEnum().equals(RoleEnum.ADMIN))) {
+          throw new AdminOperationException("You cannot block the account of a former admin");
+      }
+      user.setAccountLocked(true);
+      repo.saveAndFlush(user);
+      log.info("Blocked the account of user with id = {}", userToBlockId);
+
+  }
+
+    public void unlockAccount(Long userToUnlockId)
+    {
+        User user = queryService.findEntityByIdOrThrow(userToUnlockId);
+        user.setAccountLocked(false);
+        repo.saveAndFlush(user);
+        log.info("Unlocked the account of user with id = {}", userToUnlockId);
+
+
+    }
   @Transactional
   @LogDeleteEntityEvent(event = "USER_DELETED", loggerName = AdminService.class)
   public void deleteUser(Long id) {

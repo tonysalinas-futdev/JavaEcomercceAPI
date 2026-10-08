@@ -1,4 +1,4 @@
-package com.example.ecommerce.shared.cache.configuration;
+package com.example.ecommerce.shared.redis.configuration;
 
 import lombok.Getter;
 import lombok.Setter;

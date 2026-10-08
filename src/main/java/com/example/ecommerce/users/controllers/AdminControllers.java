@@ -16,6 +16,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -75,4 +77,20 @@ public class AdminControllers {
 
     return ResponseEntity.ok(service.updateUser(id, dto));
   }
+
+  @PutMapping("/{id}/lock")
+  @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_USER')")
+  public ResponseEntity<Void> lockAccount(
+          @PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+      service.blockAccount(jwt.getClaim("id"),id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/unlock")
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_USER')")
+    public ResponseEntity<Void> unlockAccount(
+            @PathVariable Long id) {
+        service.unlockAccount(id);
+        return ResponseEntity.ok().build();
+    }
 }

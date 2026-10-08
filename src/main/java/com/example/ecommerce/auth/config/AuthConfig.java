@@ -44,6 +44,8 @@ public class AuthConfig {
       return org.springframework.security.core.userdetails.User.builder()
           .username(user.getEmail())
           .password(user.getPassword())
+              .accountLocked(user.getAccountLocked())
+              .credentialsExpired(user.getCredentialsExpired())
           .authorities(authorities.toArray(new String[0]))
           .build();
     };

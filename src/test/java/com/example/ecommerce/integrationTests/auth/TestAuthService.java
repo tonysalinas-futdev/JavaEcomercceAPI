@@ -6,8 +6,14 @@ import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.auth.service.AuthService;
+import com.example.ecommerce.auth.service.TokenService;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
+import com.example.ecommerce.auth.utils.JwtTokenProvider;
+import com.example.ecommerce.users.dtos.CreateUserDTO;
+import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.models.User;
+import com.example.ecommerce.users.repository.UserRepository;
+import com.example.ecommerce.users.services.AdminService;
 import com.example.ecommerce.users.services.UserQueryService;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
@@ -16,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -25,14 +33,27 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 @Transactional
 public class TestAuthService {
-  @Autowired private JwtConftest conftest;
   @Autowired private UserQueryService userQueryService;
   @Autowired private AuthService authService;
   @Autowired private JwtTokenParser parser;
+  @Autowired private AdminService service;
+  @Autowired private UserRepository userRepository;
+
+
+  public User getSavedUserForTest(){
+      CreateUserDTO data = CreateUserDTO.builder()
+              .name("Juan Antonio Chao Salinas")
+              .role(RoleEnum.USER)
+              .password("12345Abc#")
+              .email("tony@gmail.com")
+              .build();
+
+      return service.createUserByAdmin(data);
+  }
 
   @Test
   public void shouldReturnAccessAndRefreshTokenWithUserData() {
-    User user = conftest.getSaveUser();
+    User user = getSavedUserForTest();
 
     AuthResponseDTO authResponse = authService.login(new LoginDTO(user.getEmail(), "12345Abc#"));
 
@@ -47,7 +68,7 @@ public class TestAuthService {
 
   @Test
   public void shouldFailLoginWithIncorrectCredentials() {
-    conftest.getSaveUser();
+    getSavedUserForTest();
 
     assertThrows(
         BadCredentialsException.class,
@@ -55,6 +76,21 @@ public class TestAuthService {
           authService.login(new LoginDTO("incorrectEmail@gmail.com", "1234567ABCd4#"));
         });
   }
+
+    @Test
+    public void shouldFailLoginWhenAccountIsLocked() {
+        User user = getSavedUserForTest();
+        user.setAccountLocked(true);
+        userRepository.save(user);
+
+        assertThrows(
+                LockedException.class,
+                () -> {
+                    authService.login(new LoginDTO("tony@gmail.com", "12345Abc#"));
+                });
+    }
+
+
 
   @Test
   public void shouldCreateUserAndReturnAccessTokenWithCorrectInfoWhenSignUp() {

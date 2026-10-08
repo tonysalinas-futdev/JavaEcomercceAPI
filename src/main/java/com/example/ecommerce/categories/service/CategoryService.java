@@ -86,5 +86,6 @@ public class CategoryService {
           "You cannot delete this category because it has associated products");
     }
     repo.delete(category);
+    log.info("Deleted category with id = {}", categoryId);
   }
 }

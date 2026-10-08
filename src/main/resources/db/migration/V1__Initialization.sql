@@ -95,8 +95,8 @@ CREATE TABLE IF NOT EXISTS users
     email                  VARCHAR(255)                            NOT NULL,
     password               VARCHAR(255)                            NOT NULL,
     is_enabled             BOOLEAN,
-    account_no_locked      BOOLEAN,
-    credentials_no_expired BOOLEAN,
+    account_locked      BOOLEAN,
+    credentials_expired BOOLEAN,
     CONSTRAINT pk_users PRIMARY KEY (id)
 );
 

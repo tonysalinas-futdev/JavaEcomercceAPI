@@ -5,7 +5,7 @@ import com.example.ecommerce.users.models.User;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
-@Service
+
 public class BuilderUserUtil {
 
   public static User build(@Valid SignUpDTO dto) {
@@ -13,8 +13,8 @@ public class BuilderUserUtil {
         .name(dto.name())
         .email(dto.email())
         .isEnabled(true)
-        .accountNoLocked(true)
-        .credentialsNoExpired(true)
+        .accountLocked(false)
+        .credentialsExpired(false)
         .build();
   }
 }

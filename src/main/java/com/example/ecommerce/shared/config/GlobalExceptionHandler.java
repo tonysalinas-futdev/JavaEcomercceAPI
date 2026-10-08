@@ -7,12 +7,14 @@ import com.example.ecommerce.shared.exceptions.AlreadyExistsException;
 import com.example.ecommerce.shared.exceptions.InvalidRequestException;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.shared.exceptions.PersistenceErrorException;
+import com.example.ecommerce.users.exceptions.AdminOperationException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -110,6 +112,14 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
   }
 
+    @ExceptionHandler(CredentialsExpiredException.class)
+    public ResponseEntity<ErrorResponseDTO> handleCredentialsExpiredException(
+            HttpServletRequest request, Exception ex) {
+        ErrorResponseDTO error =
+                new ErrorResponseDTO(ex.getMessage(), request.getRequestURL().toString());
+        return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
+    }
+
   @ExceptionHandler(DataAccessException.class)
   public ResponseEntity<ErrorResponseDTO> handleDataAccessException(
       HttpServletRequest request, DataAccessException ex) {
@@ -117,4 +127,12 @@ public class GlobalExceptionHandler {
         new ErrorResponseDTO("Internal server error", request.getRequestURL().toString());
     return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.INTERNAL_SERVER_ERROR);
   }
+
+  @ExceptionHandler(AdminOperationException.class)
+  public ResponseEntity<ErrorResponseDTO> handleAdminOperationException(
+            HttpServletRequest request, AdminOperationException ex) {
+        ErrorResponseDTO error =
+                new ErrorResponseDTO("Try again with correct data", request.getRequestURL().toString());
+        return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.BAD_REQUEST);
+    }
 }

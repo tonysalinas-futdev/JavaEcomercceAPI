@@ -16,13 +16,13 @@ public class TokenService {
   @Transactional
   public void saveUserTokenAndDeletePrevious(User user, String jwtToken) {
     Token token = Token.builder().revoked(false).expired(false).user(user).value(jwtToken).build();
-    user.getToken().clear();
-    user.getToken().add(token);
+    user.getTokens().clear();
+    user.getTokens().add(token);
     repo.saveAndFlush(token);
   }
 
   public void revokeUserToken(User user) {
-    Token token = user.getToken().getFirst();
+    Token token = user.getTokens().getFirst();
     token.setRevoked(true);
     repo.saveAndFlush(token);
   }

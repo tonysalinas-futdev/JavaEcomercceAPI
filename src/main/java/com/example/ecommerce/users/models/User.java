@@ -42,11 +42,11 @@ public class User {
   @Column(name = "is_enabled")
   private Boolean isEnabled;
 
-  @Column(name = "account_no_locked")
-  private Boolean accountNoLocked;
+  @Column(name = "account_locked")
+  private Boolean accountLocked;
 
-  @Column(name = "credentials_no_expired")
-  private Boolean credentialsNoExpired;
+  @Column(name = "credentials_expired")
+  private Boolean credentialsExpired;
 
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
@@ -64,5 +64,5 @@ public class User {
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, orphanRemoval = true)
   @ToString.Exclude
   @Builder.Default
-  private List<Token> token = new ArrayList<>();
+  private List<Token> tokens = new ArrayList<>();
 }

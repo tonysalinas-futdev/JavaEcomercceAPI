@@ -19,6 +19,7 @@ public class JwtConftest {
   private final RoleRepository roleRepository;
   private final PasswordEncoder encoder;
 
+
   public User getSaveUser() {
     Optional<User> existing = userRepo.findUserByName("Juan Antonio Chao Salinas");
     if (existing.isPresent()) {
@@ -36,7 +37,10 @@ public class JwtConftest {
             .findByRoleEnum(RoleEnum.USER)
             .orElseThrow(() -> new NotFoundException("Role USER not found"));
 
+
     user.setRoles(List.of(role));
+    user.setAccountLocked(false);
+    user.setCredentialsExpired(false);
 
     userRepo.saveAndFlush(user);
     return user;
