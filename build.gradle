@@ -33,7 +33,8 @@ ext {
 
 dependencies {
 	
-	implementation 'org.springframework.boot:spring-boot-starter-log4j2' 
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.apache.logging.log4j:log4j-layout-template-json'
 
 	 implementation 'io.jsonwebtoken:jjwt-api:0.12.7' 
 	 runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.7' 

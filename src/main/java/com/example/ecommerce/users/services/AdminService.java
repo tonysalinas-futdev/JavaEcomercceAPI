@@ -1,14 +1,11 @@
 package com.example.ecommerce.users.services;
 
-import com.example.ecommerce.logger.annotations.LogDeleteEntityEvent;
-import com.example.ecommerce.logger.annotations.LogUserEvent;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
 import com.example.ecommerce.users.dtos.CreateUserDTO;
 import com.example.ecommerce.users.dtos.UpdateUserDTO;
 import com.example.ecommerce.users.dtos.UserDetailsDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.exceptions.AdminOperationException;
-import com.example.ecommerce.users.logs.events.UserEvents;
 import com.example.ecommerce.users.mappers.UserMappers;
 import com.example.ecommerce.users.models.Role;
 import com.example.ecommerce.users.models.User;
@@ -34,7 +31,6 @@ public class AdminService {
   private final PasswordEncoder encoder;
 
   @Transactional
-  @LogUserEvent(value = UserEvents.USER_CREATED, type = AdminService.class)
   public User createUserByAdmin(@Valid CreateUserDTO dto) {
     queryService.findByNameAndThrowIfExists(dto.name());
     queryService.findByEmailAndThrowIfExists(dto.email());
@@ -52,7 +48,13 @@ public class AdminService {
     newUser.setPassword(encoder.encode(newUser.getPassword()));
     newUser.getRoles().add(role);
     repo.saveAndFlush(newUser);
-    log.info("Successfully created user: {}", newUser);
+    log.atInfo()
+            .addKeyValue("event_type", "user_created_by_admin")
+            .addKeyValue("user_id", newUser.getId())
+            .addKeyValue("email", newUser.getEmail())
+            .addKeyValue("roles", newUser.getRoles())
+            .log("Successfully created user");
+
     return newUser;
   }
 
@@ -69,7 +71,12 @@ public class AdminService {
     user.getRoles().add(roleToAdd);
     repo.saveAndFlush(user);
 
-    log.info("Role: {} added successfully to user : {}", role, user);
+      log.atInfo()
+              .addKeyValue("event_type", "added_role_to_user")
+              .addKeyValue("user_id", user.getId())
+              .addKeyValue("added_role", role.toString())
+              .log("Successfully added new role to user");
+
   }
 
   @Transactional
@@ -81,7 +88,12 @@ public class AdminService {
     removeUserRoleConditionals(adminUser, user, roleToAdd);
     user.getRoles().removeIf(r -> r.getRoleEnum().equals(role));
     repo.saveAndFlush(user);
-    log.info("Successfully removed role: {} from user: {}", role, user);
+      log.atInfo()
+              .addKeyValue("event_type", "user_role_removed")
+              .addKeyValue("user_id", user.getId())
+              .addKeyValue("removed_role", role.toString())
+              .log("Successfully removed role from user");
+
   }
 
   public void removeUserRoleConditionals(User adminUser, User user, Role role) {
@@ -107,7 +119,10 @@ public class AdminService {
 
     User user = mapper.updateUserDTOToEntity(dto, queryService.findEntityByIdOrThrow(id));
     repo.save(user);
-    log.info("Updated user: {}", user);
+      log.atInfo()
+              .addKeyValue("event_type", "updated_user")
+              .addKeyValue("user_id", user.getId())
+              .log("Successfully updated user");
 
     return mapper.entityToUserDetailsDto(user);
   }
@@ -123,7 +138,10 @@ public class AdminService {
       }
       user.setAccountLocked(true);
       repo.saveAndFlush(user);
-      log.info("Blocked the account of user with id = {}", userToBlockId);
+      log.atInfo()
+              .addKeyValue("event_type", "account_blocked")
+              .addKeyValue("user_id", user.getId())
+              .log("Successfully blocked user account");
 
   }
 
@@ -132,14 +150,21 @@ public class AdminService {
         User user = queryService.findEntityByIdOrThrow(userToUnlockId);
         user.setAccountLocked(false);
         repo.saveAndFlush(user);
-        log.info("Unlocked the account of user with id = {}", userToUnlockId);
 
+        log.atInfo()
+                .addKeyValue("event_type", "account_unlocked")
+                .addKeyValue("user_id", user.getId())
+                .log("Successfully unlocked user account");
 
     }
   @Transactional
-  @LogDeleteEntityEvent(event = "USER_DELETED", loggerName = AdminService.class)
   public void deleteUser(Long id) {
     repo.delete(queryService.findEntityByIdOrThrow(id));
-    log.info("Delete user with id = {}", id);
+      log.atInfo()
+              .addKeyValue("event_type", "delete_user")
+              .addKeyValue("user_id", id)
+              .log("Successfully deleted user account");
+
+
   }
 }

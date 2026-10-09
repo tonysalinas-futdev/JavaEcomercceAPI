@@ -10,16 +10,19 @@ import com.example.ecommerce.order.models.Order;
 import com.example.ecommerce.order.models.OrderStatus;
 import com.example.ecommerce.order.service.OrderService;
 import com.example.ecommerce.order.utils.OrderPaginationCriteria;
+import com.example.ecommerce.products.exceptions.InsufficientStockException;
 import com.example.ecommerce.shared.utils.PaginationCriteria;
 import com.example.ecommerce.users.models.User;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -31,6 +34,12 @@ class TestOrderService {
   @Autowired private OrderService orderService;
   @Autowired private GlobalConftest globalConftest;
   @Autowired private CartService cartService;
+  @Autowired private RedisConnectionFactory factory;
+
+    @BeforeEach
+    void cleanRedis() {
+        factory.getConnection().serverCommands().flushDb();
+    }
 
   @Test
   @DisplayName(
@@ -46,6 +55,19 @@ class TestOrderService {
     assertEquals(3, order.orderDetails().size());
     assertEquals(OrderStatus.PENDING, order.status());
   }
+
+    @Test
+    public void shouldFailToCreateOrderWithProductLowStock() {
+        User user = globalConftest.createUser();
+        cartService.addItem(user.getId(), 16, 60);
+        cartService.addItem(user.getId(), 17, 5);
+
+        Assertions.assertThrows(InsufficientStockException.class,()-> orderService.createOrder(UUID.randomUUID(), user.getEmail()));
+
+
+
+
+    }
 
   @Test
   public void shouldSetNewStatus() {

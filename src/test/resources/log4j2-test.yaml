@@ -1,0 +1,33 @@
+status: WARN
+name: PropertiesConfig
+
+appenders:
+  Console:
+    name: Console
+    target: SYSTEM_OUT
+    JsonLayout:
+      complete: false
+      compact: false
+      eventEol: true
+      stacktraceAsString: true
+      objectMessageAsJsonObject: true
+      properties: true
+
+loggers:
+  logger:
+    - name: org.springframework
+      level: info
+      additivity: false
+      AppenderRef:
+        ref: Console
+
+    - name: org.hibernate
+      level: info
+      additivity: false
+      AppenderRef:
+        ref: Console
+
+  root:
+    level: info
+    AppenderRef:
+      ref: Console

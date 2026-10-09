@@ -59,7 +59,6 @@ public class OrderService {
     List<OrderDetails> orderDetailsList = new ArrayList<>();
     Order order =
         Order.builder().user(user).status(OrderStatus.PENDING).requestId(requestId).build();
-
     for (Map.Entry<Integer, Integer> item : products) {
       var product = productService.findByIdOrThrow(item.getKey().longValue());
       totalAmount += product.getPrice();
@@ -71,7 +70,14 @@ public class OrderService {
     order.setTotalAmount(totalAmount);
 
     repo.saveAndFlush(order);
-    log.info("Successfully created order: {}", order);
+    cartService.cleanItems(user.getId());
+    log.atInfo()
+            .addKeyValue("event_type", "order_created")
+            .addKeyValue("order_id", order.getId())
+            .addKeyValue("user_id", user.getId())
+            .addKeyValue("total_amount", totalAmount)
+            .log("Successfully created order");
+
 
     return mapper.entityToAllDetailsDTO(order);
   }
@@ -79,9 +85,16 @@ public class OrderService {
   @Transactional
   public Order setStatus(Long orderId, OrderStatus status) {
     Order order = findEntityByIdOrThrow(orderId);
+    String previousStatus = order.getStatus().toString();
     order.setStatus(status);
     repo.saveAndFlush(order);
-    log.info("Assigned status: {}, to order: {}", status.toString(), order);
+      log.atInfo()
+              .addKeyValue("event_type", "order_status_changed")
+              .addKeyValue("order_id", order.getId())
+              .addKeyValue("previous_status", previousStatus)
+              .addKeyValue("new_status", status.toString())
+              .log("Successfully changed order status");
+
     return order;
   }
 

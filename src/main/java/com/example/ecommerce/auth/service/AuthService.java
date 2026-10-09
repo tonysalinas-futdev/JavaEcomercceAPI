@@ -3,11 +3,9 @@ package com.example.ecommerce.auth.service;
 import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
-import com.example.ecommerce.auth.log.events.AuthLogEvents;
 import com.example.ecommerce.auth.model.Token;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
 import com.example.ecommerce.auth.utils.JwtTokenProvider;
-import com.example.ecommerce.logger.annotations.LogAuthEvent;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;
 import com.example.ecommerce.users.services.UserService;
@@ -36,7 +34,6 @@ public class AuthService {
   public final TokenValidationService validationService;
 
   @Transactional
-  @LogAuthEvent(event = AuthLogEvents.USER_LOGIN, loggerName = AuthService.class)
   public AuthResponseDTO login(@Valid LoginDTO dto) {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
@@ -44,21 +41,28 @@ public class AuthService {
     String accessToken = jwtTokenProvider.createAccessToken(user);
     String refreshToken = jwtTokenProvider.createRefreshToken(user);
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
-    log.info("User authenticated successfully. userId={}, email={}", user.getId(), user.getEmail());
+
+    log.atInfo()
+              .addKeyValue("event_type","user_authenticated")
+              .addKeyValue("user_id",user.getId())
+              .addKeyValue("user_email", user.getEmail())
+              .log("User authenticated successfully");
+
     return new AuthResponseDTO(accessToken, refreshToken);
   }
 
   @Transactional
-  @LogAuthEvent(event = AuthLogEvents.USER_REGISTER, loggerName = AuthService.class)
   public AuthResponseDTO signUp(@Valid SignUpDTO dto) {
     User user = userService.registerUser(dto);
     String accessToken = jwtTokenProvider.createAccessToken(user);
     String refreshToken = jwtTokenProvider.createRefreshToken(user);
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
-    log.info(
-        "User registered and authenticated successfully. userId={}, email={}",
-        user.getId(),
-        user.getEmail());
+      log.atInfo()
+              .addKeyValue("event_type","user_signed_up")
+              .addKeyValue("user_id",user.getId())
+              .addKeyValue("user_email", user.getEmail())
+              .log("User registered and authenticated successfully");
+
     return new AuthResponseDTO(accessToken, refreshToken);
   }
 
@@ -73,10 +77,12 @@ public class AuthService {
     String refreshToken = jwtTokenProvider.createRefreshToken(user);
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
 
-    log.info(
-        "Authentication tokens refreshed successfully. userId={}, email={}",
-        user.getId(),
-        user.getEmail());
+    log.atInfo()
+            .addKeyValue("event_type","token_refreshed")
+            .addKeyValue("user_id",user.getId())
+            .addKeyValue("user_email", user.getEmail())
+            .log("Authentication tokens refreshed successfully");
+
 
     return new AuthResponseDTO(accessToken, refreshToken);
   }

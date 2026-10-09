@@ -1,0 +1,61 @@
+server:
+  port: ${APPLICATION_PORT}
+
+spring:
+  config:
+    import:
+      - optional:file:.../../.env[.properties]
+      - optional:file:./.env[.properties]
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATABASE_TEST_URL}
+    username: ${DATABASE_USERNAME:user}
+    password: ${DATABASE_PASSWORD:password}
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+    defer-datasource-initialization: true
+
+  docker:
+    compose:
+      enabled: false
+
+  flyway:
+    enabled: false
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    timeout: ${REDIS_TIMEOUT}
+
+  cache:
+    type: none
+    redis:
+      cache-null-values: false
+
+  mail:
+    host: smtp.gmail.com
+    port: ${MAIL_PORT:587}
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
+  refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION:604800000}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+
+logging:
+  config: classpath:log4j2-test.yaml

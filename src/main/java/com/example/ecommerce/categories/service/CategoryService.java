@@ -4,12 +4,9 @@ import com.example.ecommerce.categories.categoryDTOs.CategoryDetailsDTO;
 import com.example.ecommerce.categories.categoryDTOs.CategoryListDTO;
 import com.example.ecommerce.categories.categoryDTOs.CreateCategoryDTO;
 import com.example.ecommerce.categories.categoryDTOs.UpdateCategoryDTO;
-import com.example.ecommerce.categories.logs.events.CategoryLogsEvents;
 import com.example.ecommerce.categories.mappers.CategoryMappers;
 import com.example.ecommerce.categories.model.Category;
 import com.example.ecommerce.categories.repository.CategoryRepository;
-import com.example.ecommerce.logger.annotations.LogCategoryEvent;
-import com.example.ecommerce.logger.annotations.LogDeleteEntityEvent;
 import com.example.ecommerce.shared.exceptions.AlreadyExistsException;
 import com.example.ecommerce.shared.exceptions.InvalidRequestException;
 import com.example.ecommerce.shared.exceptions.NotFoundException;
@@ -33,7 +30,6 @@ public class CategoryService {
   }
 
   @Transactional
-  @LogCategoryEvent(event = CategoryLogsEvents.CATEGORY_CREATED, loggerName = CategoryService.class)
   public CategoryDetailsDTO createCategory(CreateCategoryDTO dto) {
     if (repo.findByName(dto.name()).isPresent()) {
       throw new AlreadyExistsException("This name is already used");
@@ -41,7 +37,11 @@ public class CategoryService {
     Category category = mapper.createCategoryDTOtoEntity(dto);
 
     repo.saveAndFlush(category);
-    log.info("Successfully created category: {}", category);
+    log.atInfo()
+            .addKeyValue("event_type", "category_created")
+            .addKeyValue("category_id", category.getId())
+            .addKeyValue("category_name", category.getName())
+            .log("Successfully created category");
     return mapper.entityToCategoryDetailsDTO(category);
   }
 
@@ -57,7 +57,6 @@ public class CategoryService {
   }
 
   @Transactional
-  @LogCategoryEvent(event = CategoryLogsEvents.CATEGORY_CREATED, loggerName = CategoryService.class)
   public CategoryDetailsDTO updateCategory(UpdateCategoryDTO dto, Long categoryId) {
     if (dto.getName() != null) {
       validateCategoryNameUniqueness(dto.getName());
@@ -67,7 +66,12 @@ public class CategoryService {
 
     repo.saveAndFlush(category);
 
-    log.info("Successfully updated category: {}", category);
+      log.atInfo()
+              .addKeyValue("event_type", "category_updated")
+              .addKeyValue("category_id", category.getId())
+              .addKeyValue("category_name", category.getName())
+              .log("Successfully updated category");
+
     return mapper.entityToCategoryDetailsDTO(category);
   }
 
@@ -78,7 +82,6 @@ public class CategoryService {
   }
 
   @Transactional
-  @LogDeleteEntityEvent(event = "CATEGORY_DELETED", loggerName = CategoryService.class)
   public void deleteCategory(Long categoryId) {
     Category category = getEntityByIdOrThrow(categoryId);
     if (!category.getProducts().isEmpty()) {
@@ -86,6 +89,9 @@ public class CategoryService {
           "You cannot delete this category because it has associated products");
     }
     repo.delete(category);
-    log.info("Deleted category with id = {}", categoryId);
+      log.atInfo()
+              .addKeyValue("event_type", "category_deleted")
+              .addKeyValue("category_id", categoryId)
+              .log("Successfully deleted category");
   }
 }

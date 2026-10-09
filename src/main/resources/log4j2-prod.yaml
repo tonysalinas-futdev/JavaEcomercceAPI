@@ -1,0 +1,34 @@
+Configuration:
+  status: WARN
+
+  Appenders:
+
+    RollingFile:
+      name: RollingFile
+      fileName: logs/application.log
+      filePattern: logs/application-%d{yyyy-MM-dd}-%i.log.gz
+
+      JsonTemplateLayout:
+        compact: true
+        eventEol: true
+        stacktraceAsString: true
+        objectMessageAsJsonObject: true
+        properties: true
+
+      Policies:
+        TimeBasedTriggeringPolicy:
+          interval: 1
+          modulate: true
+
+        SizeBasedTriggeringPolicy:
+          size: 10 MB
+
+      DefaultRolloverStrategy:
+        max: 30
+
+  Loggers:
+
+    Root:
+      level: INFO
+      AppenderRef:
+        ref: RollingFile

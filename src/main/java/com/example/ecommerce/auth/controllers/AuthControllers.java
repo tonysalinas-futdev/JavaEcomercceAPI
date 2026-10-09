@@ -30,7 +30,6 @@ public class AuthControllers {
     ResponseCookie accessCookie = cookieBuilder.buildAccessTokenCookie(tokens);
     ResponseCookie refreshCookie = cookieBuilder.buildRefreshTokenCookie(tokens);
 
-    ThreadContext.putAll(Map.of("use_case", "register_user", "entity", "user"));
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
         .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
@@ -44,7 +43,7 @@ public class AuthControllers {
     AuthResponseDTO tokens = service.login(dto);
     ResponseCookie accessCookie = cookieBuilder.buildAccessTokenCookie(tokens);
     ResponseCookie refreshCookie = cookieBuilder.buildRefreshTokenCookie(tokens);
-    ThreadContext.putAll(Map.of("use_case", "user_login", "entity", "user"));
+
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
         .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
@@ -59,7 +58,7 @@ public class AuthControllers {
     AuthResponseDTO authResponseDTO = service.refreshToken(refreshToken);
     ResponseCookie accessCookie = cookieBuilder.buildAccessTokenCookie(authResponseDTO);
     ResponseCookie refreshCookie = cookieBuilder.buildRefreshTokenCookie(authResponseDTO);
-    ThreadContext.putAll(Map.of("use_case", "refresh_token", "entity", "user"));
+
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
         .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
