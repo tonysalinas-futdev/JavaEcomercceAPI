@@ -10,9 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -31,12 +29,13 @@ public class LoggingMiddleware implements Filter {
     HttpServletResponse httpResponse = (HttpServletResponse) response;
 
     String user = "anonymous";
-    if (SecurityContextHolder.getContext().getAuthentication()!= null){
-        user = SecurityContextHolder.getContext().getAuthentication().getName();}
+    if (SecurityContextHolder.getContext().getAuthentication() != null) {
+      user = SecurityContextHolder.getContext().getAuthentication().getName();
+    }
 
     String method = httpRequest.getMethod();
     String uri = httpRequest.getRequestURI();
-      ThreadContext.put("request_user_email",user);
+    ThreadContext.put("request_user_email", user);
     try {
       chain.doFilter(request, response);
 
@@ -48,14 +47,13 @@ public class LoggingMiddleware implements Filter {
 
       Duration totalTime = Duration.between(start, end);
 
-        log.atInfo()
-                .addKeyValue("method", method)
-                .addKeyValue("uri", uri)
-                .addKeyValue("ip", request.getRemoteAddr())
-                .addKeyValue("duration", totalTime.toMillis())
-                .addKeyValue("status", status)
-                .log( "HTTP request successfully completed");
-
+      log.atInfo()
+          .addKeyValue("method", method)
+          .addKeyValue("uri", uri)
+          .addKeyValue("ip", request.getRemoteAddr())
+          .addKeyValue("duration", totalTime.toMillis())
+          .addKeyValue("status", status)
+          .log("HTTP request successfully completed");
     }
   }
 }

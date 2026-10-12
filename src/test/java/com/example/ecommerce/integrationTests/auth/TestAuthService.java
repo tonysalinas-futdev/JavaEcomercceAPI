@@ -6,9 +6,7 @@ import com.example.ecommerce.auth.dtos.AuthResponseDTO;
 import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.auth.service.AuthService;
-import com.example.ecommerce.auth.service.TokenService;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
-import com.example.ecommerce.auth.utils.JwtTokenProvider;
 import com.example.ecommerce.users.dtos.CreateUserDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.models.User;
@@ -22,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -39,16 +36,16 @@ public class TestAuthService {
   @Autowired private AdminService service;
   @Autowired private UserRepository userRepository;
 
+  public User getSavedUserForTest() {
+    CreateUserDTO data =
+        CreateUserDTO.builder()
+            .name("Juan Antonio Chao Salinas")
+            .role(RoleEnum.USER)
+            .password("12345Abc#")
+            .email("tony@gmail.com")
+            .build();
 
-  public User getSavedUserForTest(){
-      CreateUserDTO data = CreateUserDTO.builder()
-              .name("Juan Antonio Chao Salinas")
-              .role(RoleEnum.USER)
-              .password("12345Abc#")
-              .email("tony@gmail.com")
-              .build();
-
-      return service.createUserByAdmin(data);
+    return service.createUserByAdmin(data);
   }
 
   @Test
@@ -77,20 +74,18 @@ public class TestAuthService {
         });
   }
 
-    @Test
-    public void shouldFailLoginWhenAccountIsLocked() {
-        User user = getSavedUserForTest();
-        user.setAccountLocked(true);
-        userRepository.save(user);
+  @Test
+  public void shouldFailLoginWhenAccountIsLocked() {
+    User user = getSavedUserForTest();
+    user.setAccountLocked(true);
+    userRepository.save(user);
 
-        assertThrows(
-                LockedException.class,
-                () -> {
-                    authService.login(new LoginDTO("tony@gmail.com", "12345Abc#"));
-                });
-    }
-
-
+    assertThrows(
+        LockedException.class,
+        () -> {
+          authService.login(new LoginDTO("tony@gmail.com", "12345Abc#"));
+        });
+  }
 
   @Test
   public void shouldCreateUserAndReturnAccessTokenWithCorrectInfoWhenSignUp() {

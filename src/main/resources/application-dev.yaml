@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DATABASE_URL}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ecommerce_db}
     username: ${DATABASE_USERNAME:user}
     password: ${DATABASE_PASSWORD:password}
 
@@ -38,7 +38,7 @@ spring:
   flyway:
     user: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
-    url: ${DATABASE_URL}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ecommerce_db}
     locations: classpath:db/migration
     baseline-on-migrate: true
 
@@ -52,3 +52,20 @@ jwt:
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server:
+          requests: true

@@ -80,17 +80,15 @@ public class AdminControllers {
 
   @PutMapping("/{id}/lock")
   @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_USER')")
-  public ResponseEntity<Void> lockAccount(
-          @PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
-      service.blockAccount(jwt.getClaim("id"),id);
-        return ResponseEntity.ok().build();
-    }
+  public ResponseEntity<Void> lockAccount(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+    service.blockAccount(jwt.getClaim("id"), id);
+    return ResponseEntity.ok().build();
+  }
 
-    @PutMapping("/{id}/unlock")
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_USER')")
-    public ResponseEntity<Void> unlockAccount(
-            @PathVariable Long id) {
-        service.unlockAccount(id);
-        return ResponseEntity.ok().build();
-    }
+  @PutMapping("/{id}/unlock")
+  @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_USER')")
+  public ResponseEntity<Void> unlockAccount(@PathVariable Long id) {
+    service.unlockAccount(id);
+    return ResponseEntity.ok().build();
+  }
 }

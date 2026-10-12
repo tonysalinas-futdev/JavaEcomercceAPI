@@ -3,7 +3,6 @@ package com.example.ecommerce.products.utils;
 import com.example.ecommerce.products.exceptions.InsufficientStockException;
 import com.example.ecommerce.products.exceptions.ProductUnavailableException;
 import com.example.ecommerce.products.model.Product;
-import com.example.ecommerce.shared.exceptions.InvalidRequestException;
 
 public class ProductValidator {
 

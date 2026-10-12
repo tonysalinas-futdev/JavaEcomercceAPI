@@ -34,10 +34,7 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/api/v1/auth/**")
                     .permitAll()
-                    .requestMatchers("swagger-ui/**")
-                    .permitAll()
-                    .requestMatchers("/v3/api-docs/**")
-                    .permitAll()
+
                     .requestMatchers(HttpMethod.GET, "/api/v1/products/*")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/products/")
@@ -48,6 +45,13 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/categories/*")
                     .permitAll()
+                        .requestMatchers(    "/api/v1/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/actuator",
+                                "/actuator/**")
+                        .permitAll()
                     .requestMatchers("/api/v1/users/**")
                     .authenticated()
                     .requestMatchers(HttpMethod.PUT, "/api/v1/users/*")
@@ -63,7 +67,6 @@ public class SecurityConfig {
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(exceptionHandlerFilter, JwtAuthFilter.class);
-
 
     return http.build();
   }

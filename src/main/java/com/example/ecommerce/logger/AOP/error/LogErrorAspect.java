@@ -1,13 +1,10 @@
 package com.example.ecommerce.logger.AOP.error;
 
 import com.example.ecommerce.shared.exceptions.BasicException;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
 @Aspect
@@ -27,14 +24,13 @@ public class LogErrorAspect {
     String className = jp.getSignature().getDeclaringTypeName();
     String methodName = jp.getSignature().getName();
 
-      var logger = ex instanceof BasicException ? log.atWarn() : log.atError();
-      logger
-              .addKeyValue("class_name", className)
-              .addKeyValue("method_name", methodName)
-              .addKeyValue("exception_type", ex.getClass().getName())
-              .setCause(ex)
-              .setMessage(ex.getMessage())
-              .log();
-    }
+    var logger = ex instanceof BasicException ? log.atWarn() : log.atError();
+    logger
+        .addKeyValue("class_name", className)
+        .addKeyValue("method_name", methodName)
+        .addKeyValue("exception_type", ex.getClass().getName())
+        .setCause(ex)
+        .setMessage(ex.getMessage())
+        .log();
   }
-
+}

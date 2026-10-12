@@ -3,8 +3,6 @@ package com.example.ecommerce.users.utils;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.users.models.User;
 import jakarta.validation.Valid;
-import org.springframework.stereotype.Service;
-
 
 public class BuilderUserUtil {
 

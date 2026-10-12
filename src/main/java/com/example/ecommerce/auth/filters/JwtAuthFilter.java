@@ -1,10 +1,8 @@
 package com.example.ecommerce.auth.filters;
 
 import com.example.ecommerce.auth.exceptions.InvalidTokenException;
-import com.example.ecommerce.auth.service.TokenValidationService;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
 import com.example.ecommerce.auth.utils.TokenExtractor;
-import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -13,8 +11,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -41,28 +37,32 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
-    if (request.getServletPath().contains("/auth")
-        || request.getServletPath().contains("/actuator")) {
-      filterChain.doFilter(request, response);
-      return;
-    }
 
-    String tokenValue = TokenExtractor.extract(request.getHeader(HttpHeaders.AUTHORIZATION));
-      Claims payload;
-      try {
-          payload = parser.parse(tokenValue);
-      } catch (ExpiredJwtException ex) {
-          payload = ex.getClaims();
+    String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+      if (authHeader == null || authHeader.isBlank()) {
+          filterChain.doFilter(request, response);
+          return;
+      }
+      String tokenValue = TokenExtractor.extract(request.getHeader(HttpHeaders.AUTHORIZATION));
 
-          if ("access_token".equals(payload.get("token_type"))) {
-              userRepository.findUserByEmail(payload.getSubject()).ifPresent(user -> {
+    Claims payload;
+    try {
+      payload = parser.parse(tokenValue);
+    } catch (ExpiredJwtException ex) {
+      payload = ex.getClaims();
+
+      if ("access_token".equals(payload.get("token_type"))) {
+        userRepository
+            .findUserByEmail(payload.getSubject())
+            .ifPresent(
+                user -> {
                   user.setCredentialsExpired(true);
                   userRepository.save(user);
                   log.info("Assigned credentials expired to user with id:{}", user.getId());
-              });
-          }
-          throw new InvalidTokenException("Token Expired");
+                });
       }
+      throw new InvalidTokenException("Token Expired");
+    }
 
     UserDetails userDetails = this.userDetailsService.loadUserByUsername(payload.getSubject());
 
@@ -74,4 +74,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     filterChain.doFilter(request, response);
   }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        return path.startsWith("/api/v1/auth/")
+                || path.startsWith("/actuator/")
+                || path.equals("/actuator")
+                || path.startsWith("/swagger-ui/")
+                || path.equals("/swagger-ui.html")
+                || path.startsWith("/v3/api-docs/");
+    }
 }

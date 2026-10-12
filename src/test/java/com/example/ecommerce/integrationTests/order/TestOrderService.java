@@ -36,10 +36,10 @@ class TestOrderService {
   @Autowired private CartService cartService;
   @Autowired private RedisConnectionFactory factory;
 
-    @BeforeEach
-    void cleanRedis() {
-        factory.getConnection().serverCommands().flushDb();
-    }
+  @BeforeEach
+  void cleanRedis() {
+    factory.getConnection().serverCommands().flushDb();
+  }
 
   @Test
   @DisplayName(
@@ -56,18 +56,16 @@ class TestOrderService {
     assertEquals(OrderStatus.PENDING, order.status());
   }
 
-    @Test
-    public void shouldFailToCreateOrderWithProductLowStock() {
-        User user = globalConftest.createUser();
-        cartService.addItem(user.getId(), 16, 60);
-        cartService.addItem(user.getId(), 17, 5);
+  @Test
+  public void shouldFailToCreateOrderWithProductLowStock() {
+    User user = globalConftest.createUser();
+    cartService.addItem(user.getId(), 16, 60);
+    cartService.addItem(user.getId(), 17, 5);
 
-        Assertions.assertThrows(InsufficientStockException.class,()-> orderService.createOrder(UUID.randomUUID(), user.getEmail()));
-
-
-
-
-    }
+    Assertions.assertThrows(
+        InsufficientStockException.class,
+        () -> orderService.createOrder(UUID.randomUUID(), user.getEmail()));
+  }
 
   @Test
   public void shouldSetNewStatus() {

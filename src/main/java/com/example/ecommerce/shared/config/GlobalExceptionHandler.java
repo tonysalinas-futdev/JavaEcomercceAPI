@@ -112,13 +112,13 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
   }
 
-    @ExceptionHandler(CredentialsExpiredException.class)
-    public ResponseEntity<ErrorResponseDTO> handleCredentialsExpiredException(
-            HttpServletRequest request, Exception ex) {
-        ErrorResponseDTO error =
-                new ErrorResponseDTO(ex.getMessage(), request.getRequestURL().toString());
-        return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
-    }
+  @ExceptionHandler(CredentialsExpiredException.class)
+  public ResponseEntity<ErrorResponseDTO> handleCredentialsExpiredException(
+      HttpServletRequest request, Exception ex) {
+    ErrorResponseDTO error =
+        new ErrorResponseDTO(ex.getMessage(), request.getRequestURL().toString());
+    return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.UNAUTHORIZED);
+  }
 
   @ExceptionHandler(DataAccessException.class)
   public ResponseEntity<ErrorResponseDTO> handleDataAccessException(
@@ -130,9 +130,9 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(AdminOperationException.class)
   public ResponseEntity<ErrorResponseDTO> handleAdminOperationException(
-            HttpServletRequest request, AdminOperationException ex) {
-        ErrorResponseDTO error =
-                new ErrorResponseDTO("Try again with correct data", request.getRequestURL().toString());
-        return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.BAD_REQUEST);
-    }
+      HttpServletRequest request, AdminOperationException ex) {
+    ErrorResponseDTO error =
+        new ErrorResponseDTO("Try again with correct data", request.getRequestURL().toString());
+    return new ResponseEntity<ErrorResponseDTO>(error, HttpStatus.BAD_REQUEST);
+  }
 }

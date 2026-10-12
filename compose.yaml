@@ -12,7 +12,72 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+    networks:
+      - redis
+
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-17}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME:-user}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD_PASSWORD:-admin}
+      POSTGRES_DB: ecommerce_db
+
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -c '</dev/tcp/${POSTGRES_HOST:-localhost}/${POSTGRES_PORT:-5432}'" ]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - postgres
+
+  application:
+    ports:
+      - "8080:8080"
+    container_name: ecommerce-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    env_file:
+      - .env
+    environment:
+        REDIS_HOST: redis
+        DATABASE_HOST: postgres
+        ACTIVE_PROFILE: prod
+
+
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "curl -f http://localhost:8080/actuator/health || exit 1"
+      ]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+
+    networks:
+      - postgres
+      - redis
+
 
 volumes:
   redis_data:
+  pg_data:
+
+networks:
+  postgres:
+  redis:
 

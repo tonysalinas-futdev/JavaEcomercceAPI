@@ -49,11 +49,11 @@ public class AdminService {
     newUser.getRoles().add(role);
     repo.saveAndFlush(newUser);
     log.atInfo()
-            .addKeyValue("event_type", "user_created_by_admin")
-            .addKeyValue("user_id", newUser.getId())
-            .addKeyValue("email", newUser.getEmail())
-            .addKeyValue("roles", newUser.getRoles())
-            .log("Successfully created user");
+        .addKeyValue("event_type", "user_created_by_admin")
+        .addKeyValue("user_id", newUser.getId())
+        .addKeyValue("email", newUser.getEmail())
+        .addKeyValue("roles", newUser.getRoles())
+        .log("Successfully created user");
 
     return newUser;
   }
@@ -71,12 +71,11 @@ public class AdminService {
     user.getRoles().add(roleToAdd);
     repo.saveAndFlush(user);
 
-      log.atInfo()
-              .addKeyValue("event_type", "added_role_to_user")
-              .addKeyValue("user_id", user.getId())
-              .addKeyValue("added_role", role.toString())
-              .log("Successfully added new role to user");
-
+    log.atInfo()
+        .addKeyValue("event_type", "added_role_to_user")
+        .addKeyValue("user_id", user.getId())
+        .addKeyValue("added_role", role.toString())
+        .log("Successfully added new role to user");
   }
 
   @Transactional
@@ -88,12 +87,11 @@ public class AdminService {
     removeUserRoleConditionals(adminUser, user, roleToAdd);
     user.getRoles().removeIf(r -> r.getRoleEnum().equals(role));
     repo.saveAndFlush(user);
-      log.atInfo()
-              .addKeyValue("event_type", "user_role_removed")
-              .addKeyValue("user_id", user.getId())
-              .addKeyValue("removed_role", role.toString())
-              .log("Successfully removed role from user");
-
+    log.atInfo()
+        .addKeyValue("event_type", "user_role_removed")
+        .addKeyValue("user_id", user.getId())
+        .addKeyValue("removed_role", role.toString())
+        .log("Successfully removed role from user");
   }
 
   public void removeUserRoleConditionals(User adminUser, User user, Role role) {
@@ -119,52 +117,48 @@ public class AdminService {
 
     User user = mapper.updateUserDTOToEntity(dto, queryService.findEntityByIdOrThrow(id));
     repo.save(user);
-      log.atInfo()
-              .addKeyValue("event_type", "updated_user")
-              .addKeyValue("user_id", user.getId())
-              .log("Successfully updated user");
+    log.atInfo()
+        .addKeyValue("event_type", "updated_user")
+        .addKeyValue("user_id", user.getId())
+        .log("Successfully updated user");
 
     return mapper.entityToUserDetailsDto(user);
   }
 
-  public void blockAccount(Long adminId, Long userToBlockId)
-  {
-      User user = queryService.findEntityByIdOrThrow(userToBlockId);
-      User adminUser = queryService.findEntityByIdOrThrow(adminId);
+  public void blockAccount(Long adminId, Long userToBlockId) {
+    User user = queryService.findEntityByIdOrThrow(userToBlockId);
+    User adminUser = queryService.findEntityByIdOrThrow(adminId);
 
-      if (adminUser.getCreatedAt().isAfter(user.getCreatedAt()) && user.getRoles().stream().anyMatch(r->r.getRoleEnum().equals(RoleEnum.ADMIN))
-              && user.getRoles().stream().anyMatch(r -> r.getRoleEnum().equals(RoleEnum.ADMIN))) {
-          throw new AdminOperationException("You cannot block the account of a former admin");
-      }
-      user.setAccountLocked(true);
-      repo.saveAndFlush(user);
-      log.atInfo()
-              .addKeyValue("event_type", "account_blocked")
-              .addKeyValue("user_id", user.getId())
-              .log("Successfully blocked user account");
-
+    if (adminUser.getCreatedAt().isAfter(user.getCreatedAt())
+        && user.getRoles().stream().anyMatch(r -> r.getRoleEnum().equals(RoleEnum.ADMIN))
+        && user.getRoles().stream().anyMatch(r -> r.getRoleEnum().equals(RoleEnum.ADMIN))) {
+      throw new AdminOperationException("You cannot block the account of a former admin");
+    }
+    user.setAccountLocked(true);
+    repo.saveAndFlush(user);
+    log.atInfo()
+        .addKeyValue("event_type", "account_blocked")
+        .addKeyValue("user_id", user.getId())
+        .log("Successfully blocked user account");
   }
 
-    public void unlockAccount(Long userToUnlockId)
-    {
-        User user = queryService.findEntityByIdOrThrow(userToUnlockId);
-        user.setAccountLocked(false);
-        repo.saveAndFlush(user);
+  public void unlockAccount(Long userToUnlockId) {
+    User user = queryService.findEntityByIdOrThrow(userToUnlockId);
+    user.setAccountLocked(false);
+    repo.saveAndFlush(user);
 
-        log.atInfo()
-                .addKeyValue("event_type", "account_unlocked")
-                .addKeyValue("user_id", user.getId())
-                .log("Successfully unlocked user account");
+    log.atInfo()
+        .addKeyValue("event_type", "account_unlocked")
+        .addKeyValue("user_id", user.getId())
+        .log("Successfully unlocked user account");
+  }
 
-    }
   @Transactional
   public void deleteUser(Long id) {
     repo.delete(queryService.findEntityByIdOrThrow(id));
-      log.atInfo()
-              .addKeyValue("event_type", "delete_user")
-              .addKeyValue("user_id", id)
-              .log("Successfully deleted user account");
-
-
+    log.atInfo()
+        .addKeyValue("event_type", "delete_user")
+        .addKeyValue("user_id", id)
+        .log("Successfully deleted user account");
   }
 }

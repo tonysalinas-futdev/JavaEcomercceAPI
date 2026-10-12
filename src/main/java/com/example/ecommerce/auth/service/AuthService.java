@@ -43,10 +43,10 @@ public class AuthService {
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
 
     log.atInfo()
-              .addKeyValue("event_type","user_authenticated")
-              .addKeyValue("user_id",user.getId())
-              .addKeyValue("user_email", user.getEmail())
-              .log("User authenticated successfully");
+        .addKeyValue("event_type", "user_authenticated")
+        .addKeyValue("user_id", user.getId())
+        .addKeyValue("user_email", user.getEmail())
+        .log("User authenticated successfully");
 
     return new AuthResponseDTO(accessToken, refreshToken);
   }
@@ -57,11 +57,11 @@ public class AuthService {
     String accessToken = jwtTokenProvider.createAccessToken(user);
     String refreshToken = jwtTokenProvider.createRefreshToken(user);
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
-      log.atInfo()
-              .addKeyValue("event_type","user_signed_up")
-              .addKeyValue("user_id",user.getId())
-              .addKeyValue("user_email", user.getEmail())
-              .log("User registered and authenticated successfully");
+    log.atInfo()
+        .addKeyValue("event_type", "user_signed_up")
+        .addKeyValue("user_id", user.getId())
+        .addKeyValue("user_email", user.getEmail())
+        .log("User registered and authenticated successfully");
 
     return new AuthResponseDTO(accessToken, refreshToken);
   }
@@ -78,11 +78,10 @@ public class AuthService {
     tokenService.saveUserTokenAndDeletePrevious(user, refreshToken);
 
     log.atInfo()
-            .addKeyValue("event_type","token_refreshed")
-            .addKeyValue("user_id",user.getId())
-            .addKeyValue("user_email", user.getEmail())
-            .log("Authentication tokens refreshed successfully");
-
+        .addKeyValue("event_type", "token_refreshed")
+        .addKeyValue("user_id", user.getId())
+        .addKeyValue("user_email", user.getEmail())
+        .log("Authentication tokens refreshed successfully");
 
     return new AuthResponseDTO(accessToken, refreshToken);
   }

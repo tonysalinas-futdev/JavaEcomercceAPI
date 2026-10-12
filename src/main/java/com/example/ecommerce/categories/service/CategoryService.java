@@ -38,10 +38,10 @@ public class CategoryService {
 
     repo.saveAndFlush(category);
     log.atInfo()
-            .addKeyValue("event_type", "category_created")
-            .addKeyValue("category_id", category.getId())
-            .addKeyValue("category_name", category.getName())
-            .log("Successfully created category");
+        .addKeyValue("event_type", "category_created")
+        .addKeyValue("category_id", category.getId())
+        .addKeyValue("category_name", category.getName())
+        .log("Successfully created category");
     return mapper.entityToCategoryDetailsDTO(category);
   }
 
@@ -66,11 +66,11 @@ public class CategoryService {
 
     repo.saveAndFlush(category);
 
-      log.atInfo()
-              .addKeyValue("event_type", "category_updated")
-              .addKeyValue("category_id", category.getId())
-              .addKeyValue("category_name", category.getName())
-              .log("Successfully updated category");
+    log.atInfo()
+        .addKeyValue("event_type", "category_updated")
+        .addKeyValue("category_id", category.getId())
+        .addKeyValue("category_name", category.getName())
+        .log("Successfully updated category");
 
     return mapper.entityToCategoryDetailsDTO(category);
   }
@@ -89,9 +89,9 @@ public class CategoryService {
           "You cannot delete this category because it has associated products");
     }
     repo.delete(category);
-      log.atInfo()
-              .addKeyValue("event_type", "category_deleted")
-              .addKeyValue("category_id", categoryId)
-              .log("Successfully deleted category");
+    log.atInfo()
+        .addKeyValue("event_type", "category_deleted")
+        .addKeyValue("category_id", categoryId)
+        .log("Successfully deleted category");
   }
 }

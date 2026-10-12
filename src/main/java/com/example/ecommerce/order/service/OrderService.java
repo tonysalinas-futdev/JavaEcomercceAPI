@@ -72,12 +72,11 @@ public class OrderService {
     repo.saveAndFlush(order);
     cartService.cleanItems(user.getId());
     log.atInfo()
-            .addKeyValue("event_type", "order_created")
-            .addKeyValue("order_id", order.getId())
-            .addKeyValue("user_id", user.getId())
-            .addKeyValue("total_amount", totalAmount)
-            .log("Successfully created order");
-
+        .addKeyValue("event_type", "order_created")
+        .addKeyValue("order_id", order.getId())
+        .addKeyValue("user_id", user.getId())
+        .addKeyValue("total_amount", totalAmount)
+        .log("Successfully created order");
 
     return mapper.entityToAllDetailsDTO(order);
   }
@@ -88,12 +87,12 @@ public class OrderService {
     String previousStatus = order.getStatus().toString();
     order.setStatus(status);
     repo.saveAndFlush(order);
-      log.atInfo()
-              .addKeyValue("event_type", "order_status_changed")
-              .addKeyValue("order_id", order.getId())
-              .addKeyValue("previous_status", previousStatus)
-              .addKeyValue("new_status", status.toString())
-              .log("Successfully changed order status");
+    log.atInfo()
+        .addKeyValue("event_type", "order_status_changed")
+        .addKeyValue("order_id", order.getId())
+        .addKeyValue("previous_status", previousStatus)
+        .addKeyValue("new_status", status.toString())
+        .log("Successfully changed order status");
 
     return order;
   }

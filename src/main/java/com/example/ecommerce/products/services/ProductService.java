@@ -50,11 +50,11 @@ public class ProductService {
 
     productRepo.saveAndFlush(product);
     log.atInfo()
-            .addKeyValue("event_type","product_stock_updated")
-            .addKeyValue("product_id",productId)
-            .addKeyValue("previous_stock", previousStock)
-            .addKeyValue("new stock", stock)
-            .log("Product stock updated successfully");
+        .addKeyValue("event_type", "product_stock_updated")
+        .addKeyValue("product_id", productId)
+        .addKeyValue("previous_stock", previousStock)
+        .addKeyValue("new stock", stock)
+        .log("Product stock updated successfully");
 
     return productMapper.productToDetailsDTO(product);
   }
@@ -71,13 +71,13 @@ public class ProductService {
     productRepo.saveAndFlush(newProduct);
 
     log.atInfo()
-              .addKeyValue("event_type","product_created")
-              .addKeyValue("product_id",newProduct.getId())
-              .addKeyValue("product_name", newProduct.getName())
-              .addKeyValue("category_id", category.getId())
-              .addKeyValue("price",newProduct.getPrice())
-              .addKeyValue("stock", newProduct.getStock())
-              .log("Product created successfully");
+        .addKeyValue("event_type", "product_created")
+        .addKeyValue("product_id", newProduct.getId())
+        .addKeyValue("product_name", newProduct.getName())
+        .addKeyValue("category_id", category.getId())
+        .addKeyValue("price", newProduct.getPrice())
+        .addKeyValue("stock", newProduct.getStock())
+        .log("Product created successfully");
 
     return productMapper.productToDetailsDTO(newProduct);
   }
@@ -114,16 +114,15 @@ public class ProductService {
     if (productRepo.getByName(dto.name()).isPresent()) {
       throw new AlreadyExistsException("Product already exists");
     }
-    Product updatedProduct = productMapper.updateEntity(dto,findByIdOrThrow(id));
+    Product updatedProduct = productMapper.updateEntity(dto, findByIdOrThrow(id));
 
     productRepo.saveAndFlush(updatedProduct);
-      log.atInfo()
-              .addKeyValue("event_type","product_updated")
-              .addKeyValue("product_id",updatedProduct.getId())
-              .log("Product updated successfully");
+    log.atInfo()
+        .addKeyValue("event_type", "product_updated")
+        .addKeyValue("product_id", updatedProduct.getId())
+        .log("Product updated successfully");
 
-
-      return productMapper.productToDetailsDTO(updatedProduct);
+    return productMapper.productToDetailsDTO(updatedProduct);
   }
 
   @Transactional
@@ -136,13 +135,12 @@ public class ProductService {
     product.setCategory(category);
 
     productRepo.save(product);
-      log.atInfo()
-              .addKeyValue("event_type","product_category_updated")
-              .addKeyValue("product_id",product.getId())
-              .addKeyValue("previous_category_id",previousCategoryId)
-              .addKeyValue("new_category_id",product.getCategory().getId())
-              .log("Product category updated successfully");
-
+    log.atInfo()
+        .addKeyValue("event_type", "product_category_updated")
+        .addKeyValue("product_id", product.getId())
+        .addKeyValue("previous_category_id", previousCategoryId)
+        .addKeyValue("new_category_id", product.getCategory().getId())
+        .log("Product category updated successfully");
 
     return productMapper.productToDetailsDTO(product);
   }
