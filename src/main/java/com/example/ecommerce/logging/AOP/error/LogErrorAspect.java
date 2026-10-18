@@ -1,4 +1,4 @@
-package com.example.ecommerce.logger.AOP.error;
+package com.example.ecommerce.logging.AOP.error;
 
 import com.example.ecommerce.shared.exceptions.BasicException;
 import lombok.extern.slf4j.Slf4j;

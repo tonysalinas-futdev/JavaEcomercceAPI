@@ -41,7 +41,7 @@ spring:
   flyway:
     user: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ecommerce_db}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DATABASE_NAME:ecommerce_db}
     locations: classpath:db/migration
     baseline-on-migrate: true
 
@@ -55,3 +55,6 @@ jwt:
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}
+
+logging:
+  config: classpath:log4j2-prod.yaml

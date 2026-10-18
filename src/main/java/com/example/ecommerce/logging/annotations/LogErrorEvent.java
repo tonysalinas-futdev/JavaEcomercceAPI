@@ -1,4 +1,4 @@
-package com.example.ecommerce.logger.annotations;
+package com.example.ecommerce.logging.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

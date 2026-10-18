@@ -1,4 +1,4 @@
-package com.example.ecommerce.logger.filters;
+package com.example.ecommerce.logging.filters;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

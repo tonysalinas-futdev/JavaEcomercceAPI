@@ -1,6 +1,6 @@
 services:
   redis:
-    image: redis:latest
+    image: redis:${REDIS_VERSION:latest}
     container_name: ecomercce-redis
     ports:
       - "${REDIS_PORT:-6379}:6379"
@@ -17,6 +17,7 @@ services:
 
   postgres:
     image: postgres:${POSTGRES_VERSION:-17}
+    container_name: ecommerce_postgres_container
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
 
@@ -25,8 +26,6 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD_PASSWORD:-admin}
       POSTGRES_DB: ecommerce_db
 
-    env_file:
-      - .env
     healthcheck:
       test: [ "CMD-SHELL", "bash -c '</dev/tcp/${POSTGRES_HOST:-localhost}/${POSTGRES_PORT:-5432}'" ]
       interval: 10s
@@ -56,7 +55,7 @@ services:
     environment:
         REDIS_HOST: redis
         DATABASE_HOST: postgres
-        ACTIVE_PROFILE: prod
+        ACTIVE_PROFILE: ${ACTIVE_PROFILE:dev}
 
 
     healthcheck:

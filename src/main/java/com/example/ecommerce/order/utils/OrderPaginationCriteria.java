@@ -16,8 +16,4 @@ public enum OrderPaginationCriteria implements SortCriterion {
     this.attributeName = attributeName;
   }
 
-  @Override
-  public String getDefaultValue() {
-    return ID.toString();
-  }
 }

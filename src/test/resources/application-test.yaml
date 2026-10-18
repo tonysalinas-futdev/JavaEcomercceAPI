@@ -9,13 +9,13 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ecommerce_db}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DATABASE_TEST_NAME:ecommerce_test_db}
     username: ${DATABASE_USERNAME:user}
-    password: ${DATABASE_PASSWORD:password}
+    password: ${DATABASE_PASSWORD:admin}
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
     show-sql: false
     defer-datasource-initialization: true
 

@@ -6,12 +6,8 @@ appenders:
     name: Console
     target: SYSTEM_OUT
     JsonTemplateLayout:
-      complete: false
-      compact: true
-      eventEol: true
-      stacktraceAsString: true
-      objectMessageAsJsonObject: true
-      properties: true
+      eventTemplateUri:
+        "classpath:EcsLayout.json"
 
 loggers:
   logger:

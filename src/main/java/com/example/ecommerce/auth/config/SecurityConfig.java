@@ -2,7 +2,7 @@ package com.example.ecommerce.auth.config;
 
 import com.example.ecommerce.auth.filters.ExceptionHandlerFilter;
 import com.example.ecommerce.auth.filters.JwtAuthFilter;
-import com.example.ecommerce.logger.filters.LoggingMiddleware;
+import com.example.ecommerce.logging.filters.LoggingMiddleware;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,8 +34,7 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/api/v1/auth/**")
                     .permitAll()
-
-                    .requestMatchers(HttpMethod.GET, "/api/v1/products/*")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/products/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/products/")
                     .permitAll()
@@ -43,15 +42,16 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/categories/")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/categories/*")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/categories/**")
                     .permitAll()
-                        .requestMatchers(    "/api/v1/auth/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/actuator",
-                                "/actuator/**")
-                        .permitAll()
+                    .requestMatchers(
+                        "/api/v1/auth/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/actuator",
+                        "/actuator/**")
+                    .permitAll()
                     .requestMatchers("/api/v1/users/**")
                     .authenticated()
                     .requestMatchers(HttpMethod.PUT, "/api/v1/users/*")
@@ -66,7 +66,7 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(exceptionHandlerFilter, JwtAuthFilter.class);
+        .addFilterBefore(exceptionHandlerFilter, JwtAuthFilter.class);
 
     return http.build();
   }

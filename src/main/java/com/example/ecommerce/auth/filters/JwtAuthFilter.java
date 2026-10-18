@@ -39,11 +39,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-      if (authHeader == null || authHeader.isBlank()) {
-          filterChain.doFilter(request, response);
-          return;
-      }
-      String tokenValue = TokenExtractor.extract(request.getHeader(HttpHeaders.AUTHORIZATION));
+    if (authHeader == null || authHeader.isBlank()) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+    String tokenValue = TokenExtractor.extract(request.getHeader(HttpHeaders.AUTHORIZATION));
 
     Claims payload;
     try {
@@ -75,15 +75,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String path = request.getServletPath();
 
-        return path.startsWith("/api/v1/auth/")
-                || path.startsWith("/actuator/")
-                || path.equals("/actuator")
-                || path.startsWith("/swagger-ui/")
-                || path.equals("/swagger-ui.html")
-                || path.startsWith("/v3/api-docs/");
-    }
+    return path.startsWith("/api/v1/auth/")
+        || path.startsWith("/actuator/")
+        || path.equals("/actuator")
+        || path.startsWith("/swagger-ui/")
+        || path.equals("/swagger-ui.html")
+        || path.startsWith("/v3/api-docs/");
+  }
 }

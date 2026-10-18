@@ -13,10 +13,6 @@ public enum UserSortCriteria implements SortCriterion {
     this.attributeName = attributeName;
   }
 
-  @Override
-  public String getDefaultValue() {
-    return ID.toString();
-  }
 
   public String getAttributeName() {
     return attributeName;

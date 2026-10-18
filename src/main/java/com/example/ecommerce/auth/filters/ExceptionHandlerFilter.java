@@ -12,7 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Component
-public class ExceptionHandlerFilter extends  OncePerRequestFilter  {
+public class ExceptionHandlerFilter extends OncePerRequestFilter {
   private final ObjectProvider<HandlerExceptionResolver> resolverProvider;
 
   public ExceptionHandlerFilter(
@@ -20,7 +20,6 @@ public class ExceptionHandlerFilter extends  OncePerRequestFilter  {
           ObjectProvider<HandlerExceptionResolver> resolverProvider) {
     this.resolverProvider = resolverProvider;
   }
-
 
   @Override
   protected void doFilterInternal(
