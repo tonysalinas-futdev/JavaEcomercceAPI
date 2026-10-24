@@ -57,9 +57,9 @@ public class AdminControllers {
       @RequestParam(required = false, defaultValue = "0") Integer page,
       @RequestParam(required = false, defaultValue = "10") Integer items,
       @RequestParam(required = false, defaultValue = "true") Boolean ascending,
-      @RequestParam(required = false, defaultValue = "id") UserSortCriteria userSortCriteria) {
+      @RequestParam(required = false) UserSortCriteria userSortCriteria) {
     PaginationCriteria<UserSortCriteria> paginationCriteria =
-        new PaginationCriteria<>(page, items, userSortCriteria, ascending);
+        new PaginationCriteria<>(page, items, userSortCriteria != null ? userSortCriteria : UserSortCriteria.ID, ascending);
     return ResponseEntity.status(200).body(queryService.getAllUsers(paginationCriteria));
   }
 

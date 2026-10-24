@@ -49,10 +49,10 @@ public class ProductController {
       @RequestParam(required = false, defaultValue = "0") Integer page,
       @RequestParam(required = false, defaultValue = "10") Integer size,
       @RequestParam(required = false, defaultValue = "true") Boolean ascending,
-      @RequestParam(required = false, defaultValue = "id")
+      @RequestParam(required = false)
           ProductSortCriteria productSortCriteria) {
     PaginationCriteria<ProductSortCriteria> paginationCriteria =
-        new PaginationCriteria<>(page, size, productSortCriteria, ascending);
+        new PaginationCriteria<>(page, size,  productSortCriteria != null ? productSortCriteria: ProductSortCriteria.ID, ascending);
 
     return ResponseEntity.status(200).body(productService.getAllProducts(paginationCriteria));
   }
@@ -85,15 +85,14 @@ public class ProductController {
   public ResponseEntity<Page<ProductListDTO>> searchProducts(
       @RequestParam(required = false) Double minPrice,
       @RequestParam(required = false) Double maxPrice,
-      @RequestParam(required = false, defaultValue = "0") Long categoryId,
+      @RequestParam(required = false) Long categoryId,
       @RequestParam(required = false, defaultValue = "0") Integer page,
-      @RequestParam(required = false, defaultValue = "0") String name,
+      @RequestParam(required = false) String name,
       @RequestParam(required = false, defaultValue = "10") Integer items,
       @RequestParam(required = false, defaultValue = "true") Boolean ascending,
       @RequestParam(required = false) ProductSortCriteria productSortCriteria) {
-    ThreadContext.putAll(Map.of("use_case", "search_products", "entity", "product"));
     PaginationCriteria<ProductSortCriteria> paginationCriteria =
-        new PaginationCriteria<>(page, items, productSortCriteria, ascending);
+        new PaginationCriteria<>(page, items, productSortCriteria != null ? productSortCriteria: ProductSortCriteria.ID, ascending);
     SearchProductDTO searchProductDTO =
         new SearchProductDTO(name, minPrice, maxPrice, categoryId, paginationCriteria);
     return ResponseEntity.ok(productService.searchProducts(searchProductDTO));
