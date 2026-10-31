@@ -15,5 +15,4 @@ public enum OrderPaginationCriteria implements SortCriterion {
   OrderPaginationCriteria(String attributeName) {
     this.attributeName = attributeName;
   }
-
 }

@@ -17,8 +17,6 @@ public enum ProductSortCriteria implements SortCriterion {
     this.attributeName = attributeName;
   }
 
-
-
   @Override
   public String getAttributeName() {
     return attributeName;

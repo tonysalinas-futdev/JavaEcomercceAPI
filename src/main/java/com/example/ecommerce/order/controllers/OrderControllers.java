@@ -42,7 +42,11 @@ public class OrderControllers {
       @PathVariable OrderStatus status) {
 
     PaginationCriteria<OrderPaginationCriteria> orderPaginationCriteria =
-        new PaginationCriteria<>(page, size, paginationCriteria != null ? paginationCriteria : OrderPaginationCriteria.ID, ascending);
+        new PaginationCriteria<>(
+            page,
+            size,
+            paginationCriteria != null ? paginationCriteria : OrderPaginationCriteria.ID,
+            ascending);
     return ResponseEntity.ok(service.findByStatus(status, orderPaginationCriteria));
   }
 
@@ -56,7 +60,11 @@ public class OrderControllers {
       @PathVariable Long userId) {
 
     PaginationCriteria<OrderPaginationCriteria> orderPaginationCriteria =
-        new PaginationCriteria<>(page, size, paginationCriteria != null ? paginationCriteria : OrderPaginationCriteria.ID, ascending);
+        new PaginationCriteria<>(
+            page,
+            size,
+            paginationCriteria != null ? paginationCriteria : OrderPaginationCriteria.ID,
+            ascending);
     return ResponseEntity.ok(service.findAllUserOrders(userId, orderPaginationCriteria));
   }
 

@@ -35,7 +35,6 @@ public class RedisConfig {
     mapper.setVisibility(PropertyAccessor.ALL, Visibility.ANY);
     mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, DefaultTyping.NON_FINAL);
     return new GenericJackson2JsonRedisSerializer(mapper);
-
   }
 
   @Bean

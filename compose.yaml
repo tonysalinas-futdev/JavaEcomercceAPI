@@ -70,7 +70,32 @@ services:
     networks:
       - postgres
       - redis
+      -
 
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: grafana-alloy-spring
+    env_file:
+      - ./docker-config/alloy/.env
+    volumes:
+      - ./docker-config/alloy/config.alloy:/etc/alloy/config.alloy
+      - alloy_data:/var/lib/alloy
+    ports:
+      - "4317:4317"   # OTEL gRPC
+      - "4318:4318"   # OTEL HTTP
+      - "9999:9999"   # Pyroscope HTTP
+      - "12345:12345" # Alloy HTTP
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:12345/-/healthy" ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
 
 volumes:
   redis_data:
