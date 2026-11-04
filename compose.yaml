@@ -1,6 +1,6 @@
 services:
   redis:
-    image: redis:${REDIS_VERSION:latest}
+    image: redis:${REDIS_VERSION:-latest}
     container_name: ecomercce-redis
     ports:
       - "${REDIS_PORT:-6379}:6379"
@@ -37,8 +37,6 @@ services:
       - postgres
 
   application:
-    ports:
-      - "8080:8080"
     container_name: ecommerce-container
     build:
       context: .
@@ -50,12 +48,17 @@ services:
       redis:
         condition: service_healthy
 
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
     env_file:
       - .env
     environment:
         REDIS_HOST: redis
         DATABASE_HOST: postgres
-        ACTIVE_PROFILE: ${ACTIVE_PROFILE:dev}
+        ACTIVE_PROFILE: ${ACTIVE_PROFILE:-dev}
 
 
     healthcheck:
@@ -70,8 +73,29 @@ services:
     networks:
       - postgres
       - redis
-      -
 
+
+
+
+
+  grafana:
+      image: grafana/grafana
+      container_name: grafana
+      ports:
+        - '3000:3000'
+      volumes:
+        - grafana-storage:/var/lib/grafana
+        - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+
+
+      healthcheck:
+        test: [
+            "CMD-SHELL",
+            "curl -f http://localhost:3000/api/health || exit 1"
+          ]
+        interval: 10s
+        timeout: 20s
+        retries: 5
 
   alloy:
     image: grafana/alloy:latest
@@ -97,9 +121,29 @@ services:
       timeout: 30s
       retries: 5
 
+
+  loki:
+    image: grafana/loki:main-dbc7ebc
+    container_name: grafana-loki
+    command:
+      - -config.file=/etc/loki/loki-config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./docker-config/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki_data:/loki
+
+
+
+
 volumes:
   redis_data:
   pg_data:
+  otel_lgtm_data:
+  grafana-storage:
+  alloy_data:
+  loki_data:
+
 
 networks:
   postgres:

@@ -8,6 +8,10 @@ appenders:
     JsonTemplateLayout:
       eventTemplateUri:
         "classpath:EcsLayout.json"
+  OpenTelemetry:
+    name: OpenTelemetryAppender
+    captureContextDataAttributes: "*"
+
 
 loggers:
   logger:
@@ -26,4 +30,6 @@ loggers:
   root:
     level: info
     AppenderRef:
-      ref: Console
+      - ref: Console
+      - ref: OpenTelemetryAppender
+

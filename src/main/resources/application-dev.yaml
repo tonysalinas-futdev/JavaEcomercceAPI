@@ -56,6 +56,7 @@ stripe:
 
 
 management:
+
   endpoints:
     web:
       exposure:
@@ -70,5 +71,23 @@ management:
         http.server:
           requests: true
 
+  opentelemetry:
+
+    logging:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/logs
+
+    resource-attributes:
+      service.version: 1.0.0
+      service.namespace: tony-java
+      deployment.environment: develop
+      service.instance.id: localhost
+
+
+
+
+
 logging:
   config: classpath:log4j2-dev.yaml
+
