@@ -71,19 +71,25 @@ management:
         http.server:
           requests: true
 
+  otlp:
+    metrics:
+      export:
+        url: ${METRICS_ENDPOINT}
+        enabled: true
+        step: 10s
+
   opentelemetry:
 
     logging:
       export:
         otlp:
-          endpoint: http://localhost:4318/v1/logs
+          endpoint: ${LOGS_ENDPOINT}
 
     resource-attributes:
       service.version: 1.0.0
       service.namespace: tony-java
       deployment.environment: develop
       service.instance.id: localhost
-
 
 
 

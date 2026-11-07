@@ -17,9 +17,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
-
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},

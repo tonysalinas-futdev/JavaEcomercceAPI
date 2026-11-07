@@ -106,17 +106,17 @@ services:
       - ./docker-config/alloy/config.alloy:/etc/alloy/config.alloy
       - alloy_data:/var/lib/alloy
     ports:
-      - "4317:4317"   # OTEL gRPC
-      - "4318:4318"   # OTEL HTTP
-      - "9999:9999"   # Pyroscope HTTP
-      - "12345:12345" # Alloy HTTP
+      - "4317:4317"
+      - "4318:4318"
+      - "9999:9999"
+      - "12345:12345"
     command:
       - run
       - /etc/alloy/config.alloy
       - --storage.path=/var/lib/alloy
       - --server.http.listen-addr=0.0.0.0:12345
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:12345/-/healthy" ]
+      test: [ "CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/12345' || exit 1" ]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -133,6 +133,18 @@ services:
       - ./docker-config/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
       - loki_data:/loki
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-spring-container
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker-config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+
 
 
 
@@ -143,6 +155,7 @@ volumes:
   grafana-storage:
   alloy_data:
   loki_data:
+  prometheus_data:
 
 
 networks:

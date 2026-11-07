@@ -1,7 +1,5 @@
 package com.example.ecommerce;
 
-import io.opentelemetry.instrumentation.log4j.appender.v2_17.OpenTelemetryAppender;
-import io.opentelemetry.sdk.OpenTelemetrySdk;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
