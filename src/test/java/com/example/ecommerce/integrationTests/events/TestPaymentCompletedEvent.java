@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.example.ecommerce.cart.services.CartService;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.order.dtos.order.OrderAllDetailsDTO;
 import com.example.ecommerce.order.models.Order;
@@ -30,11 +31,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
+@Import(TestContainerConfig.class)
+
 @Transactional
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},

@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
 import com.example.ecommerce.auth.utils.JwtTokenProvider;
 import com.example.ecommerce.auth.utils.TokenExtractor;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.users.models.User;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 public class TestAuthUtils {

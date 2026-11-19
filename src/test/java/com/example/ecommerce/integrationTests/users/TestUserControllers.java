@@ -2,6 +2,7 @@ package com.example.ecommerce.integrationTests.users;
 
 import static org.hamcrest.Matchers.equalTo;
 
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.users.dtos.CreateUserDTO;
 import com.example.ecommerce.users.dtos.UpdateUserProfileDTO;
@@ -13,12 +14,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@Import(TestContainerConfig.class)
+
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)

@@ -3,6 +3,7 @@ package com.example.ecommerce.testServices;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.ecommerce.categories.model.Category;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.products.DTOs.CreateProductDTO;
 import com.example.ecommerce.products.DTOs.ProductDetailsDTO;
 import com.example.ecommerce.products.DTOs.ProductListDTO;
@@ -19,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,13 +28,15 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles("test")
+@Import(TestContainerConfig.class)
+@DirtiesContext()
 @Sql(
     scripts = {"/clean.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)
 public class TestProductService {
   @Autowired private ProductService service;
   @Autowired private ProductTestServiceHelper conftest;
+
 
   public CreateProductDTO buildCreateProductDtoHelper(
       String name, String description, String pic, Double price, Integer stock, Long categoryId) {

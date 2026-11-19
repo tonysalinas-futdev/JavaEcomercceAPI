@@ -7,6 +7,7 @@ import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.auth.service.TokenService;
 import com.example.ecommerce.auth.utils.JwtTokenProvider;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.shared.dtos.error.ErrorResponseDTO;
 import com.example.ecommerce.users.dtos.CreateUserDTO;
@@ -18,11 +19,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@Import(TestContainerConfig.class)
+
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)

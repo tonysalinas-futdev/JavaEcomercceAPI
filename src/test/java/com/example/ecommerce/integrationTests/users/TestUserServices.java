@@ -3,6 +3,7 @@ package com.example.ecommerce.integrationTests.users;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.example.ecommerce.auth.dtos.SignUpDTO;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.users.dtos.UpdateUserDTO;
 import com.example.ecommerce.users.dtos.UserDetailsDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
@@ -17,13 +18,15 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
-@ActiveProfiles("test")
-@Transactional
+@Import(TestContainerConfig.class)
+@DirtiesContext()
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)

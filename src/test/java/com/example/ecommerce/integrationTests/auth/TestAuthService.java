@@ -7,6 +7,7 @@ import com.example.ecommerce.auth.dtos.LoginDTO;
 import com.example.ecommerce.auth.dtos.SignUpDTO;
 import com.example.ecommerce.auth.service.AuthService;
 import com.example.ecommerce.auth.utils.JwtTokenParser;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.users.dtos.CreateUserDTO;
 import com.example.ecommerce.users.enums.RoleEnum;
 import com.example.ecommerce.users.models.User;
@@ -19,12 +20,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
+@Import(TestContainerConfig.class)
+
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)

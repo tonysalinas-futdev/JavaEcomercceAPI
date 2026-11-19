@@ -7,12 +7,6 @@ spring:
       - optional:file:.../../.env[.properties]
       - optional:file:./.env[.properties]
 
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DATABASE_TEST_NAME:ecommerce_test_db}
-    username: ${DATABASE_USERNAME:user}
-    password: ${DATABASE_PASSWORD:admin}
-
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -49,6 +43,7 @@ spring:
           starttls:
             enable: true
 
+
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
@@ -59,3 +54,4 @@ stripe:
 
 logging:
   config: classpath:log4j2-test.yaml
+

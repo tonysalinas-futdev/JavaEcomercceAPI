@@ -3,6 +3,7 @@ package com.example.ecommerce.integrationTests.order;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.example.ecommerce.cart.services.CartService;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.order.dtos.order.OrderAllDetailsDTO;
 import com.example.ecommerce.order.dtos.order.OrderListDTO;
@@ -21,12 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
+@Import(TestContainerConfig.class)
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_CLASS)

@@ -6,15 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.example.ecommerce.auth.model.Token;
 import com.example.ecommerce.auth.service.TokenService;
 import com.example.ecommerce.auth.utils.JwtTokenProvider;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.users.models.User;
 import com.example.ecommerce.users.services.UserQueryService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@Import(TestContainerConfig.class)
+
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)

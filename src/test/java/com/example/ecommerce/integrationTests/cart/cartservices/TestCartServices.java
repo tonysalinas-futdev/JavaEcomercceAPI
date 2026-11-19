@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.ecommerce.cart.models.Cart;
 import com.example.ecommerce.cart.services.CartService;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.integrationTests.globalconftest.GlobalConftest;
 import com.example.ecommerce.products.model.Product;
 import com.example.ecommerce.products.services.ProductService;
@@ -16,11 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
+@Import(TestContainerConfig.class)
 @Transactional
 @Sql(
     scripts = {"/clean.sql", "/data.sql"},

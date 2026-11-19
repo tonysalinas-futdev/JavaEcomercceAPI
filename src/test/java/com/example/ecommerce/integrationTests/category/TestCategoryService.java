@@ -6,6 +6,7 @@ import com.example.ecommerce.categories.categoryDTOs.UpdateCategoryDTO;
 import com.example.ecommerce.categories.model.Category;
 import com.example.ecommerce.categories.repository.CategoryRepository;
 import com.example.ecommerce.categories.service.CategoryService;
+import com.example.ecommerce.config.containers.TestContainerConfig;
 import com.example.ecommerce.products.DTOs.CreateProductDTO;
 import com.example.ecommerce.products.services.ProductService;
 import com.example.ecommerce.shared.exceptions.AlreadyExistsException;
@@ -14,15 +15,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest
+@Import(TestContainerConfig.class)
 @Sql(
     scripts = {"/clean.sql"},
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class TestCategoryService {
   @Autowired private CategoryService service;
-  @Autowired private CategoryRepository repo;
   @Autowired private ProductService productService;
 
   @Test
